@@ -1,0 +1,1 @@
+Download the SMPL checkpoints here
