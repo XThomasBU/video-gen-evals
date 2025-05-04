@@ -1,1 +1,1 @@
-Minimist Evaluator Class that inherts and implemnts various evaluation metrics -- Get all eval metrics by just an eval_metrics.eval(`video`, config) call
+Minimalist Evaluator class that inherits and implements various evaluation metrics — get all evaluation metrics with just an evaluator.evaluate(generated_video, reference_video, config) call.
