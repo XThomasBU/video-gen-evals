@@ -54,10 +54,10 @@ def main(args):
         image_path = f"saved_data/hacs/{video_id}/selected_frames/frame_00001.png"
 
         if args.model == "cogvideox":
-            config["image"] = load_image(image_path)
+            image = load_image(image_path)
         else:
-            config["image"] = image_path
-            
+            image  = image_path
+
         config["prompt"] = prompt
 
         config["output_dir"] = os.path.join("saved_data", "hacs", video_id, "generated_videos")
@@ -67,8 +67,9 @@ def main(args):
         print(f"Output directory: {config['output_dir']}")
 
         generator.generate(
+            image = image,
             config=config
-        )
+        ) # FIXME: Fix the FPS!!!!!
 
     
 if __name__ == "__main__":

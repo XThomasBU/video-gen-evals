@@ -34,14 +34,13 @@ class BaseHFVideoGenerator:
         os.makedirs(run_dir, exist_ok=True)
         return run_dir
 
-    def generate(self, config: dict):
+    def generate(self, image, config: dict):
         if self.pipe is None:
             self.load_model()
             self.optimize_pipeline()
 
         # Extract only what's relevant for this model
         prompt = config["prompt"]
-        image = config["image"]  # Already a tensor or PIL.Image
         num_frames = config.get("num_frames", 24)
         num_inference_steps = config.get("num_inference_steps", 50)
         guidance_scale = config.get("guidance_scale", 7)

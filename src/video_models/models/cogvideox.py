@@ -27,7 +27,6 @@ if __name__ == "__main__":
 
     config = {
         "prompt": prompt,
-        "image": image,
         "num_frames": 49,
         "num_inference_steps": 50,
         "guidance_scale": 6,
@@ -37,5 +36,6 @@ if __name__ == "__main__":
     }
 
     video_frames, video_path, frame_dir = generator.generate(
+        image=image,
         config=config
     )
