@@ -43,18 +43,23 @@ pip install -r requirements.txt
 python data/hacs/download_videos.py
 ```
 
+Downloaded videos are saved to `saved_data/hacs/{youtube_id}`.
+- **Note**: The first frame of each clip is saved as `saved_data/hacs/{youtube_id}/selected_frames/00000.jpg`.
+- **Note**: The first frame of each clip is used as the conditioning frame for video generation.
+- **Note**: `saved_data/hacs/{youtube_id}/metadata.json` contains the metadata for each clip (fps, action --> which can be used for the prompt, etc.).
+
 ---
 
 ## Sanity Checks
 
 **Video generation test**
 ```bash
-python src/video_models/models/cogvideox.py
+python -m src.video_models.models.cogvideox
 ```
 
 Add Runway API to a .env file as `RUNWAYML_API_SECRET=XXXXXXXX`.
 ```bash
-python src/video_models/models/runway.py
+python -m src.video_models.models.runway
 ```
 
 
