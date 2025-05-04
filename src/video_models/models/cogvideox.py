@@ -1,7 +1,7 @@
 import torch
 from diffusers import CogVideoXImageToVideoPipeline
 from diffusers.utils import load_image
-from .base import BaseHFVideoGenerator
+from base import BaseHFVideoGenerator
 
 class CogVideoXGenerator(BaseHFVideoGenerator):
     def load_model(self):
@@ -32,5 +32,6 @@ if __name__ == "__main__":
         num_inference_steps=50,
         guidance_scale=6,
         fps=8,
-        seed=42
+        seed=42,
+        output_dir="saved_data/cogvideox"
     )

@@ -65,3 +65,8 @@ python src/human_mesh/TokenHMR/tokenhmr/demo.py \
     --full_frame \
     --out_folder saved_data/demo_results
 ```
+
+To check if video generative models are working correctly, run the following command:
+```bash
+python src/video_models/models/cogvideox.py
+```

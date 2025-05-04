@@ -33,7 +33,8 @@ class BaseHFVideoGenerator:
         num_inference_steps=50,
         guidance_scale=7,
         fps=8,
-        seed=42
+        seed=42,
+        output_dir=None,
     ):
         if self.pipe is None:
             self.load_model()
@@ -53,8 +54,12 @@ class BaseHFVideoGenerator:
 
         video_frames = result.frames[0]
 
-        # Create unique output directory
-        run_dir = self._create_unique_output_dir()
+        if output_dir is not None:
+            # Create unique output directory
+            run_dir = self._create_unique_output_dir()
+        else:
+            run_dir = output_dir
+            os.makedirs(run_dir, exist_ok=True)
 
         # Save frames
         frame_dir = os.path.join(run_dir, "frames")
