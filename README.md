@@ -5,7 +5,7 @@
   - Models are located in: `src/video_models/models/`
 - **human_mesh/**: Contains code for extracting 3D human pose and mesh information.
 - **eval_metrics/**: Contains code for computing evaluation metrics.
-- **motion_tracking/**: Contains code for motion quality tracking (physics-IQ, VAMP, TRAJAN, etc.).
+- **motion_tracking/**: Contains code for motion quality tracking (physics-IQ, VAMP, TRAJAN (Direct Motion Models for Assessing Generated Videos), etc.).
 - **semantic_tracking/**: Contains code for semantic tracking (e.g., semantic context, physical plausibility, action recognition, MLLM-based approaches, etc.).
 
 
