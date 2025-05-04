@@ -47,6 +47,12 @@ python data/hacs/download_videos.py
 python src/video_models/models/cogvideox.py
 ```
 
+Add Runway API to a .env file as `RUNWAYML_API_SECRET=XXXXXXXX`.
+```bash
+python src/video_models/models/runway.py
+```
+
+
 **TokenHMR test**
 ```bash
 python src/human_mesh/TokenHMR/tokenhmr/demo.py \
