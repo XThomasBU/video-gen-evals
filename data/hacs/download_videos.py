@@ -7,7 +7,15 @@ import json
 
 
 class YouTubeVideoProcessor:
-    def __init__(self, youtube_id, output_dir, start_frame=None, end_frame=None, action=None, fps=None):
+    def __init__(
+        self,
+        youtube_id,
+        output_dir,
+        start_frame=None,
+        end_frame=None,
+        action=None,
+        fps=None,
+    ):
         self.youtube_id = youtube_id
         self.output_dir = output_dir
         self.start_frame = start_frame

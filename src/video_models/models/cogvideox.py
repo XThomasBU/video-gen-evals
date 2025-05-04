@@ -35,7 +35,4 @@ if __name__ == "__main__":
         "output_dir": "saved_data/cogvideox",
     }
 
-    video_frames, video_path, frame_dir = generator.generate(
-        image=image,
-        config=config
-    )
+    video_frames, video_path, frame_dir = generator.generate(image=image, config=config)
