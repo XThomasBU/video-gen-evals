@@ -98,7 +98,7 @@ saved_data/
 
 ---
 
-Example Directory Structure (saved_data/hacs/x_gEdkM6kwE/)
+### Example Directory Structure (saved_data/hacs/x_gEdkM6kwE/): Inside the directory of each video clip:
 
 `full_frames/` → Contains the full frames of the video clip (from the downloaded video).  
 `selected_frames/` → Selected frames based on the HACS CSV.  
