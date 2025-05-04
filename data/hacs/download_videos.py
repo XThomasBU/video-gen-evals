@@ -1,11 +1,10 @@
 import os
 import subprocess
 import shutil
-import time
 import imageio
 import numpy as np
-import pandas as pd
 import json
+
 
 class YouTubeVideoProcessor:
     def __init__(self, youtube_id, output_dir, start_frame=None, end_frame=None):
@@ -18,7 +17,9 @@ class YouTubeVideoProcessor:
         self.selected_frames_dir = os.path.join(output_dir, "selected_frames")
         self.video_path = os.path.join(output_dir, f"{youtube_id}.mp4")
         self.full_video_path = os.path.join(output_dir, f"{youtube_id}_full.mp4")
-        self.selected_video_path = os.path.join(output_dir, f"{youtube_id}_selected.mp4")
+        self.selected_video_path = os.path.join(
+            output_dir, f"{youtube_id}_selected.mp4"
+        )
         self.metadata_path = os.path.join(output_dir, "metadata.json")
 
         self._prepare_folders()
@@ -83,11 +84,25 @@ class YouTubeVideoProcessor:
         return num / den
 
     @staticmethod
+    def _get_duration(video_path):
+        cmd = [
+            "ffprobe",
+            "-v",
+            "error",
+            "-show_entries",
+            "format=duration",
+            "-of",
+            "default=noprint_wrappers=1:nokey=1",
+            video_path,
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return float(result.stdout.strip())
+
+    @staticmethod
     def _load_frames_from_folder(folder, start_idx=None, end_idx=None):
         frame_files = sorted([f for f in os.listdir(folder) if f.endswith(".png")])
         if start_idx is not None and end_idx is not None:
             frame_files = frame_files[start_idx - 1 : end_idx]  # 1-indexed
-
         frames = []
         for f in frame_files:
             img = imageio.imread(os.path.join(folder, f))
@@ -103,14 +118,15 @@ class YouTubeVideoProcessor:
             writer.append_data(frame)
         writer.close()
 
-    def _save_metadata(self, fps, total_frames, selected_frames=None):
+    def _save_metadata(self, fps, duration, total_frames, selected_frames=None):
         metadata = {
             "youtube_id": self.youtube_id,
             "fps": fps,
+            "duration_seconds": duration,
             "total_frames": total_frames,
             "start_frame": self.start_frame,
             "end_frame": self.end_frame,
-            "selected_frame_count": selected_frames if selected_frames else 0
+            "selected_frame_count": selected_frames if selected_frames else 0,
         }
         with open(self.metadata_path, "w") as f:
             json.dump(metadata, f, indent=4)
@@ -121,14 +137,17 @@ class YouTubeVideoProcessor:
         self.extract_frames()
 
         fps = self._get_fps(self.video_path)
-        print(f"Video FPS: {fps:.3f}")
+        duration = self._get_duration(self.video_path)
+        total_frames = int(np.ceil(duration * fps))
+
+        print(
+            f"FPS: {fps:.3f}, Duration: {duration:.2f}s, Expected total frames: {total_frames}"
+        )
 
         print("Loading all frames...")
         all_frames = self._load_frames_from_folder(self.full_frames_dir)
-        total_frames = all_frames.shape[0]
-        print(f"Total frames extracted: {total_frames}")
 
-        print("Saving full video...")
+        print(f"Saving full video with {len(all_frames)} frames...")
         self._save_video_imageio(all_frames, self.full_video_path, fps=fps)
 
         selected_frame_count = 0
@@ -140,7 +159,7 @@ class YouTubeVideoProcessor:
             )
             selected_frame_count = selected_frames.shape[0]
 
-            print("Saving selected video...")
+            print(f"Saving selected video with {selected_frame_count} frames...")
             self._save_video_imageio(selected_frames, self.selected_video_path, fps=fps)
 
             print("Saving selected frames as images...")
@@ -151,9 +170,7 @@ class YouTubeVideoProcessor:
                 )
                 imageio.imwrite(save_path, frame)
 
-        # Save metadata
-        self._save_metadata(fps, total_frames, selected_frame_count)
-
+        self._save_metadata(fps, duration, total_frames, selected_frame_count)
         print("Processing complete.")
 
 
@@ -172,25 +189,22 @@ if __name__ == "__main__":
         output_dir = os.path.join("saved_data", "hacs", youtube_id)
         print(f"Downloading video ID: {youtube_id} | Time: {start_sec}-{end_sec} sec")
 
-        # First, download video and extract FPS
-        processor = YouTubeVideoProcessor(
-            youtube_id=youtube_id,
-            output_dir=output_dir
-        )
+        processor = YouTubeVideoProcessor(youtube_id=youtube_id, output_dir=output_dir)
         processor.download_video()
 
         fps = processor._get_fps(processor.video_path)
-        start_frame = int(start_sec * fps) + 1  # add 1 to match 1-indexing
-        end_frame = int(end_sec * fps) + 1
+        duration = processor._get_duration(processor.video_path)
+
+        start_frame = int(np.floor(start_sec * fps)) + 1
+        end_frame = int(np.ceil(end_sec * fps))
 
         print(f"Computed frame range: {start_frame} to {end_frame} at {fps:.2f} FPS")
 
-        # Create processor again with frame range
         processor = YouTubeVideoProcessor(
             youtube_id=youtube_id,
             output_dir=output_dir,
             start_frame=start_frame,
-            end_frame=end_frame
+            end_frame=end_frame,
         )
         processor.process()
 

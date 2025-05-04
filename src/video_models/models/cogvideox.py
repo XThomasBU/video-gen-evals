@@ -3,11 +3,11 @@ from diffusers import CogVideoXImageToVideoPipeline
 from diffusers.utils import load_image
 from base import BaseHFVideoGenerator
 
+
 class CogVideoXGenerator(BaseHFVideoGenerator):
     def load_model(self):
         self.pipe = CogVideoXImageToVideoPipeline.from_pretrained(
-            self.model_name_or_path,
-            torch_dtype=self.dtype
+            self.model_name_or_path, torch_dtype=self.dtype
         )
         self.pipe.to("cuda")
 
@@ -16,13 +16,13 @@ class CogVideoXGenerator(BaseHFVideoGenerator):
         self.pipe.vae.enable_tiling()
         self.pipe.vae.enable_slicing()
 
+
 if __name__ == "__main__":
     prompt = "A man doing a discuss throw"
     image = load_image("data/demo/discuss_freeze_frame.png")
 
     generator = CogVideoXGenerator(
-        model_name_or_path="THUDM/CogVideoX-5b-I2V",
-        dtype=torch.bfloat16
+        model_name_or_path="THUDM/CogVideoX-5b-I2V", dtype=torch.bfloat16
     )
 
     video_frames, video_path, frame_dir = generator.generate(
@@ -33,5 +33,5 @@ if __name__ == "__main__":
         guidance_scale=6,
         fps=8,
         seed=42,
-        output_dir="saved_data/cogvideox"
+        output_dir="saved_data/cogvideox",
     )

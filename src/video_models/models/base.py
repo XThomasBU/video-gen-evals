@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 import json
 
+
 class BaseHFVideoGenerator:
     def __init__(self, model_name_or_path, dtype=torch.float16, output_root="outputs"):
         self.model_name_or_path = model_name_or_path
@@ -12,10 +13,7 @@ class BaseHFVideoGenerator:
         self.output_root = output_root
         os.makedirs(self.output_root, exist_ok=True)
 
-        self.metadata = {
-            "model_name": model_name_or_path,
-            "output_root": output_root
-        }
+        self.metadata = {"model_name": model_name_or_path, "output_root": output_root}
 
     def load_model(self):
         """Override in subclass to load the specific Hugging Face pipeline."""
@@ -92,6 +90,5 @@ class BaseHFVideoGenerator:
         with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=4)
         print(f"Metadata saved to {metadata_path}")
-
 
         return video_frames, video_path, frame_dir

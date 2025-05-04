@@ -1,0 +1,7 @@
+[tool.black]
+exclude = '''
+(
+   src/human_mesh/TokenHMR
+)
+'''
+line-length = 88
