@@ -125,7 +125,7 @@ class BaseRunwayVideoGenerator:
 
         prompt = config["prompt"]
         image_path = config["image_path"]
-        fps = config.get("fps", 8)
+        # fps = config.get("fps", 8)
         output_dir = config.get("output_dir", None)
 
         prompt_image = self._convert_image_to_data_uri(image_path)

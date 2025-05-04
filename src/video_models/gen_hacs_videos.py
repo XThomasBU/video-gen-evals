@@ -10,13 +10,16 @@ from diffusers.utils import load_image
 
 HACS_DIR = "saved_data/hacs"
 
+
 def main(args):
 
     if args.model == "cogvideox":
-        generator = CogVideoXGenerator(model_name_or_path="THUDM/CogVideoX-5b-I2V", dtype=torch.bfloat16)
+        generator = CogVideoXGenerator(
+            model_name_or_path="THUDM/CogVideoX-5b-I2V", dtype=torch.bfloat16
+        )
         config = {
-            "prompt": 'placehlder',
-            "image": 'placehlder',
+            "prompt": "placehlder",
+            "image": "placehlder",
             "num_frames": 49,
             "num_inference_steps": 50,
             "guidance_scale": 6,
@@ -26,7 +29,7 @@ def main(args):
         }
     elif args.model == "runway_gen4_turbo":
         generator = RunwayGen4TurboGenerator(model_name="gen4_turbo")
-        config = {} # TODO: Add config for RunwayGen4TurboGenerator
+        config = {}  # TODO: Add config for RunwayGen4TurboGenerator
     else:
         raise ValueError("Invalid model choice")
 
@@ -56,22 +59,21 @@ def main(args):
         if args.model == "cogvideox":
             image = load_image(image_path)
         else:
-            image  = image_path
+            image = image_path
 
         config["prompt"] = prompt
 
-        config["output_dir"] = os.path.join("saved_data", "hacs", video_id, f"generated_videos_{args.model}")
+        config["output_dir"] = os.path.join(
+            "saved_data", "hacs", video_id, f"generated_videos_{args.model}"
+        )
         os.makedirs(config["output_dir"], exist_ok=True)
         print(f"Generating video for {video_id} with prompt: {prompt}")
         print(f"Image path: {image_path}")
         print(f"Output directory: {config['output_dir']}")
 
-        generator.generate(
-            image = image,
-            config=config
-        ) # FIXME: Fix the FPS!!!!!
+        generator.generate(image=image, config=config)  # FIXME: Fix the FPS!!!!!
 
-    
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate HACS videos")
     parser.add_argument(
