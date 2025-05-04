@@ -30,6 +30,10 @@
   `data/hacs/files/filtered_hacs.json`  
 - **Usage**: First frame of each clip conditions the video generative models (The videos can also serve as reference for evaluation).
 
+- Populate `data/hacs/filtered_hacs.json` and run the following command to download the videos:   
+```bash
+python data/hacs/download_videos.py
+```
 ---
 
 ## 🎥 Video Generative Models
