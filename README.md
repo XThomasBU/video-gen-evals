@@ -20,7 +20,7 @@
 
 ---
 
-## 1️⃣ Installation
+## Installation
 
 ```bash
 conda create -n video_eval python=3.10
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 ---
 
-## 2️⃣ Download HACS Video Clips
+## Download HACS Video Clips
 
 List videos in `data/hacs/files/filtered_hacs.json`.
 
@@ -40,7 +40,7 @@ python data/hacs/download_videos.py
 
 ---
 
-## 3️⃣ Sanity Check
+## Sanity Checks
 
 **Video generation test**
 ```bash
@@ -68,9 +68,12 @@ python src/human_mesh/TokenHMR/tokenhmr/demo.py \
 
 ---
 
-## 4️⃣ Outputs
+## Outputs
 
 Generated videos and frames are saved to:
 ```
 saved_data/
+
+## Evalation metrics
+- TODO: Add evaluation metrics for video generation.
 ```
