@@ -1,4 +1,4 @@
-# Video Generation & Human Mesh Evaluation Framework
+# Base Temp Skeleton
 
 ## src/
 
@@ -28,7 +28,7 @@
   `data/hacs/download_videos.py`  
 - Video list:  
   `data/hacs/files/filtered_hacs.json`  
-- **Usage**: First frame of each clip conditions the video generative models (and can also serve as reference for evaluation).
+- **Usage**: First frame of each clip conditions the video generative models (The videos can also serve as reference for evaluation).
 
 ---
 
