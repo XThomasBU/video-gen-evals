@@ -28,12 +28,6 @@ conda activate video_eval
 pip install -r requirements.txt
 ```
 
-Optional (for TokenHMR):
-```bash
-cd src/human_mesh/TokenHMR
-bash install.sh
-```
-
 ---
 
 ## 2️⃣ Download HACS Video Clips
