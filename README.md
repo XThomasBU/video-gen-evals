@@ -73,7 +73,10 @@ python src/human_mesh/TokenHMR/tokenhmr/demo.py \
 Generated videos and frames are saved to:
 ```
 saved_data/
+```
+
+---
 
 ## Evalation metrics
 - TODO: Add evaluation metrics for video generation.
-```
+- Should be as simple as evaluator.evaluate(generated_video, reference_video, config)
