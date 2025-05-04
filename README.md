@@ -1,6 +1,6 @@
-# Base Temp Skeleton
+# Base Video + Human Mesh Evaluation Framework
 
-## src/
+## 📁 src/
 
 - **video_models/**  
   Contains all the video generative models.  
@@ -13,60 +13,47 @@
   Contains code for computing evaluation metrics.
 
 - **motion_tracking/**  
-  Contains code for motion quality tracking (physics-IQ, VAMP, TRAJAN — *Direct Motion Models for Assessing Generated Videos*, etc.).
+  Motion quality tracking (physics-IQ, VAMP, TRAJAN — *Direct Motion Models for Assessing Generated Videos*, etc.).
 
 - **semantic_tracking/**  
-  Contains code for semantic tracking (e.g., semantic context, physical plausibility, action recognition, MLLM-based approaches, etc.).
+  Semantic tracking (e.g., semantic context, physical plausibility, action recognition, MLLM-based approaches, etc.).
 
 ---
 
-## 📊 Data
+## 1️⃣ Installation
 
-**HACS (Human Action Clips and Segments)**  
-- 2-second video clips of human actions.  
-- Filtered videos downloaded using:  
-  `data/hacs/download_videos.py`  
-- Video list:  
-  `data/hacs/files/filtered_hacs.json`  
-- **Usage**: First frame of each clip conditions the video generative models (The videos can also serve as reference for evaluation).
+```bash
+conda create -n video_eval python=3.10
+conda activate video_eval
+pip install -r requirements.txt
+```
 
-- Populate `data/hacs/filtered_hacs.json` and run the following command to download the videos:   
+Optional (for TokenHMR):
+```bash
+cd src/human_mesh/TokenHMR
+bash install.sh
+```
+
+---
+
+## 2️⃣ Download HACS Video Clips
+
+List videos in `data/hacs/files/filtered_hacs.json`.
+
 ```bash
 python data/hacs/download_videos.py
 ```
----
-
-## 🎥 Video Generative Models
-
-- All open-source models are in:  
-  `src/video_models/models/`
-
-- Each model saves **generated videos and frames** to:  
-  `saved_data/`
 
 ---
 
-## 🕺 3D Human Pose & Mesh
+## 3️⃣ Sanity Check
 
-**TokenHMR**  
-- Follow installation instructions in: `src/human_mesh/TokenHMR/README.md`  
-- Update paths in: `src/human_mesh/TokenHMR/data/checkpoints/model_config.yaml`  
-- Extracts 3D human pose and mesh information.  
-- Code location: `src/human_mesh/`
+**Video generation test**
+```bash
+python src/video_models/models/cogvideox.py
+```
 
----
-
-## 📏 Evaluation Metrics
-
-- Code for computing metrics:  
-  `src/eval_metrics/`
-
----
-
-## 🧪 Sanity Checks
-
-### Test TokenHMR
-
+**TokenHMR test**
 ```bash
 python src/human_mesh/TokenHMR/tokenhmr/demo.py \
     --img_folder data/demo \
@@ -79,9 +66,11 @@ python src/human_mesh/TokenHMR/tokenhmr/demo.py \
     --out_folder saved_data/demo_results
 ```
 
-### Test Video generative models
+---
 
-To check if video generative models are working correctly, run the following command:
-```bash
-python src/video_models/models/cogvideox.py
+## 4️⃣ Outputs
+
+Generated videos and frames are saved to:
+```
+saved_data/
 ```
