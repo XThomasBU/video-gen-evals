@@ -1,4 +1,4 @@
-# Base Video + Human Mesh Evaluation Framework
+# Base Video Evaluation Framework
 
 ## 📁 src/
 
