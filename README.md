@@ -32,7 +32,12 @@ pip install -r requirements.txt
 
 ## Download HACS Video Clips
 
-List videos in `data/hacs/files/filtered_hacs.json`.
+**HACS (Human Action Clips and Segments)**
+
+- 2-second video clips of human actions.
+- Filtered videos downloaded using: `data/hacs/download_videos.py`.
+- Update list: `data/hacs/files/filtered_hacs.json`.
+- **Usage**: The first frame of each clip conditions the video generative models (and can also serve as reference for evaluation).
 
 ```bash
 python data/hacs/download_videos.py
