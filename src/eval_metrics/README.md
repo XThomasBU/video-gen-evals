@@ -1,0 +1,1 @@
+Minimist Evaluator Class that inherts and implemnts various evaluation metrics -- Get all eval metrics by just an eval_metrics.eval(`video`, config) call
