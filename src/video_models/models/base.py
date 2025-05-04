@@ -100,6 +100,7 @@ class BaseHFVideoGenerator:
 
         return video_frames, video_path, frame_dir
 
+
 class BaseRunwayVideoGenerator:
     def __init__(self, model_name, output_root="outputs"):
         self.model_name = model_name
@@ -112,7 +113,9 @@ class BaseRunwayVideoGenerator:
     def load_model(self):
         api_key = os.getenv("RUNWAYML_API_SECRET")
         if api_key is None:
-            raise ValueError("RUNWAYML_API_SECRET not found in environment variables or .env file")
+            raise ValueError(
+                "RUNWAYML_API_SECRET not found in environment variables or .env file"
+            )
         self.client = RunwayML(api_key=api_key)
 
     def _create_unique_output_dir(self):
@@ -163,13 +166,15 @@ class BaseRunwayVideoGenerator:
 
         # Save metadata
         metadata_path = os.path.join(run_dir, "metadata.json")
-        self.metadata.update({
-            "prompt": prompt,
-            "image_path": image_path,
-            "fps": fps,
-            "video_id": video_id,
-            "video_url": video_url,
-        })
+        self.metadata.update(
+            {
+                "prompt": prompt,
+                "image_path": image_path,
+                "fps": fps,
+                "video_id": video_id,
+                "video_url": video_url,
+            }
+        )
 
         with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=4)
