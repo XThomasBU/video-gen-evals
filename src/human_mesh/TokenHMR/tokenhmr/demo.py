@@ -55,7 +55,7 @@ def main():
     os.makedirs(args.out_folder, exist_ok=True)
 
     # Iterate over all images in folder
-    for img_path in tqdm.tqdm(sorted(Path(args.img_folder).glob('*'))):
+    for img_path in tqdm.tqdm(sorted(Path(args.img_folder).glob('*.png'))):
         print(f'Processing {img_path}..')
         img_cv2 = cv2.imread(str(img_path))
 
