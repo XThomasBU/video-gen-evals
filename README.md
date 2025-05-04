@@ -24,6 +24,7 @@
 ## 🕺 3D Human Pose & Mesh
 
 **TokenHMR**  
+- Follow installation instructions in: `src/human_mesh/TokenHMR/README.md`
 - Extracts 3D human pose and mesh information  
 - Code location:
   src/human_mesh/

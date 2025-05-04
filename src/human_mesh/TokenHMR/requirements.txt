@@ -1,5 +1,5 @@
 numpy==1.23.1
-# pytorch-lightning==1.8.1
+pytorch-lightning
 smplx==0.1.28
 pyrender==0.1.45
 opencv-python
