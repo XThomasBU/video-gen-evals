@@ -23,11 +23,9 @@ class BaseHFVideoGenerator:
         self.metadata = {"model_name": model_name_or_path, "output_root": output_root}
 
     def load_model(self):
-        """Override in subclass to load the specific Hugging Face pipeline."""
         raise NotImplementedError
 
     def optimize_pipeline(self):
-        """Optional: Override if the pipeline supports tiling, slicing, etc."""
         pass
 
     def _create_unique_output_dir(self):
@@ -36,20 +34,20 @@ class BaseHFVideoGenerator:
         os.makedirs(run_dir, exist_ok=True)
         return run_dir
 
-    def generate(
-        self,
-        prompt,
-        image,
-        num_frames=24,
-        num_inference_steps=50,
-        guidance_scale=7,
-        fps=8,
-        seed=42,
-        output_dir=None,
-    ):
+    def generate(self, config: dict):
         if self.pipe is None:
             self.load_model()
             self.optimize_pipeline()
+
+        # Extract only what's relevant for this model
+        prompt = config["prompt"]
+        image = config["image"]  # Already a tensor or PIL.Image
+        num_frames = config.get("num_frames", 24)
+        num_inference_steps = config.get("num_inference_steps", 50)
+        guidance_scale = config.get("guidance_scale", 7)
+        fps = config.get("fps", 8)
+        seed = config.get("seed", 42)
+        output_dir = config.get("output_dir", None)
 
         generator = torch.Generator(device="cuda").manual_seed(seed)
 
@@ -65,37 +63,24 @@ class BaseHFVideoGenerator:
 
         video_frames = result.frames[0]
 
-        if output_dir is None:
-            # Create unique output directory
-            run_dir = self._create_unique_output_dir()
-        else:
-            run_dir = output_dir
-            os.makedirs(run_dir, exist_ok=True)
+        run_dir = output_dir or self._create_unique_output_dir()
+        os.makedirs(run_dir, exist_ok=True)
 
-        # Save frames
         frame_dir = os.path.join(run_dir, "frames")
         os.makedirs(frame_dir, exist_ok=True)
         for i, frame in enumerate(video_frames):
             frame.save(os.path.join(frame_dir, f"frame_{i:04d}.png"))
 
-        # Save video
         video_path = os.path.join(run_dir, "video.mp4")
         export_to_video(video_frames, video_path, fps=fps)
 
-        print(f"Video saved to {video_path}")
-        print(f"Frames saved to {frame_dir}")
-
-        # save metadata file
+        # Save metadata
         metadata_path = os.path.join(run_dir, "metadata.json")
-        self.metadata["prompt"] = prompt
-        self.metadata["num_frames"] = num_frames
-        self.metadata["num_inference_steps"] = num_inference_steps
-        self.metadata["guidance_scale"] = guidance_scale
-        self.metadata["fps"] = fps
-        self.metadata["seed"] = seed
-
+        self.metadata.update(config)
         with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=4)
+
+        print(f"Video saved to {video_path}")
         print(f"Metadata saved to {metadata_path}")
 
         return video_frames, video_path, frame_dir
@@ -126,9 +111,8 @@ class BaseRunwayVideoGenerator:
 
     def _convert_image_to_data_uri(self, path):
         if path.startswith("http://") or path.startswith("https://"):
-            return path  # Already a URL, no change
+            return path
         else:
-            # Local file -> data URI
             with Image.open(path) as img:
                 buffered = BytesIO()
                 img.save(buffered, format="PNG")
@@ -136,15 +120,14 @@ class BaseRunwayVideoGenerator:
             b64_encoded = base64.b64encode(img_bytes).decode("utf-8")
             return f"data:image/png;base64,{b64_encoded}"
 
-    def generate(
-        self,
-        prompt,
-        image_path,
-        fps=8,
-        output_dir=None,
-    ):
+    def generate(self, config: dict):
         if self.client is None:
             self.load_model()
+
+        prompt = config["prompt"]
+        image_path = config["image_path"]
+        fps = config.get("fps", 8)
+        output_dir = config.get("output_dir", None)
 
         prompt_image = self._convert_image_to_data_uri(image_path)
 
@@ -158,28 +141,22 @@ class BaseRunwayVideoGenerator:
         video_id = result.id
         video_url = result.urls.video
 
-        if output_dir is None:
-            run_dir = self._create_unique_output_dir()
-        else:
-            run_dir = output_dir
-            os.makedirs(run_dir, exist_ok=True)
+        run_dir = output_dir or self._create_unique_output_dir()
+        os.makedirs(run_dir, exist_ok=True)
 
         # Save metadata
         metadata_path = os.path.join(run_dir, "metadata.json")
+        self.metadata.update(config)
         self.metadata.update(
             {
-                "prompt": prompt,
-                "image_path": image_path,
-                "fps": fps,
                 "video_id": video_id,
                 "video_url": video_url,
             }
         )
-
         with open(metadata_path, "w") as f:
             json.dump(self.metadata, f, indent=4)
 
-        print(f"Metadata saved to {metadata_path}")
         print(f"Video URL: {video_url}")
+        print(f"Metadata saved to {metadata_path}")
 
         return video_url, run_dir

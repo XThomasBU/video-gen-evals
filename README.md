@@ -85,6 +85,13 @@ Generated videos and frames are saved to:
 saved_data/
 ```
 
+## Generate HACS Video Generations
+```bash
+python src/video_models/gen_hacs_videos.py
+```
+- **Note**: Generated videos are saved to `saved_data/hacs/{youtube_id}/generated_videos/`.
+- **Note**: Text Conditioning Prompt (when available) is used as "A person doing [action]". --> Where [action] is the action of the video clip (obtained from the HACS label)
+
 ---
 
 ## Evalation metrics

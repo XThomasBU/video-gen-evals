@@ -1,6 +1,6 @@
 import os
 from runwayml import RunwayML
-from base import BaseRunwayVideoGenerator
+from .base import BaseRunwayVideoGenerator
 
 
 class RunwayGen4TurboGenerator(BaseRunwayVideoGenerator):

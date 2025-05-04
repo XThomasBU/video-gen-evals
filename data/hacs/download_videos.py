@@ -7,11 +7,12 @@ import json
 
 
 class YouTubeVideoProcessor:
-    def __init__(self, youtube_id, output_dir, start_frame=None, end_frame=None):
+    def __init__(self, youtube_id, output_dir, start_frame=None, end_frame=None, action=None, fps=None):
         self.youtube_id = youtube_id
         self.output_dir = output_dir
         self.start_frame = start_frame
         self.end_frame = end_frame
+        self.action = action
 
         self.full_frames_dir = os.path.join(output_dir, "full_frames")
         self.selected_frames_dir = os.path.join(output_dir, "selected_frames")
@@ -127,6 +128,7 @@ class YouTubeVideoProcessor:
             "start_frame": self.start_frame,
             "end_frame": self.end_frame,
             "selected_frame_count": selected_frames if selected_frames else 0,
+            "action": self.action,
         }
         with open(self.metadata_path, "w") as f:
             json.dump(metadata, f, indent=4)
@@ -186,6 +188,8 @@ if __name__ == "__main__":
         start_sec = float(hacs["start"])
         end_sec = float(hacs["end"])
 
+        action = hacs["action"]
+
         output_dir = os.path.join("saved_data", "hacs", youtube_id)
         print(f"Downloading video ID: {youtube_id} | Time: {start_sec}-{end_sec} sec")
 
@@ -205,6 +209,8 @@ if __name__ == "__main__":
             output_dir=output_dir,
             start_frame=start_frame,
             end_frame=end_frame,
+            action=action,
+            fps=fps,
         )
         processor.process()
 

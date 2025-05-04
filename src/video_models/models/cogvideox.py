@@ -1,7 +1,7 @@
 import torch
 from diffusers import CogVideoXImageToVideoPipeline
 from diffusers.utils import load_image
-from base import BaseHFVideoGenerator
+from .base import BaseHFVideoGenerator
 
 
 class CogVideoXGenerator(BaseHFVideoGenerator):
@@ -25,13 +25,17 @@ if __name__ == "__main__":
         model_name_or_path="THUDM/CogVideoX-5b-I2V", dtype=torch.bfloat16
     )
 
+    config = {
+        "prompt": prompt,
+        "image": image,
+        "num_frames": 49,
+        "num_inference_steps": 50,
+        "guidance_scale": 6,
+        "fps": 8,
+        "seed": 42,
+        "output_dir": "saved_data/cogvideox",
+    }
+
     video_frames, video_path, frame_dir = generator.generate(
-        prompt=prompt,
-        image=image,
-        num_frames=49,
-        num_inference_steps=50,
-        guidance_scale=6,
-        fps=8,
-        seed=42,
-        output_dir="saved_data/cogvideox",
+        config=config
     )
