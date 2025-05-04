@@ -86,11 +86,26 @@ saved_data/
 ```
 
 ## Generate HACS Video Generations
+
 ```bash
 python src/video_models/gen_hacs_videos.py
 ```
+
 - **Note**: Generated videos are saved to `saved_data/hacs/{youtube_id}/generated_videos/`.
 - **Note**: Text Conditioning Prompt (when available) is used as "A person doing [action]". --> Where [action] is the action of the video clip (obtained from the HACS label)
+
+Example:
+saved_data/hacs/x_gEdkM6kwE/
+- full_frames/ --> Contains the full frames of the video clip (from the downloaded video).
+- selected_frames/ --> Contains the selected frames of the video clip (from the downloaded video based on the HACS csv).
+- `selected_frames/frame_00001.png` ==> The first frame of the video clip.
+- metadata.json --> Contains the metadata for each clip (fps, action --> which can be used for the prompt, etc.).
+- x_gEdkM6kwE.mp4 --> The real downloaded video clip.
+- x_gEdkM6kwE_selected.mp4 --> The selected frames of the video clip.
+- generated_videos_{model_name}/ --> Contains the generated videos from the video generative models. (For example, `generated_videos_cogvideox/` contains the generated videos from CogVideoX).
+- generated_videos_cogvideox/frames/ --> Contains the generated frames from CogVideoX.
+- generated_videos_cogvideox/video.mp4 --> The generated video from CogVideoX.
+- generated_videos_cogvideox/metadata.json --> Contains the metadata for the generated video from CogVideoX.
 
 ---
 

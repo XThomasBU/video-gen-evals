@@ -60,7 +60,7 @@ def main(args):
 
         config["prompt"] = prompt
 
-        config["output_dir"] = os.path.join("saved_data", "hacs", video_id, "generated_videos")
+        config["output_dir"] = os.path.join("saved_data", "hacs", video_id, f"generated_videos_{args.model}")
         os.makedirs(config["output_dir"], exist_ok=True)
         print(f"Generating video for {video_id} with prompt: {prompt}")
         print(f"Image path: {image_path}")
