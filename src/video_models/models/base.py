@@ -9,6 +9,7 @@ import base64
 from PIL import Image
 from io import BytesIO
 import time
+import requests
 
 load_dotenv()
 
@@ -133,6 +134,20 @@ class BaseRunwayVideoGenerator:
             time.sleep(poll_interval)
         raise TimeoutError(f"Task {task_id} did not complete within {timeout} seconds.")
 
+    def _download_video(self, url, save_path):
+        print(f"Downloading video from {url} ...")
+        response = requests.get(url, stream=True)
+        if response.status_code == 200:
+            with open(save_path, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            print(f"Video downloaded to {save_path}")
+        else:
+            raise RuntimeError(
+                f"Failed to download video. Status code: {response.status_code}"
+            )
+
     def generate(self, prompt, config: dict):
         if self.client is None:
             self.load_model()
@@ -148,7 +163,7 @@ class BaseRunwayVideoGenerator:
             prompt_image=prompt_image,
             ratio="1280:720",
             prompt_text=prompt,
-            duration=5,
+            duration=config.get("duration", 5),
         )
 
         video_id = result.id
@@ -160,6 +175,10 @@ class BaseRunwayVideoGenerator:
         video_url = completed_task.output[0]
         run_dir = output_dir or self._create_unique_output_dir()
         os.makedirs(run_dir, exist_ok=True)
+
+        video_path = os.path.join(run_dir, "video.mp4")
+        self._download_video(video_url, video_path)
+        print(f"Video saved to {video_path}")
 
         metadata_path = os.path.join(run_dir, "metadata.json")
         self.metadata.update(config)

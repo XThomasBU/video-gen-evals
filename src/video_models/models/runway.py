@@ -17,6 +17,7 @@ if __name__ == "__main__":
         "model_name": "gen4_turbo",
         "output_root": "outputs",
         "image_path": image_url,
+        "duration": 5,
     }
 
     video_url, local_path = generator.generate(
