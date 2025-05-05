@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 import base64
 from PIL import Image
 from io import BytesIO
+import time
 
 load_dotenv()
 
@@ -119,11 +120,23 @@ class BaseRunwayVideoGenerator:
             b64_encoded = base64.b64encode(img_bytes).decode("utf-8")
             return f"data:image/png;base64,{b64_encoded}"
 
-    def generate(self, config: dict):
+    def _wait_for_task_completion(self, task_id, poll_interval=5, timeout=600):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            task = self.client.tasks.retrieve(id=task_id)
+            status = task.status
+            print(f"Task {task_id} status: {status}")
+            if status == "SUCCEEDED":
+                return task
+            elif status in ["FAILED", "CANCELLED"]:
+                raise RuntimeError(f"Task {task_id} failed or was cancelled.")
+            time.sleep(poll_interval)
+        raise TimeoutError(f"Task {task_id} did not complete within {timeout} seconds.")
+
+    def generate(self, prompt, config: dict):
         if self.client is None:
             self.load_model()
 
-        prompt = config["prompt"]
         image_path = config["image_path"]
         # fps = config.get("fps", 8)
         output_dir = config.get("output_dir", None)
@@ -135,15 +148,19 @@ class BaseRunwayVideoGenerator:
             prompt_image=prompt_image,
             ratio="1280:720",
             prompt_text=prompt,
+            duration=5,
         )
 
         video_id = result.id
-        video_url = result.urls.video
+        print(f"Submitted task. Task ID: {video_id}")
 
+        # Wait for the video to finish generating
+        completed_task = self._wait_for_task_completion(video_id)
+        print("Output:", completed_task.output)
+        video_url = completed_task.output[0]
         run_dir = output_dir or self._create_unique_output_dir()
         os.makedirs(run_dir, exist_ok=True)
 
-        # Save metadata
         metadata_path = os.path.join(run_dir, "metadata.json")
         self.metadata.update(config)
         self.metadata.update(
