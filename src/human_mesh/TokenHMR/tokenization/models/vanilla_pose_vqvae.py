@@ -262,7 +262,7 @@ class DecodeTokens(nn.Module):
         super(DecodeTokens, self).__init__()
         
         num_joints = 21
-        ckpt = torch.load(ckpt_path, weights_only=False)
+        ckpt = torch.load(ckpt_path, map_location='cpu')
         pretrained_hparams = ckpt['hparams']
         arch = pretrained_hparams.ARCH
         rot_type = arch.ROT_TYPE

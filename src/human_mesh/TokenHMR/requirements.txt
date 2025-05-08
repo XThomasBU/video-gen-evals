@@ -1,5 +1,5 @@
 numpy==1.23.1
-pytorch-lightning
+pytorch-lightning==1.8.1
 smplx==0.1.28
 pyrender==0.1.45
 opencv-python
@@ -10,7 +10,6 @@ timm
 dill
 chumpy
 pandas
-pyglet==1.5.31
 
 # for tokenhmr training
 rich
@@ -25,7 +24,7 @@ transformers
 flatten_dict
 
 # for tokenization training
-# git+https://github.com/nghorbani/body_visualizer
+git+https://github.com/nghorbani/body_visualizer
 
 # for detectron2
 setuptools==65.0.0

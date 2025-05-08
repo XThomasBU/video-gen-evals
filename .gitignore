@@ -3,3 +3,9 @@ data/body_models/
 data/checkpoints/
 
 .env
+
+*.pyc
+__pycache__/
+*.mp4
+
+outputs/
