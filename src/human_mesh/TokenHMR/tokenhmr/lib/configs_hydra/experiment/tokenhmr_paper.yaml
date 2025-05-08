@@ -29,12 +29,12 @@ DATASETS:
   DATASET_DIR: tokenhmr/dataset_dir 
 
 SMPL:
-  DATA_DIR: data/body_models
-  MODEL_PATH: data/body_models/smpl
+  DATA_DIR: src/human_mesh/TokenHMR/data/body_models
+  MODEL_PATH: src/human_mesh/TokenHMR/data/body_models/smpl
   GENDER: neutral
   NUM_BODY_JOINTS: 23
-  JOINT_REGRESSOR_EXTRA: data/body_models/SMPL_to_J19.pkl
-  MEAN_PARAMS: data/body_models/smpl_mean_params.npz
+  JOINT_REGRESSOR_EXTRA: src/human_mesh/TokenHMR/data/body_models/SMPL_to_J19.pkl
+  MEAN_PARAMS: src/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz
 
 trainer:
   precision: 16
@@ -52,7 +52,7 @@ MODEL:
   LOOSE_SUP: True
   LOOSE_WEIGHT: 0.05
   WITH_MLM: False
-  TOKENIZER_CHECKPOINT_PATH: data/checkpoints/tokenizer.pth
+  TOKENIZER_CHECKPOINT_PATH: src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth
 
   IMAGE_SIZE: 256
   IMAGE_MEAN: [0.485, 0.456, 0.406]

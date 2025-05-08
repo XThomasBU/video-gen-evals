@@ -1,7 +1,7 @@
 # @package _global_
 
 SMPL:
-  DATA_DIR: data/body_models
+  DATA_DIR: src/human_mesh/TokenHMR/data/body_models
   MODEL_PATH: ${SMPL.DATA_DIR}/smpl
   GENDER: neutral
   NUM_BODY_JOINTS: 23
