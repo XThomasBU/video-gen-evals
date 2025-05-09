@@ -1,5 +1,6 @@
 from .tokenhmr.lib.models import load_tokenhmr
 from .tokenhmr.lib.utils import recursive_to
+from .tokenhmr.lib.utils.render_openpose import render_openpose
 from .tokenhmr.lib.datasets.vitdet_dataset import (
     ViTDetDataset,
     DEFAULT_MEAN,
@@ -18,9 +19,54 @@ import os
 import cv2
 import numpy as np
 import tqdm
+import json
+import natsort
+from diffusers.utils import export_to_video
+import imageio
 
 os.environ["PYOPENGL_PLATFORM"] = "egl"
 LIGHT_BLUE = (0.65098039, 0.74117647, 0.85882353)
+
+
+def capture_dict_info(d, name, indent=4):
+    """
+    Recursively capture full tensor values instead of just shapes.
+    Converts tensors to lists for JSON saving.
+    """
+    captured = {}
+    for k, v in d.items():
+        if k == "cls_logits_softmax":
+            continue
+        if isinstance(v, torch.Tensor):
+            # Convert tensor to a Python list
+            captured[k] = v.detach().cpu().tolist()
+        elif isinstance(v, dict):
+            captured[k] = capture_dict_info(v, name=k, indent=indent + 4)
+        elif isinstance(v, list):
+            captured[k] = [capture_dict_info(item, name=k, indent=indent + 4) if isinstance(item, dict) else item for item in v]
+        else:
+            captured[k] = v  # Save as-is if it's a number, string, etc.
+    return captured
+    
+def create_video_from_masks(mask_folder, output_video_path, fps=8):
+    mask_folder = Path(mask_folder)
+    mask_files = list(mask_folder.glob('*_all_mask.png'))
+    mask_files = natsort.natsorted(mask_files)
+
+    if len(mask_files) == 0:
+        raise ValueError(f"No mask files found in {mask_folder}")
+
+    frames = []
+    for mask_path in mask_files:
+        mask = imageio.imread(mask_path)  # grayscale 0-255
+        if mask.ndim == 2:  # ensure (H, W, 3)
+            mask = np.stack([mask] * 3, axis=-1)
+
+        mask = mask.astype(np.float32) / 255.0  # ⚡ normalize to [0, 1] range
+        frames.append(mask)
+
+    # Now frames are float32 images in [0,1] as expected
+    export_to_video(frames, output_video_path, fps=fps)
 
 
 class TokenHMRMeshGenerator:
@@ -62,9 +108,20 @@ class TokenHMRMeshGenerator:
         self.model_cfg = model_cfg
 
     def generate_mesh_from_frames(self, folder_path):
+
+        metadata_path = os.path.join(os.path.dirname(folder_path), "metadata.json")
+        with open(metadata_path, "r") as f:
+            metadata = json.load(f)
+        fps = metadata["fps"]
+        
         out_dir = os.path.join(folder_path, "tokenhmr_mesh")
 
         os.makedirs(out_dir, exist_ok=True)
+
+        # Make list to collect masked real frames
+        masked_real_mesh_frames = []
+        masked_real_bbox_frames = []
+        masked_real_hybrid_frames =[]
 
         # Iterate over all images in folder
         for img_path in tqdm.tqdm(sorted(Path(folder_path).glob("*.png"))):
@@ -94,6 +151,11 @@ class TokenHMRMeshGenerator:
                 batch = recursive_to(batch, self.device)
                 with torch.no_grad():
                     out = self.model(batch)
+
+                dict_info = capture_dict_info(out, name="model_out")
+                save_json_path = os.path.join(out_dir, f'{img_path.stem}_info.json')
+                with open(save_json_path, 'w') as f:
+                    json.dump(dict_info, f, indent=4)
 
                 pred_cam = out["pred_cam"]
                 box_center = batch["box_center"].float()
@@ -133,6 +195,18 @@ class TokenHMRMeshGenerator:
                         mesh_base_color=LIGHT_BLUE,
                         scene_bg_color=(1, 1, 1),
                     )
+
+                    mask_img_rgba = self.renderer.render_rgba(
+                        out['pred_vertices'][n].detach().cpu().numpy(),
+                        cam_t=out['pred_cam_t'][n].detach().cpu().numpy(),
+                        render_res=[batch['img'][n].shape[-1], batch['img'][n].shape[-1]]
+                    )
+
+                    mask_alpha = mask_img_rgba[:, :, 3]
+                    body_mask = (mask_alpha > 0).astype(np.uint8)
+
+                    mask_save_path = os.path.join(out_dir, f'{img_fn}_{person_id}_mask.png')
+                    cv2.imwrite(mask_save_path, body_mask * 255)
 
                     if self.config["side_view"]:
                         side_img = self.renderer(
@@ -183,21 +257,135 @@ class TokenHMRMeshGenerator:
                     all_verts, cam_t=all_cam_t, render_res=img_size[n], **misc_args
                 )
 
+                # Extract mesh body alpha
+                mask_alpha_all = cam_view[:, :, 3]   # (H,W)
+                body_mask_all = (mask_alpha_all > 0).astype(np.uint8)  # binary 0/1
+
+                # Prepare grayscale input frame
+                gray_real_frame = cv2.cvtColor(img_cv2, cv2.COLOR_BGR2GRAY)
+
+                # --- 1. Mesh Alpha Masked Frame ---
+                masked_real_mesh = gray_real_frame * body_mask_all
+
+                # --- 2. BBox Masked Frame ---
+                h, w = gray_real_frame.shape[:2]
+                bbox_mask = np.zeros((h, w), dtype=np.uint8)
+
+                for box in boxes:
+                    x1, y1, x2, y2 = box.astype(int)
+                    x1 = np.clip(x1, 0, w-1)
+                    x2 = np.clip(x2, 0, w-1)
+                    y1 = np.clip(y1, 0, h-1)
+                    y2 = np.clip(y2, 0, h-1)
+                    bbox_mask[y1:y2, x1:x2] = 1
+
+                masked_real_bbox = gray_real_frame * bbox_mask
+
+                # --- 3. Hybrid Mask: bbox cropped + alpha inside bbox ---
+                hybrid_mask = np.zeros_like(gray_real_frame, dtype=np.uint8)
+
+                for box in boxes:
+                    x1, y1, x2, y2 = box.astype(int)
+                    x1 = np.clip(x1, 0, w-1)
+                    x2 = np.clip(x2, 0, w-1)
+                    y1 = np.clip(y1, 0, h-1)
+                    y2 = np.clip(y2, 0, h-1)
+
+                    if x2 <= x1 or y2 <= y1:
+                        continue  # Skip invalid boxes
+
+                    region_real = gray_real_frame[y1:y2, x1:x2]
+                    region_alpha = body_mask_all[y1:y2, x1:x2]
+
+                    # Ensure binary mask (0 or 1)
+                    region_alpha = (region_alpha > 0.2).astype(np.uint8) # FIXME
+
+                    # Apply mask inside bbox
+                    refined = region_real * region_alpha
+
+                    # Place into hybrid mask
+                    hybrid_mask[y1:y2, x1:x2] = refined
+
+                
+                # --- Save each for motion maps later ---
+                masked_real_mesh_frames.append(masked_real_mesh)
+                masked_real_bbox_frames.append(masked_real_bbox)
+                masked_real_hybrid_frames.append(hybrid_mask)
+
+                # --- Save Overlay visualization ---
                 input_img = img_cv2.astype(np.float32)[:, :, ::-1] / 255.0
-                input_img = np.concatenate(
-                    [input_img, np.ones_like(input_img[:, :, :1])], axis=2
-                )  # alpha channel
-                input_img_overlay = (
-                    input_img[:, :, :3] * (1 - cam_view[:, :, 3:])
-                    + cam_view[:, :, :3] * cam_view[:, :, 3:]
-                )
+                input_img = np.concatenate([input_img, np.ones_like(input_img[:, :, :1])], axis=2)
+                input_img_overlay = input_img[:, :, :3] * (1 - cam_view[:, :, 3:]) + cam_view[:, :, :3] * cam_view[:, :, 3:]
+                cv2.imwrite(os.path.join(out_dir, f'{img_fn}_all.png'), (255 * input_img_overlay[:, :, ::-1]).astype(np.uint8))
 
-                out_overlay_path = os.path.join(out_dir, f"{img_fn}_all.png")
-                cv2.imwrite(
-                    out_overlay_path,
-                    255 * input_img_overlay[:, :, ::-1],
-                )
+        # After full loop
+        if len(masked_real_bbox_frames) >= 2:
+            print("\n✅ Computing motion from masked real frames...")
 
+            def compute_motion(frames, threshold=10):
+                motion_frames = []
+                for i in range(1, len(frames)):
+                    diff = cv2.absdiff(frames[i], frames[i-1])
+                    _, binary_motion = cv2.threshold(diff, threshold, 255, cv2.THRESH_BINARY)
+                    motion_frames.append(binary_motion)
+                blank = np.zeros_like(motion_frames[0])
+                motion_frames = [blank] + motion_frames
+                motion_frames_rgb = [(np.repeat(f[..., None], 3, axis=2) / 255.0).astype(np.float32) for f in motion_frames]
+                return motion_frames_rgb
+
+            # === Compute motions separately ===
+            motion_mesh_rgb = compute_motion(masked_real_mesh_frames)
+            motion_bbox_rgb = compute_motion(masked_real_bbox_frames)
+            motion_hybrid_rgb = compute_motion(masked_real_hybrid_frames)
+
+            # === Save motion videos ===
+            export_to_video(motion_mesh_rgb, os.path.join(out_dir, "motion_masked_mesh.mp4"), fps=fps)
+            export_to_video(motion_bbox_rgb, os.path.join(out_dir, "motion_masked_bbox.mp4"), fps=fps)
+            export_to_video(motion_hybrid_rgb, os.path.join(out_dir, "motion_masked_hybrid.mp4"), fps=fps)
+
+        print("\n Done!")
+
+        # === Side-by-side-by-side video ===
+        print("\n Creating side-by-side-by-side videos...")
+
+        real_frames_paths = sorted(list(Path(folder_path).glob('*.png')) + list(Path(folder_path).glob('*.jpg')))
+        real_frames = []
+        for path in real_frames_paths:
+            frame = imageio.imread(path)
+            if frame.ndim == 2:
+                frame = np.stack([frame] * 3, axis=-1)
+            frame = frame.astype(np.float32) / 255.0
+            real_frames.append(frame)
+
+        masked_mesh_rgb = [(np.repeat(f[..., None], 3, axis=2) / 255.0).astype(np.float32) for f in masked_real_mesh_frames]
+        masked_bbox_rgb = [(np.repeat(f[..., None], 3, axis=2) / 255.0).astype(np.float32) for f in masked_real_bbox_frames]
+        masked_hybrid_rgb = [(np.repeat(f[..., None], 3, axis=2) / 255.0).astype(np.float32) for f in masked_real_hybrid_frames]
+
+        # === Align all lengths ===
+        min_len = min(len(real_frames), len(masked_mesh_rgb), len(masked_bbox_rgb), len(masked_hybrid_rgb), len(motion_mesh_rgb), len(motion_bbox_rgb), len(motion_hybrid_rgb))
+        real_frames = real_frames[:min_len]
+        masked_mesh_rgb = masked_mesh_rgb[:min_len]
+        masked_bbox_rgb = masked_bbox_rgb[:min_len]
+        masked_hybrid_rgb = masked_hybrid_rgb[:min_len]
+        motion_mesh_rgb = motion_mesh_rgb[:min_len]
+        motion_bbox_rgb = motion_bbox_rgb[:min_len]
+        motion_hybrid_rgb = motion_hybrid_rgb[:min_len]
+
+        # === Save separate combined videos ===
+        def export_combined(real_frames, masked_frames, motion_frames, save_path):
+            combined_frames = []
+            for real_f, masked_f, motion_f in zip(real_frames, masked_frames, motion_frames):
+                combined = np.concatenate([real_f, masked_f, motion_f], axis=1)
+                combined_frames.append(combined)
+            export_to_video(combined_frames, save_path, fps=fps)
+
+        export_combined(real_frames, masked_mesh_rgb, motion_mesh_rgb, os.path.join(
+            out_dir, "combined_masked_mesh.mp4"
+        ))
+        export_combined(real_frames, masked_bbox_rgb, motion_bbox_rgb, os.path.join(
+            out_dir, "combined_masked_bbox.mp4"
+        ))
+        
 
 if __name__ == "__main__":
     print("TokenHMR Mesh Generator")

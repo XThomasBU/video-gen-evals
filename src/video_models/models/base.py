@@ -10,6 +10,7 @@ from PIL import Image
 from io import BytesIO
 import time
 import requests
+import subprocess
 
 load_dotenv()
 
@@ -148,11 +149,26 @@ class BaseRunwayVideoGenerator:
                 f"Failed to download video. Status code: {response.status_code}"
             )
 
-    def generate(self, prompt, config: dict):
+    def _extract_frames(self, video_path, output_dir):
+        frame_dir = os.path.join(output_dir, "frames")
+        os.makedirs(frame_dir, exist_ok=True)
+        subprocess.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                video_path,
+                os.path.join(frame_dir, "frame_%05d.png"),
+            ],
+            check=True,
+        )
+
+    def generate(self, image, config: dict):
         if self.client is None:
             self.load_model()
 
         image_path = config["image_path"]
+        prompt = config["prompt"]
         # fps = config.get("fps", 8)
         output_dir = config.get("output_dir", None)
 
@@ -193,5 +209,7 @@ class BaseRunwayVideoGenerator:
 
         print(f"Video URL: {video_url}")
         print(f"Metadata saved to {metadata_path}")
+
+        self._extract_frames(video_path, run_dir)
 
         return video_url, run_dir

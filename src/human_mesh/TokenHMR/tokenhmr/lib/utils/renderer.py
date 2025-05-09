@@ -320,12 +320,10 @@ class Renderer:
             )
 
         vertices_rot = vertices.copy()
-        vertices_rot[:, 1] = -vertices_rot[:, 1]
-        vertices_rot[:, 2] = -vertices_rot[:, 2]
+        # camera_translation[0] *= -1.0
+        # vertices_rot[:, 1] = -vertices_rot[:, 1]
+        # vertices_rot[:, 2] = -vertices_rot[:, 2]
         # mesh = trimesh.Trimesh(vertices_rot.copy(), self.faces.copy())
-
-        print("Imma here")
-        exit()
 
         mesh = self.vertices_to_trimesh(
             vertices_rot, camera_translation, mesh_base_color, rot_axis, rot_angle
