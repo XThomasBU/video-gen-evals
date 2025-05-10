@@ -4,6 +4,7 @@ import shutil
 import imageio
 import numpy as np
 import json
+import yt_dlp
 
 
 class YouTubeVideoProcessor:
@@ -184,6 +185,17 @@ class YouTubeVideoProcessor:
         print("Processing complete.")
 
 
+def get_video_duration(youtube_id):
+    url = f"https://www.youtube.com/watch?v={youtube_id}"
+    ydl_opts = {
+        "quiet": True,
+        "skip_download": True,
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=False)
+        return info.get("duration", None)  # in seconds
+
+
 if __name__ == "__main__":
 
     filtered_hacs_id_json = "data/hacs/files/filtered_hacs.json"
@@ -191,35 +203,87 @@ if __name__ == "__main__":
     with open(filtered_hacs_id_json, "r") as f:
         filtered_hacs = json.load(f)
 
-    for hacs in filtered_hacs:
-        youtube_id = hacs["youtube_id"]
-        start_sec = float(hacs["start"])
-        end_sec = float(hacs["end"])
+    target_actions = [
+        "Archery",
+        "Brushing teeth",
+        "Camel ride",
+        "Chopping wood",
+        "Discus throw",
+        "Hammer throw",
+        "Hula hoop",
+        "Javelin throw",
+        "Playing drums",
+    ]
 
-        action = hacs["action"]
+    MAX_VIDEO_DURATION = 60  # seconds, skip videos longer than this
 
-        output_dir = os.path.join("saved_data", "hacs", youtube_id)
-        print(f"Downloading video ID: {youtube_id} | Time: {start_sec}-{end_sec} sec")
+    for action in target_actions:
+        matching_clips = [h for h in filtered_hacs if h["action"] == action]
 
-        processor = YouTubeVideoProcessor(youtube_id=youtube_id, output_dir=output_dir)
-        processor.download_video()
+        filtered_short_clips = []
+        for h in matching_clips:
+            youtube_id = h["youtube_id"]
+            try:
+                total_duration = get_video_duration(youtube_id)
+                if total_duration is not None and total_duration <= MAX_VIDEO_DURATION:
+                    filtered_short_clips.append(h)
+                else:
+                    print(f"Skipping {youtube_id} (too long: {total_duration:.1f}s)")
+            except Exception as e:
+                print(f"Could not get duration for {youtube_id}: {e}")
 
-        fps = processor._get_fps(processor.video_path)
-        duration = processor._get_duration(processor.video_path)
+            if len(filtered_short_clips) >= 10:
+                break
 
-        start_frame = int(np.floor(start_sec * fps)) + 1
-        end_frame = int(np.ceil(end_sec * fps))
+        if len(filtered_short_clips) < 5:
+            print(f"Warning: Only {len(filtered_short_clips)} short clips for {action}")
 
-        print(f"Computed frame range: {start_frame} to {end_frame} at {fps:.2f} FPS")
+        for clip in filtered_short_clips:
+            clip["original_duration"] = float(clip["end"]) - float(clip["start"])
 
-        processor = YouTubeVideoProcessor(
-            youtube_id=youtube_id,
-            output_dir=output_dir,
-            start_frame=start_frame,
-            end_frame=end_frame,
-            action=action,
-            fps=fps,
+        sorted_clips = sorted(
+            filtered_short_clips, key=lambda x: x["original_duration"]
         )
-        processor.process()
+        selected_clips = sorted_clips[:5]
+
+        for hacs in selected_clips:
+
+            try:
+                youtube_id = hacs["youtube_id"]
+                start_sec = float(hacs["start"])
+                end_sec = float(hacs["end"])
+
+                output_dir = os.path.join("saved_data", "hacs", youtube_id)
+                print(
+                    f"Downloading video ID: {youtube_id} | Action: {action} | Time: {start_sec}-{end_sec} sec"
+                )
+
+                processor = YouTubeVideoProcessor(
+                    youtube_id=youtube_id,
+                    output_dir=output_dir,
+                )
+                processor.download_video()
+
+                fps = processor._get_fps(processor.video_path)
+                duration = processor._get_duration(processor.video_path)
+
+                start_frame = int(np.floor(start_sec * fps)) + 1
+                end_frame = int(np.ceil(end_sec * fps))
+
+                print(
+                    f"Computed frame range: {start_frame} to {end_frame} at {fps:.2f} FPS"
+                )
+
+                processor = YouTubeVideoProcessor(
+                    youtube_id=youtube_id,
+                    output_dir=output_dir,
+                    start_frame=start_frame,
+                    end_frame=end_frame,
+                    action=action,
+                )
+                processor.process()
+            except Exception as e:
+                print(f"Error processing video ID {youtube_id}: {e}")
+                continue
 
     print("All videos downloaded and processed.")
