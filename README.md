@@ -1,20 +1,20 @@
 # Base Video Evaluation Framework
 
-## 🚀 Project Structure
+## Project Structure
 
 The project is organized into the following directories:
 
-### 🎥 `src/`
+### `src/`
 
-* **🚀 `video_models/`**: Contains all the video generative models. Models are located in: `src/video_models/models/`
-* **🚶‍♂️ `human_mesh/`**: Contains code for extracting 3D human pose and mesh information.
-* **🚧 `eval_metrics/`**: Contains code for computing evaluation metrics.
-* **🚗 `motion_tracking/`**: Motion quality tracking (physics-IQ, VAMP, TRAJAN — *Direct Motion Models for Assessing Generated Videos*, etc.).
-* **🚪 `semantic_tracking/`**: Semantic tracking (e.g., semantic context, physical plausibility, action recognition, MLLM-based approaches, etc.).
+* **`video_models/`**: Contains all the video generative models. Models are located in: `src/video_models/models/`
+* **`human_mesh/`**: Contains code for extracting 3D human pose and mesh information.
+* **`eval_metrics/`**: Contains code for computing evaluation metrics.
+* **`motion_tracking/`**: Motion quality tracking (physics-IQ, VAMP, TRAJAN — *Direct Motion Models for Assessing Generated Videos*, etc.).
+* **`semantic_tracking/`**: Semantic tracking (e.g., semantic context, physical plausibility, action recognition, MLLM-based approaches, etc.).
 
 ---
 
-## 🚀 Installation
+## Installation
 
 To set up the project, follow these steps:
 
@@ -26,7 +26,7 @@ pip install -r requirements.txt
 
 ---
 
-## 🚀 Download HACS Video Clips
+## Download HACS Video Clips
 
 **HACS (Human Action Clips and Segments)**
 
@@ -46,7 +46,7 @@ Downloaded videos are saved to `saved_data/hacs/{youtube_id}`.
 
 ---
 
-## 🚀 Sanity Checks
+## Sanity Checks
 
 **Video generation test**
 ```bash
@@ -74,14 +74,14 @@ python src/human_mesh/TokenHMR/tokenhmr/demo.py \
 
 ---
 
-## 🚀 Outputs
+## Outputs
 
 Generated videos and frames are saved to:
 ```
 saved_data/
 ```
 
-## 🚀 Generate HACS Video Generations
+## Generate HACS Video Generations
 
 `python src/video_models/gen_hacs_videos.py`
 
@@ -94,7 +94,7 @@ saved_data/
 
 ---
 
-### 🚀 Example Directory Structure (saved_data/hacs/x_gEdkM6kwE/): Inside the directory of each video clip:
+### Example Directory Structure (saved_data/hacs/x_gEdkM6kwE/): Inside the directory of each video clip:
 
 `full_frames/` → Contains the full frames of the video clip (from the downloaded video).  
 `selected_frames/` → Selected frames based on the HACS CSV.  
@@ -111,7 +111,7 @@ saved_data/
 Example:  
 If `model_name = cogvideox`, the directory will be `generated_videos_cogvideox/`.
 
-## 🚀 Evaluation Metrics
+## Evaluation Metrics
 
 - TODO: Add evaluation metrics for video generation.
 - Should be as simple as `evaluator.evaluate(generated_video, reference_video, config)`
