@@ -242,11 +242,11 @@ python tokenhmr/demo.py \
 Make sure to installed the [forked version](https://github.com/saidwivedi/PHALP) of the original ([PHALP, CVPR 2022](https://github.com/brjathu/PHALP)). Check the installation guide for more details.
 
 ```shell
-python tokenhmr/track.py \
-    video.source=demo_sample/video/gymnasts.mp4 \
+python -m src.human_mesh.TokenHMR.tokenhmr.track \
+    video.source=/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_JumpingJack_g20_c01/v_JumpingJack_g20_c01_full.mp4 \
     render.colors=slahmr \
-    +checkpoint=data/checkpoints/tokenhmr_model_latest.ckpt \
-    +model_config=data/checkpoints/model_config.yaml
+    +checkpoint=/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenhmr_model_latest.ckpt \
+    +model_config=/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/model_config.yaml
 ```
 
 <p align="center">

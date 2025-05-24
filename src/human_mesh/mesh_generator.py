@@ -13,3 +13,20 @@ for video in videos:
     mesh_generator.generate_mesh_from_frames(
         os.path.join(DIR, video, "full_frames")
     )
+
+for video in videos:
+    mesh_generator.generate_mesh_from_frames(
+        os.path.join(DIR, video, "generated_videos_cogvideox", "frames")
+    )
+
+
+for video in videos:
+    mesh_generator.generate_mesh_from_frames(
+        os.path.join(DIR, video, "generated_videos_runway_gen4_turbo", "frames")
+    )
+
+
+
+# mesh_generator.generate_mesh_from_frames(
+#     "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_JumpingJack_g20_c01/full_frames"
+# )

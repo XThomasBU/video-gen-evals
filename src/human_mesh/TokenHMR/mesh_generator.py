@@ -35,8 +35,6 @@ def capture_dict_info(d, name, indent=4):
     """
     captured = {}
     for k, v in d.items():
-        if k == "cls_logits_softmax":
-            continue
         if isinstance(v, torch.Tensor):
             # Convert tensor to a Python list
             captured[k] = v.detach().cpu().tolist()
@@ -112,7 +110,7 @@ class TokenHMRMeshGenerator:
         metadata_path = os.path.join(os.path.dirname(folder_path), "metadata.json")
         with open(metadata_path, "r") as f:
             metadata = json.load(f)
-        fps = metadata["fps"]
+        fps = metadata["fps"] if "fps" in metadata else 24
         
         out_dir = os.path.join(folder_path, "tokenhmr_mesh")
 

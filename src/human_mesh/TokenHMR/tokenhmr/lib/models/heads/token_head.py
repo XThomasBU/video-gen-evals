@@ -47,6 +47,7 @@ class SMPLTokenDecoderHead(nn.Module):
                                     token_class_num=cfg.MODEL.SMPL_HEAD.TOKENIZER.TOKEN_CLASS_NUM,\
                                     token_code_dim=self.token_code_dim,\
                                     tokenizer_type=self.tokenizer_type)
+        print("Codebook shape", self.decpose.codebook.shape)
 
         if cfg.MODEL.SMPL_HEAD.get('INIT_DECODER_XAVIER', False):
             # True by default in MLP. False by default in Transformer
@@ -83,6 +84,7 @@ class SMPLTokenDecoderHead(nn.Module):
         pred_betas_list = []
         pred_cam_list = []
         cls_logits_softmax_list = []
+        token_out_list = []
         for i in range(self.cfg.MODEL.SMPL_HEAD.get('IEF_ITERS', 1)):
             # Input token to transformer is zero token
             if self.input_is_mean_shape:
@@ -94,6 +96,7 @@ class SMPLTokenDecoderHead(nn.Module):
             # Pass through transformer
             token_out = self.transformer(token, context=x)
             token_out = token_out.squeeze(1) # (B, C) 1024
+            token_out_list.append(token_out)
 
             # Readout from token_out
             pred_grot = self.decpose_grot(token_out)
@@ -120,9 +123,12 @@ class SMPLTokenDecoderHead(nn.Module):
         pred_smpl_params_list['betas'] = torch.cat(pred_betas_list, dim=0)
         pred_smpl_params_list['cam'] = torch.cat(pred_cam_list, dim=0)
         pred_smpl_params_list['cls_logits_softmax'] = torch.cat(cls_logits_softmax_list, dim=0)
+        pred_smpl_params_list['token_out'] = torch.cat(token_out_list, dim=0)
         pred_body_pose = joint_conversion_fn(pred_body_pose).view(batch_size, self.cfg.SMPL.NUM_BODY_JOINTS+1, 3, 3)
 
         pred_smpl_params = {'global_orient': pred_body_pose[:, [0]],
                             'body_pose': pred_body_pose[:, 1:],
-                            'betas': pred_betas}
+                            'betas': pred_betas, 
+                            'token_out': pred_smpl_params_list['token_out'], 
+                            'cls_logits_softmax': pred_smpl_params_list['cls_logits_softmax']}
         return pred_smpl_params, pred_cam, pred_smpl_params_list

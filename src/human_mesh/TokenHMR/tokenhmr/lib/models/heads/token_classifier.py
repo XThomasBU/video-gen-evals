@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 from .utils import (constant_init, normal_init)
 from .modules import MixerLayer, FCBlock, BasicBlock
@@ -84,7 +85,14 @@ class TokenClassfier(nn.Module):
         # Use the pretrained decoder
         tokenizer_proxy = Proxy(eval(f'{tokenizer_type.capitalize()}DecodeTokens')(tokenizer_checkpoint_path))
         self.tokenize = tokenizer_proxy.tokenize
+        self.codebook = tokenizer_proxy.tokenizer.quantizer.codebook
 
+        # # save codebook as numpy array
+        # self.codebook_array = self.codebook.cpu().numpy()
+        # print(self.codebook_array.shape)
+        # np.save("codebook.npy", self.codebook_array)
+        # print(f"Codebook saved to codebook.npy")
+        # exit()
 
     def forward(self, x):
         """Forward function."""
@@ -103,7 +111,7 @@ class TokenClassfier(nn.Module):
         # cls_logits_softmax ((B * token_number)x token_dim)
         cls_logits_softmax = cls_logits.softmax(-1)
         smpl_thetas6D = self.tokenize(cls_logits_softmax) # B x 21 x 6
-
+        
         smpl_thetas6D = smpl_thetas6D.reshape(batch_size, -1)
         return smpl_thetas6D, cls_logits_softmax
 
