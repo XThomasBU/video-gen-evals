@@ -1,5 +1,8 @@
 # Base Video Evaluation Framework
 
+
+Code atm only works for single person track info. # FIXME
+
 ## Project Structure
 
 The project is organized into the following directories:
