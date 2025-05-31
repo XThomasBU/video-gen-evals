@@ -120,6 +120,8 @@ class TokenHMRMeshGenerator:
         masked_real_mesh_frames = []
         masked_real_bbox_frames = []
         masked_real_hybrid_frames =[]
+        mesh_frames = []  # Add list to collect mesh renderings
+        overlay_frames = []  # Add list to collect overlay frames
 
         # Iterate over all images in folder
         for img_path in tqdm.tqdm(sorted(Path(folder_path).glob("*.png"))):
@@ -311,10 +313,18 @@ class TokenHMRMeshGenerator:
                 masked_real_hybrid_frames.append(hybrid_mask)
 
                 # --- Save Overlay visualization ---
-                input_img = img_cv2.astype(np.float32)[:, :, ::-1] / 255.0
+                input_img = img_cv2.astype(np.float32)[:, :, ::-1] / 255.0  # Convert BGR to RGB
                 input_img = np.concatenate([input_img, np.ones_like(input_img[:, :, :1])], axis=2)
                 input_img_overlay = input_img[:, :, :3] * (1 - cam_view[:, :, 3:]) + cam_view[:, :, :3] * cam_view[:, :, 3:]
                 cv2.imwrite(os.path.join(out_dir, f'{img_fn}_all.png'), (255 * input_img_overlay[:, :, ::-1]).astype(np.uint8))
+                
+                # Save mesh frame for video
+                mesh_frame = (255 * cam_view[:, :, :3]).astype(np.uint8)
+                mesh_frames.append(mesh_frame)
+                
+                # Save overlay frame for video - keep in RGB format
+                overlay_frame = (255 * input_img_overlay).astype(np.uint8)
+                overlay_frames.append(overlay_frame)
 
         # After full loop
         if len(masked_real_bbox_frames) >= 2:
@@ -340,6 +350,17 @@ class TokenHMRMeshGenerator:
             export_to_video(motion_mesh_rgb, os.path.join(out_dir, "motion_masked_mesh.mp4"), fps=fps)
             export_to_video(motion_bbox_rgb, os.path.join(out_dir, "motion_masked_bbox.mp4"), fps=fps)
             export_to_video(motion_hybrid_rgb, os.path.join(out_dir, "motion_masked_hybrid.mp4"), fps=fps)
+
+            # === Save mesh videos ===
+            if len(mesh_frames) > 0:
+                print("\n Creating mesh videos...")
+                # Save mesh-only video
+                mesh_frames_rgb = [(f.astype(np.float32) / 255.0) for f in mesh_frames]
+                export_to_video(mesh_frames_rgb, os.path.join(out_dir, "mesh_renderings.mp4"), fps=fps)
+                
+                # Save overlay video (mesh on original frames)
+                overlay_frames_rgb = [(f.astype(np.float32) / 255.0) for f in overlay_frames]
+                export_to_video(overlay_frames_rgb, os.path.join(out_dir, "mesh_overlay.mp4"), fps=fps)
 
         print("\n Done!")
 

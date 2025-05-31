@@ -293,8 +293,9 @@ class DecodeTokens(nn.Module):
 
     def forward(self, logits):
         decode_feat = self.quantizer.dequantize_logits(logits)
+        decode_feat_discrete = self.quantizer.quantize(decode_feat)
         pose_out = self.decoder(decode_feat.permute(0,2,1))
-        return pose_out['pred_pose_body_6d']
+        return pose_out['pred_pose_body_6d'], decode_feat_discrete
 
     def load_weights(self, ckpt):
         prepare_statedict(self.decoder, ckpt['net'], 'decoder', 'body_model')

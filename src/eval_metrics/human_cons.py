@@ -277,6 +277,29 @@ def main():
     args = parser.parse_args()
     output_dir = Path(args.output)
     os.makedirs(output_dir, exist_ok=True)
+
+
+    ### DEL ###
+    temp = load_json(args.json_folder)
+    print(temp.keys())
+    print(f'pred_smpl_params: {temp["pred_smpl_params"].keys()}')
+    print(f'cls_logits_softmax: {np.array(temp["cls_logits_softmax"]).shape}')
+    print(f'pred_cam: {np.array(temp["pred_cam"]).shape}')
+    print(f'global_orient: {np.array(temp["pred_smpl_params"]["global_orient"]).shape}')
+    print(f'body_pose: {np.array(temp["pred_smpl_params"]["body_pose"]).shape}')
+    print(f'betas: {np.array(temp["pred_smpl_params"]["betas"]).shape}')
+    print(f'token_out: {np.array(temp["pred_smpl_params"]["token_out"]).shape}')
+    print(f'cls_logits_softmax: {np.array(temp["pred_smpl_params"]["cls_logits_softmax"]).shape}')
+    print(f'pred_cam_t: {np.array(temp["pred_cam_t"]).shape}')
+    print(f'focal_length: {np.array(temp["focal_length"]).shape}')
+    print(f'pred_keypoints_3d: {np.array(temp["pred_keypoints_3d"]).shape}')
+    print(f'pred_vertices: {np.array(temp["pred_vertices"]).shape}')
+    print(f'pred_keypoints_2d: {np.array(temp["pred_keypoints_2d"]).shape}')
+
+    exit()
+    ### DEL ###
+    exit()
+
     gen_metrics = compute_consistency_metrics(args.json_folder, exp_consistency=args.exp_consistency)
     real_metrics = compute_consistency_metrics(args.real_json_folder, exp_consistency=args.exp_consistency)
     with open(output_dir / "gen_consistency_metrics.json", "w") as f:

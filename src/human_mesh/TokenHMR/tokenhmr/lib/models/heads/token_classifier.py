@@ -107,13 +107,11 @@ class TokenClassfier(nn.Module):
 
         # logits: B x token_num x token_class_num
         cls_logits = self.class_pred_layer(cls_feat) 
-
         # cls_logits_softmax ((B * token_number)x token_dim)
         cls_logits_softmax = cls_logits.softmax(-1)
-        smpl_thetas6D = self.tokenize(cls_logits_softmax) # B x 21 x 6
-        
+        smpl_thetas6D, discrete_token = self.tokenize(cls_logits_softmax) # B x 21 x 6
         smpl_thetas6D = smpl_thetas6D.reshape(batch_size, -1)
-        return smpl_thetas6D, cls_logits_softmax
+        return smpl_thetas6D, cls_logits_softmax, discrete_token
 
     def _make_transition_for_head(self, inplanes, outplanes):
         transition_layer = [

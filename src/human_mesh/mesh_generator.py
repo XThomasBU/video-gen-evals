@@ -28,5 +28,5 @@ for video in videos:
 
 
 # mesh_generator.generate_mesh_from_frames(
-#     "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_JumpingJack_g20_c01/full_frames"
+#     "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_HulaHoop_g20_c07/generated_videos_cogvideox/frames"
 # )

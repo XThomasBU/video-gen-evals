@@ -85,6 +85,7 @@ class SMPLTokenDecoderHead(nn.Module):
         pred_cam_list = []
         cls_logits_softmax_list = []
         token_out_list = []
+        discrete_token_list = []
         for i in range(self.cfg.MODEL.SMPL_HEAD.get('IEF_ITERS', 1)):
             # Input token to transformer is zero token
             if self.input_is_mean_shape:
@@ -100,18 +101,17 @@ class SMPLTokenDecoderHead(nn.Module):
 
             # Readout from token_out
             pred_grot = self.decpose_grot(token_out)
-            pred_bpose, cls_logits_softmax = self.decpose(token_out) 
+            pred_bpose, cls_logits_softmax, discrete_token = self.decpose(token_out) 
             pred_handpose = self.decpose_hands(token_out)
             # pred_body_pose = torch.cat([pred_grot,pred_bpose,torch.zeros_like(pred_grot),torch.zeros_like(pred_grot)], -1) + pred_body_pose
             pred_body_pose = torch.cat([pred_grot,pred_bpose,pred_handpose], -1) + pred_body_pose
             pred_betas = self.decshape(token_out) + pred_betas
             pred_cam = self.deccam(token_out) + pred_cam
-
             cls_logits_softmax_list.append(cls_logits_softmax)
             pred_body_pose_list.append(pred_body_pose)
             pred_betas_list.append(pred_betas)
             pred_cam_list.append(pred_cam)
-
+            discrete_token_list.append(discrete_token)
         # Convert self.joint_rep_type -> rotmat
         joint_conversion_fn = {
             '6d': rot6d_to_rotmat,
@@ -124,11 +124,13 @@ class SMPLTokenDecoderHead(nn.Module):
         pred_smpl_params_list['cam'] = torch.cat(pred_cam_list, dim=0)
         pred_smpl_params_list['cls_logits_softmax'] = torch.cat(cls_logits_softmax_list, dim=0)
         pred_smpl_params_list['token_out'] = torch.cat(token_out_list, dim=0)
+        pred_smpl_params_list['discrete_token'] = torch.cat(discrete_token_list, dim=0)
         pred_body_pose = joint_conversion_fn(pred_body_pose).view(batch_size, self.cfg.SMPL.NUM_BODY_JOINTS+1, 3, 3)
-
+        
         pred_smpl_params = {'global_orient': pred_body_pose[:, [0]],
                             'body_pose': pred_body_pose[:, 1:],
                             'betas': pred_betas, 
                             'token_out': pred_smpl_params_list['token_out'], 
-                            'cls_logits_softmax': pred_smpl_params_list['cls_logits_softmax']}
+                            'cls_logits_softmax': pred_smpl_params_list['cls_logits_softmax'],
+                            'discrete_token': pred_smpl_params_list['discrete_token']}
         return pred_smpl_params, pred_cam, pred_smpl_params_list

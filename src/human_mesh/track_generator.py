@@ -8,5 +8,26 @@ tracker = TokenHMRTrackGenerator(
         overrides={"render.colors": "slahmr"}
     )
 
-# Run tracking on a video
-tracker.run("/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_JumpingJack_g20_c01/v_JumpingJack_g20_c01_full.mp4")
+DIR = "saved_data/ucf101"
+videos = os.listdir(DIR)
+
+# for video in videos:
+#     video_path = os.path.join(DIR, video, f"{video}_full.mp4")
+#     output_dir = os.path.join(DIR, video, "real_video_tracking_output")
+#     tracker.run(video_path, output_dir)
+
+# for video in videos:
+#     video_path = os.path.join(DIR, video, "generated_videos_cogvideox", f"video.mp4")
+#     output_dir = os.path.join(DIR, video, "cogvideox_tracking_output")
+#     tracker.run(video_path, output_dir)
+#     # break
+
+# for video in videos:
+#     video_path = os.path.join(DIR, video, "generated_videos_runway_gen4_turbo", f"video.mp4")
+#     output_dir = os.path.join(DIR, video, "runway_gen4_turbo_tracking_output")
+#     tracker.run(video_path, output_dir)
+#     # break
+
+video_path = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_HulaHoop_g20_c07/generated_videos_cogvideox/cog_hula.mp4"
+output_dir = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_HulaHoop_g20_c07/cogvideox_tracking_output_threshold50"
+tracker.run(video_path, output_dir)

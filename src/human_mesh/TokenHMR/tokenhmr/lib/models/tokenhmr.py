@@ -190,6 +190,7 @@ class TokenHMR(pl.LightningModule):
         output = {}
         if self.cfg.MODEL.SMPL_HEAD.TYPE == "token":
             output["cls_logits_softmax"] = pred_smpl_params_list["cls_logits_softmax"]
+            output["discrete_token"] = pred_smpl_params_list["discrete_token"]
         output["pred_cam"] = pred_cam
         output["pred_smpl_params"] = {k: v.clone() for k, v in pred_smpl_params.items()}
 
