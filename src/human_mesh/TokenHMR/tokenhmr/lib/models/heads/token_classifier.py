@@ -9,6 +9,7 @@ import sys, os
 sys.path.append(os.path.join(__file__.replace(os.path.basename(__file__), ''), '..', '..', '..', '..'))
 
 from tokenization.models.vanilla_pose_vqvae import DecodeTokens as VanillaDecodeTokens
+from tokenization.models.vanilla_pose_vqvae import EncodeTokens as VanillaEncodeTokens
 
 class Proxy(object):
     def __init__(self, tokenizer):
@@ -86,6 +87,15 @@ class TokenClassfier(nn.Module):
         tokenizer_proxy = Proxy(eval(f'{tokenizer_type.capitalize()}DecodeTokens')(tokenizer_checkpoint_path))
         self.tokenize = tokenizer_proxy.tokenize
         self.codebook = tokenizer_proxy.tokenizer.quantizer.codebook
+        self.tokenizer_proxy = tokenizer_proxy
+
+        # # print all keys in state_dict of tokenizer_checkpoint_path
+        # state_dict = torch.load(tokenizer_checkpoint_path)
+        # print(state_dict['net'].keys())
+        # exit()
+
+        encoder_proxy = Proxy(eval(f'{tokenizer_type.capitalize()}EncodeTokens')(tokenizer_checkpoint_path))
+        self.encoder_proxy = encoder_proxy
 
         # # save codebook as numpy array
         # self.codebook_array = self.codebook.cpu().numpy()

@@ -134,3 +134,76 @@ class SMPLTokenDecoderHead(nn.Module):
                             'cls_logits_softmax': pred_smpl_params_list['cls_logits_softmax'],
                             'discrete_token': pred_smpl_params_list['discrete_token']}
         return pred_smpl_params, pred_cam, pred_smpl_params_list
+
+
+    def forward_with_pred_body_pose(self, x, pred_bpose):
+        batch_size = x.shape[0]
+        # vit pretrained backbone is channel-first. Change to token-first
+        x = einops.rearrange(x, 'b c h w -> b (h w) c')
+
+        init_body_pose = self.init_body_pose.expand(batch_size, -1)
+        init_betas = self.init_betas.expand(batch_size, -1)
+        init_cam = self.init_cam.expand(batch_size, -1)
+
+        # TODO: Convert init_body_pose to aa rep if needed
+        if self.joint_rep_type == 'aa':
+            raise NotImplementedError
+
+        pred_body_pose = init_body_pose
+        pred_betas = init_betas
+        pred_cam = init_cam
+        pred_body_pose_list = []
+        pred_betas_list = []
+        pred_cam_list = []
+        cls_logits_softmax_list = []
+        token_out_list = []
+        discrete_token_list = []
+        for i in range(self.cfg.MODEL.SMPL_HEAD.get('IEF_ITERS', 1)):
+            # Input token to transformer is zero token
+            if self.input_is_mean_shape:
+                token = torch.cat([pred_body_pose, pred_betas, pred_cam], dim=1)[:,None,:]
+            else:
+                token = torch.zeros(batch_size, 1, 1).to(x.device)
+
+            token = token.to(x.dtype)
+            # Pass through transformer
+            token_out = self.transformer(token, context=x)
+            token_out = token_out.squeeze(1) # (B, C) 1024
+            token_out_list.append(token_out)
+
+            # Readout from token_out
+            pred_grot = self.decpose_grot(token_out)
+            _, cls_logits_softmax, discrete_token = self.decpose(token_out) 
+
+            pred_handpose = self.decpose_hands(token_out)
+            # pred_body_pose = torch.cat([pred_grot,pred_bpose,torch.zeros_like(pred_grot),torch.zeros_like(pred_grot)], -1) + pred_body_pose
+            pred_body_pose = torch.cat([pred_grot,pred_bpose,pred_handpose], -1) + pred_body_pose
+            pred_betas = self.decshape(token_out) + pred_betas
+            pred_cam = self.deccam(token_out) + pred_cam
+            cls_logits_softmax_list.append(cls_logits_softmax)
+            pred_body_pose_list.append(pred_body_pose)
+            pred_betas_list.append(pred_betas)
+            pred_cam_list.append(pred_cam)
+            discrete_token_list.append(discrete_token)
+        # Convert self.joint_rep_type -> rotmat
+        joint_conversion_fn = {
+            '6d': rot6d_to_rotmat,
+            'aa': lambda x: aa_to_rotmat(x.view(-1, 3).contiguous())
+        }[self.joint_rep_type]
+
+        pred_smpl_params_list = {}
+        pred_smpl_params_list['body_pose'] = torch.cat([joint_conversion_fn(pbp).view(batch_size, -1, 3, 3)[:, 1:, :, :] for pbp in pred_body_pose_list], dim=0)
+        pred_smpl_params_list['betas'] = torch.cat(pred_betas_list, dim=0)
+        pred_smpl_params_list['cam'] = torch.cat(pred_cam_list, dim=0)
+        pred_smpl_params_list['cls_logits_softmax'] = torch.cat(cls_logits_softmax_list, dim=0)
+        pred_smpl_params_list['token_out'] = torch.cat(token_out_list, dim=0)
+        pred_smpl_params_list['discrete_token'] = torch.cat(discrete_token_list, dim=0)
+        pred_body_pose = joint_conversion_fn(pred_body_pose).view(batch_size, self.cfg.SMPL.NUM_BODY_JOINTS+1, 3, 3)
+        
+        pred_smpl_params = {'global_orient': pred_body_pose[:, [0]],
+                            'body_pose': pred_body_pose[:, 1:],
+                            'betas': pred_betas, 
+                            'token_out': pred_smpl_params_list['token_out'], 
+                            'cls_logits_softmax': pred_smpl_params_list['cls_logits_softmax'],
+                            'discrete_token': pred_smpl_params_list['discrete_token']}
+        return pred_smpl_params, pred_cam, pred_smpl_params_list

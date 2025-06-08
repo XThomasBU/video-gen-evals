@@ -105,14 +105,12 @@ class TokenHMRMeshGenerator:
         self.renderer = renderer
         self.model_cfg = model_cfg
 
-    def generate_mesh_from_frames(self, folder_path):
+    def generate_mesh_from_frames(self, input_folder_path, out_dir):
 
-        metadata_path = os.path.join(os.path.dirname(folder_path), "metadata.json")
+        metadata_path = os.path.join(input_folder_path, "metadata.json")
         with open(metadata_path, "r") as f:
             metadata = json.load(f)
         fps = metadata["fps"] if "fps" in metadata else 24
-        
-        out_dir = os.path.join(folder_path, "tokenhmr_mesh")
 
         os.makedirs(out_dir, exist_ok=True)
 
@@ -124,7 +122,7 @@ class TokenHMRMeshGenerator:
         overlay_frames = []  # Add list to collect overlay frames
 
         # Iterate over all images in folder
-        for img_path in tqdm.tqdm(sorted(Path(folder_path).glob("*.png"))):
+        for img_path in tqdm.tqdm(sorted(list(Path(input_folder_path).glob("*.jpg")) + list(Path(input_folder_path).glob("*.png")))):
             print(f"Processing {img_path}..")
             img_cv2 = cv2.imread(str(img_path))
 
@@ -367,7 +365,7 @@ class TokenHMRMeshGenerator:
         # === Side-by-side-by-side video ===
         print("\n Creating side-by-side-by-side videos...")
 
-        real_frames_paths = sorted(list(Path(folder_path).glob('*.png')) + list(Path(folder_path).glob('*.jpg')))
+        real_frames_paths = sorted(list(Path(input_folder_path).glob('*.png')) + list(Path(input_folder_path).glob('*.jpg')))
         real_frames = []
         for path in real_frames_paths:
             frame = imageio.imread(path)
@@ -381,14 +379,11 @@ class TokenHMRMeshGenerator:
         masked_hybrid_rgb = [(np.repeat(f[..., None], 3, axis=2) / 255.0).astype(np.float32) for f in masked_real_hybrid_frames]
 
         # === Align all lengths ===
-        min_len = min(len(real_frames), len(masked_mesh_rgb), len(masked_bbox_rgb), len(masked_hybrid_rgb), len(motion_mesh_rgb), len(motion_bbox_rgb), len(motion_hybrid_rgb))
+        min_len = min(len(real_frames), len(masked_mesh_rgb), len(masked_bbox_rgb), len(masked_hybrid_rgb))
         real_frames = real_frames[:min_len]
         masked_mesh_rgb = masked_mesh_rgb[:min_len]
         masked_bbox_rgb = masked_bbox_rgb[:min_len]
         masked_hybrid_rgb = masked_hybrid_rgb[:min_len]
-        motion_mesh_rgb = motion_mesh_rgb[:min_len]
-        motion_bbox_rgb = motion_bbox_rgb[:min_len]
-        motion_hybrid_rgb = motion_hybrid_rgb[:min_len]
 
         # === Save separate combined videos ===
         def export_combined(real_frames, masked_frames, motion_frames, save_path):

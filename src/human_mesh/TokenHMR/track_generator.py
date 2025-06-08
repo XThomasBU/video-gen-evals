@@ -966,7 +966,7 @@ class My_Tracker:
         # Split track set into confirmed and unconfirmed tracks.
         confirmed_tracks = [i for i, t in enumerate(self.tracks) if t.is_confirmed() or t.is_tentative()]
 
-        self.metric.matching_threshold = 150 # FIXME
+        self.metric.matching_threshold = 400 # FIXME
         print(f"Matching threshold: {self.metric.matching_threshold}")
         # exit()
         
@@ -1674,7 +1674,8 @@ class PHALP_Prime_TokenHMR(PHALP):
         list_of_frames, additional_data = io_data['list_of_frames'], io_data['additional_data']
         self.cfg.video_seq = io_data['video_name']
         pkl_path = self.cfg.video.output_dir + '/results/' + self.cfg.track_dataset + "_" + str(self.cfg.video_seq) + '.pkl'
-        video_path = self.cfg.video.output_dir + '/' + self.cfg.base_tracker + '_' + str(self.cfg.video_seq) + '.mp4'
+        video_name = self.cfg.video.source.split("/")[-2]
+        video_path = self.cfg.video.output_dir + '/' + self.cfg.base_tracker + '_' + str(self.cfg.video_seq) + '_' + video_name + '.mp4'
         
         # check if the video is already processed                                  
         if(not(self.cfg.overwrite) and os.path.isfile(pkl_path)): 
@@ -1781,14 +1782,7 @@ class PHALP_Prime_TokenHMR(PHALP):
                                     final_visuals_dic[frame_name_][pkey_].append(track_data_pred_[pkey_][-1])
                                 else:
                                     final_visuals_dic[frame_name_][pkey_].append(track_data_pred_[pkey_.split('_')[1]][-1])
-
-            if(tracks_.hits==self.cfg.phalp.n_init):
-                print(final_visuals_dic[frame_name].keys())
-                for key_ in final_visuals_dic[frame_name].keys():
-                    print(key_, np.array(final_visuals_dic[frame_name][key_]).shape)
-                # print(np.array(final_visuals_dic[frame_name]['prediction_smpl_body_pose']).shape)  
-                exit()     
-    
+            
             ############ save the video ##############
             if(self.cfg.render.enable and t_>=self.cfg.phalp.n_init):                    
                 d_ = self.cfg.phalp.n_init+1 if(t_+1==len(list_of_frames)) else 1
@@ -1805,10 +1799,7 @@ class PHALP_Prime_TokenHMR(PHALP):
                     # # delete unnecessary keys
                     # for tkey_ in tmp_keys_:  
                     #     del final_visuals_dic[frame_key][tkey_] 
-
-        print(final_visuals_dic[list_of_frames[0]].keys())
-        exit()
-
+        
         joblib.dump(final_visuals_dic, pkl_path, compress=3)
         print(f"Saved to {pkl_path}")
         self.io_manager.close_video()

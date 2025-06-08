@@ -1,47 +1,63 @@
 import os
 import random
 import subprocess
+import tqdm
 
-directories = [
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/WallPushups",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/PushUps",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/Punch",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/PullUps",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/PlayingTabla",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/JumpRope",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/JumpingJack",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/HulaHoop",
-    "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101/BoxingSpeedBag",
-]
+base_dir = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/data/ucf101/UCF-101"
+out_dir = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101"
 
-for dir_path in directories:
-    avi_files = [f for f in os.listdir(dir_path) if f.endswith(".avi")]
+success_count = 0
+failures = []
+
+actions = os.listdir(base_dir)
+
+for action in actions:
+    dir_path = os.path.join(base_dir, action)
+    avi_files = [f for f in os.listdir(dir_path)
+                 if f.endswith(".avi") and os.path.isfile(os.path.join(dir_path, f))]
+    
     if len(avi_files) < 5:
-        print(f"Warning: Only {len(avi_files)} .avi files found in {dir_path}")
-    selected = random.sample(avi_files, min(5, len(avi_files)))
+        print(f"⚠️ Warning: Only {len(avi_files)} .avi files found in {dir_path}")
 
-    out_dir = os.path.join(dir_path, "converted_mp4")
-    os.makedirs(out_dir, exist_ok=True)
+    selected = avi_files  # convert all files
 
-    for avi_file in selected:
+    print(f"\n🎬 Converting {len(selected)} .avi files in action: {action}")
+    action_dir = os.path.join(out_dir, action)
+    os.makedirs(action_dir, exist_ok=True)
+
+    for avi_file in tqdm.tqdm(selected, desc=f"Processing {action}"):
         input_path = os.path.join(dir_path, avi_file)
         output_name = os.path.splitext(avi_file)[0] + ".mp4"
-        output_path = os.path.join(out_dir, output_name)
+        output_path = os.path.join(action_dir, output_name)
 
-        print(f"Converting {avi_file} -> {output_name}")
-        subprocess.run(
+        result = subprocess.run(
             [
                 "ffmpeg",
+                "-loglevel", "error",  # show only errors
                 "-y",
-                "-i",
-                input_path,
-                "-c:v",
-                "libx264",
-                "-c:a",
-                "aac",
+                "-i", input_path,
+                "-c:v", "libx264",
+                "-c:a", "aac",
                 output_path,
             ],
-            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
         )
 
-print("All videos converted.")
+        if result.returncode != 0 or not os.path.exists(output_path) or os.path.getsize(output_path) < 1000:
+            print(f"❌ Failed to convert: {input_path}")
+            print(result.stderr)
+            failures.append(input_path)
+        else:
+            success_count += 1
+
+# Final summary
+print("\n✅ Conversion complete.")
+print(f"Successful conversions: {success_count}")
+print(f"Failed conversions: {len(failures)}")
+
+if failures:
+    print("\nFailed files:")
+    for f in failures:
+        print(f"- {f}")

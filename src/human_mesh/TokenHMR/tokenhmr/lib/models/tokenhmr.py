@@ -164,6 +164,20 @@ class TokenHMR(pl.LightningModule):
             return optimizer, optimizer_disc
         return optimizer
 
+    def forward_with_pred_body_pose(self, batch: Dict, pred_bpose: torch.Tensor) -> Dict:
+        """
+        Run a forward step of the network with predicted body pose
+        """
+        batch_size = batch["img"].shape[0]
+        x = batch["img"]
+        conditioning_feats = self.backbone(x)
+
+        pred_smpl_params, pred_cam, pred_smpl_params_list = self.smpl_head.forward_with_pred_body_pose(
+            conditioning_feats, pred_bpose
+        )
+
+        return pred_smpl_params, pred_cam, pred_smpl_params_list
+
     def forward_step(self, batch: Dict, train: bool = False) -> Dict:
         """
         Run a forward step of the network
