@@ -29,6 +29,9 @@ pip install -r requirements.txt
 
 ---
 
+## FIXME: TO DO
+- cost matrix is set to 0 for PHALP for now
+
 ## Download HACS Video Clips
 
 **HACS (Human Action Clips and Segments)**
