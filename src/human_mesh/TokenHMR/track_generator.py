@@ -380,6 +380,7 @@ class PHALP(nn.Module):
 
     def get_human_features(self, image, seg_mask, bbox, bbox_pad, score, frame_name, cls_id, t_, measurments, gt=1, ann=None, extra_data=None):
         NPEOPLE = len(score)
+        print(f"NPEOPLE: {NPEOPLE}")
 
         if(NPEOPLE==0): return []
 
@@ -391,6 +392,7 @@ class PHALP(nn.Module):
         rles_list = []
         selected_ids = []
         for p_ in range(NPEOPLE):
+            print(bbox[p_], self.cfg.phalp.small_w, self.cfg.phalp.small_h)
             if bbox[p_][2]-bbox[p_][0]<self.cfg.phalp.small_w or bbox[p_][3]-bbox[p_][1]<self.cfg.phalp.small_h:
                 continue
             masked_image, center_, scale_, rles, center_pad, scale_pad = self.get_croped_image(image, bbox[p_], bbox_pad[p_], seg_mask[p_])
@@ -399,6 +401,10 @@ class PHALP(nn.Module):
             scale_list.append(scale_pad)
             rles_list.append(rles)
             selected_ids.append(p_)
+
+        print(selected_ids)
+        print("I'mma here")
+        exit()
         
         if(len(masked_image_list)==0): return []
 
@@ -822,8 +828,9 @@ class Track:
         
         self.hits += 1
         self.time_since_update = 0
-        if self.state == TrackState.Tentative and self.hits >= self._n_init:
-            self.state = TrackState.Confirmed
+        # if self.state == TrackState.Tentative and self.hits >= self._n_init:
+        #     self.state = TrackState.Confirmed
+        self.state = TrackState.Confirmed
 
         # if the detection has annotation, then we set the track state to confirmed
         if len(detection.detection_data['annotations'])>0:
@@ -959,7 +966,8 @@ class My_Tracker:
             pose_emb          = np.array([dets[i].detection_data['pose'] for i in detection_indices])
             uv_maps           = np.array([dets[i].detection_data['uv'] for i in detection_indices])
             targets           = np.array([tracks[i].track_id for i in track_indices])
-            cost_matrix       = self.metric.distance([appe_emb, loca_emb, pose_emb, uv_maps], targets, dims=[self.A_dim, self.P_dim, self.L_dim], phalp_tracker=self.phalp_tracker)
+            # cost_matrix       = self.metric.distance([appe_emb, loca_emb, pose_emb, uv_maps], targets, dims=[self.A_dim, self.P_dim, self.L_dim], phalp_tracker=self.phalp_tracker)
+            cost_matrix = np.zeros((len(track_indices), len(detection_indices))) # FIXME
 
             return cost_matrix
 
@@ -1528,6 +1536,7 @@ class PHALP_Prime_TokenHMR(PHALP):
 
     def get_human_features(self, image, seg_mask, bbox, bbox_pad, score, frame_name, cls_id, t_, measurments, gt=1, ann=None, extra_data=None):
         NPEOPLE = len(score)
+        # print(f"NPEOPLE: {NPEOPLE}")
 
         if len(seg_mask) > 0:
             # save the image with the mask overlayed
@@ -1555,14 +1564,17 @@ class PHALP_Prime_TokenHMR(PHALP):
         rles_list = []
         selected_ids = []
         for p_ in range(NPEOPLE):
-            if bbox[p_][2]-bbox[p_][0]<self.cfg.phalp.small_w or bbox[p_][3]-bbox[p_][1]<self.cfg.phalp.small_h:
-                continue
+            # print(bbox[p_], self.cfg.phalp.small_w, self.cfg.phalp.small_h)
+            # if bbox[p_][2]-bbox[p_][0]<self.cfg.phalp.small_w or bbox[p_][3]-bbox[p_][1]<self.cfg.phalp.small_h:
+            #     continue
             masked_image, center_, scale_, rles, center_pad, scale_pad = self.get_croped_image(image, bbox[p_], bbox_pad[p_], seg_mask[p_])
             masked_image_list.append(masked_image)
             center_list.append(center_pad)
             scale_list.append(scale_pad)
             rles_list.append(rles)
             selected_ids.append(p_)
+        # print(f"selected_ids: {selected_ids}")
+        # exit()
         
         if(len(masked_image_list)==0): return []
 
@@ -1715,12 +1727,15 @@ class PHALP_Prime_TokenHMR(PHALP):
             
             ############ detection ##############
             pred_bbox, pred_bbox_pad, pred_masks, pred_scores, pred_classes, gt_tids, gt_annots = self.get_detections(image_frame, frame_name, t_, additional_data, measurments)
+            print(pred_scores)
 
             ############ Run EXTRA models to attach to the detections ##############
             extra_data = self.run_additional_models(image_frame, pred_bbox, pred_masks, pred_scores, pred_classes, frame_name, t_, measurments, gt_tids, gt_annots)
             
             ############ HMAR ##############
             detections = self.get_human_features(image_frame, pred_masks, pred_bbox, pred_bbox_pad, pred_scores, frame_name, pred_classes, t_, measurments, gt_tids, gt_annots, extra_data)
+            # print(detections, pred_scores)
+            # exit()
 
             ############ tracking ##############
             self.tracker.predict()

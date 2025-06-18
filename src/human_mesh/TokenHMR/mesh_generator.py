@@ -23,6 +23,7 @@ import json
 import natsort
 from diffusers.utils import export_to_video
 import imageio
+import pickle
 
 os.environ["PYOPENGL_PLATFORM"] = "egl"
 LIGHT_BLUE = (0.65098039, 0.74117647, 0.85882353)
@@ -154,6 +155,11 @@ class TokenHMRMeshGenerator:
                 save_json_path = os.path.join(out_dir, f'{img_path.stem}_info.json')
                 with open(save_json_path, 'w') as f:
                     json.dump(dict_info, f, indent=4)
+
+                # save also as .pkl
+                save_pkl_path = os.path.join(out_dir, f'{img_path.stem}_info.pkl')
+                with open(save_pkl_path, 'wb') as f:
+                    pickle.dump(dict_info, f)
 
                 pred_cam = out["pred_cam"]
                 box_center = batch["box_center"].float()
@@ -324,7 +330,9 @@ class TokenHMRMeshGenerator:
                 overlay_frame = (255 * input_img_overlay).astype(np.uint8)
                 overlay_frames.append(overlay_frame)
 
-        # After full loop
+        # # After full loop
+        # print(len(masked_real_bbox_frames))
+        # exit()
         if len(masked_real_bbox_frames) >= 2:
             print("\n✅ Computing motion from masked real frames...")
 

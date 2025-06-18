@@ -68,10 +68,10 @@ class BaseHFVideoGenerator:
         run_dir = output_dir or self._create_unique_output_dir()
         os.makedirs(run_dir, exist_ok=True)
 
-        frame_dir = os.path.join(run_dir, "frames")
+        frame_dir = run_dir
         os.makedirs(frame_dir, exist_ok=True)
         for i, frame in enumerate(video_frames):
-            frame.save(os.path.join(frame_dir, f"frame_{i:04d}.png"))
+            frame.save(os.path.join(frame_dir, f"frame_{i:06d}.png"))
 
         video_path = os.path.join(run_dir, "video.mp4")
         export_to_video(video_frames, video_path, fps=fps)
@@ -122,7 +122,7 @@ class BaseRunwayVideoGenerator:
             b64_encoded = base64.b64encode(img_bytes).decode("utf-8")
             return f"data:image/png;base64,{b64_encoded}"
 
-    def _wait_for_task_completion(self, task_id, poll_interval=5, timeout=600):
+    def _wait_for_task_completion(self, task_id, poll_interval=10, timeout=1200):
         start_time = time.time()
         while time.time() - start_time < timeout:
             task = self.client.tasks.retrieve(id=task_id)
@@ -150,7 +150,7 @@ class BaseRunwayVideoGenerator:
             )
 
     def _extract_frames(self, video_path, output_dir):
-        frame_dir = os.path.join(output_dir, "frames")
+        frame_dir = os.path.join(output_dir)
         os.makedirs(frame_dir, exist_ok=True)
         subprocess.run(
             [

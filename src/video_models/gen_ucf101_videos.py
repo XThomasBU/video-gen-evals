@@ -5,10 +5,12 @@ import json
 
 from models.cogvideox import CogVideoXGenerator
 from models.runway import RunwayGen4TurboGenerator
+from models.wan2_1 import Wan2_1Generator
 
 from diffusers.utils import load_image
 
-HACS_DIR = "saved_data/ucf101"
+HACS_DIR = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/videos/ucf101_10classes_frames"
+OUTPUT_DIR = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/videos/"
 
 
 def main(args):
@@ -25,58 +27,87 @@ def main(args):
             "guidance_scale": 6,
             "fps": 8,
             "seed": 42,
-            "output_dir": "saved_data/cogvideox",
+            "output_dir": OUTPUT_DIR + "/cogvideox_videos_5",
         }
     elif args.model == "runway_gen4_turbo":
         generator = RunwayGen4TurboGenerator(model_name="gen4_turbo")
         config = {
             "model_name": "gen4_turbo",
-            "output_root": "saved_data/runway_gen4",
             "duration": 5,
+            "output_dir": OUTPUT_DIR + "/runway_gen4_videos_5",
+        }
+    elif args.model == "wan2_1":
+        generator = Wan2_1Generator(
+            model_name_or_path="Wan-AI/Wan2.1-I2V-14B-480P-Diffusers", dtype=torch.bfloat16
+        )
+        config = {
+            "prompt": "placehlder",
+            "image": "placehlder",
+            "num_frames": 81,
+            "num_inference_steps": 50,
+            "guidance_scale": 5.0,
+            "fps": 16,
+            "seed": 42,
+            "output_dir": OUTPUT_DIR + "/wan21_videos_5",
         }
     else:
         raise ValueError("Invalid model choice")
 
-    video_ids = os.listdir(HACS_DIR)
-    print(f"Found {len(video_ids)} videos in {HACS_DIR}")
-    print(video_ids)
+    action_folders = [os.path.join(HACS_DIR, action_folder) for action_folder in os.listdir(HACS_DIR)]
+    print(f"Found {len(action_folders)} action folders in {HACS_DIR}")
+    print(action_folders)
 
-    for video_id in video_ids:
-        video_dir = os.path.join(HACS_DIR, video_id)
-        if not os.path.isdir(video_dir):
-            print(f"Skipping {video_id}, not a directory")
+    for action_folder in action_folders:
+        if not os.path.isdir(action_folder):
+            print(f"Skipping {action_folder}, not a directory")
             continue
+        videos = os.listdir(action_folder)
 
-        print(f"Processing {video_id}...")
-        metadata_path = os.path.join(video_dir, "metadata.json")
-        if not os.path.exists(metadata_path):
-            print(f"Metadata file not found for {video_id}")
-            continue
+        # get 10 videos from each action folder (sorted)
+        videos = sorted(os.listdir(action_folder))[:10]
 
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
+        for video in videos:
+            video_path = os.path.join(action_folder, video,  "video.mp4")
 
-        action = metadata.get("action", "")
-        prompt = f"A person doing {action}"
-        image_path = f"saved_data/ucf101/{video_id}/selected_frames/frame_00001.png"
+            # don't generate if video already exists
+            temp_output_path = config["output_dir"] + "/" + action_folder.split("/")[-1] + "/" + video + "/" + "video.mp4"
+            if os.path.exists(temp_output_path):
+                print(f"Skipping {video} because it already exists")
+                continue
 
-        if args.model == "cogvideox":
-            image = load_image(image_path)
-        else:
-            image = image_path
-            config["image_path"] = image_path
+            print(f"Processing {video}...")
+            metadata_path = os.path.join(action_folder, video, "metadata.json")
+            if not os.path.exists(metadata_path):
+                print(f"Metadata file not found for {video}")
+                continue
 
-        config["prompt"] = prompt
+            with open(metadata_path, "r") as f:
+                metadata = json.load(f)
 
-        config["output_dir"] = os.path.join(
-            "saved_data", "ucf101", video_id, f"generated_videos_{args.model}"
-        )
-        os.makedirs(config["output_dir"], exist_ok=True)
-        print(f"Generating video for {video_id} with prompt: {prompt}")
-        print(f"Image path: {image_path}")
-        print(f"Output directory: {config['output_dir']}")
+            action = metadata.get("action", "")
+            prompt = f"A person doing {action}"
+            image_path = action_folder + "/" + video + "/frame_000000.jpg"
 
-        generator.generate(image=image, config=config)  # FIXME: Fix the FPS!!!!!
+            if args.model == "cogvideox":
+                image = load_image(image_path)
+            else:
+                image = image_path
+                config["image_path"] = image_path
+
+            config["prompt"] = prompt
+
+            action = action_folder.split("/")[-1]
+            output_dir = config["output_dir"] + "/" + action + "/" + video + "/"
+            os.makedirs(output_dir, exist_ok=True)
+            print(f"Generating video for {video} with prompt: {prompt}")
+            print(f"Image path: {image_path}")
+            print(f"Output directory: {config['output_dir']}")
+
+            video_config = config.copy()
+            video_config["output_dir"] = output_dir
+            video_config["output_root"] = output_dir
+
+            generator.generate(image=image, config=video_config)  # FIXME: Fix the FPS!!!!!
 
 
 if __name__ == "__main__":
@@ -84,7 +115,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        choices=["cogvideox", "runway_gen4_turbo"],
+        choices=["cogvideox", "runway_gen4_turbo", "wan2_1"],
         default="cogvideox",
         help="Model to use for video generation",
     )
