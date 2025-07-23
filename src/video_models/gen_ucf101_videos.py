@@ -4,7 +4,7 @@ import torch
 import json
 
 from models.cogvideox import CogVideoXGenerator
-from models.runway import RunwayGen4TurboGenerator
+from models.runway import RunwayGen4TurboGenerator, RunwayGen3AlphaTurboGenerator
 from models.wan2_1 import Wan2_1Generator
 
 from diffusers.utils import load_image
@@ -35,6 +35,15 @@ def main(args):
             "model_name": "gen4_turbo",
             "duration": 5,
             "output_dir": OUTPUT_DIR + "/runway_gen4_videos_5",
+            "ratio": "1280:720",
+        }
+    elif args.model == "runway_gen3_alpha_turbo":
+        generator = RunwayGen3AlphaTurboGenerator(model_name="gen3a_turbo")
+        config = {
+            "model_name": "gen3a_turbo",
+            "duration": 5,
+            "output_dir": OUTPUT_DIR + "/runway_gen3_alpha_videos_5",
+            "ratio": "1280:768",
         }
     elif args.model == "wan2_1":
         generator = Wan2_1Generator(
@@ -115,7 +124,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--model",
         type=str,
-        choices=["cogvideox", "runway_gen4_turbo", "wan2_1"],
+        choices=["cogvideox", "runway_gen4_turbo", "wan2_1", "runway_gen3_alpha_turbo"],
         default="cogvideox",
         help="Model to use for video generation",
     )

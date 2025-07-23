@@ -19,6 +19,8 @@ import torch.nn.functional as F
 import mediapy as media
 
 
+FPS = 25
+
 def compute_tapvid_metrics(
     query_points: np.ndarray,
     gt_occluded: np.ndarray,
@@ -184,7 +186,7 @@ tapir = tapir_model.ParameterizedTAPIR(params, state, tapir_kwargs=kwargs)
 print(tapir)
 
 trajan_checkpoint_path = 'tapnet/checkpoints/track_autoencoder_ckpt.npz'
-video = media.read_video("/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/v_WallPushups_g07_c01/v_WallPushups_g07_c01_full.mp4")
+video = media.read_video("/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101/HandstandPushups/v_HandStandPushups_g02_c02.mp4")
 
 print(video.shape)
 
@@ -290,7 +292,7 @@ tracks = transforms.convert_grid_coordinates(
     tracks, (resize_width, resize_height), (width, height)
 )
 video_viz = viz_utils.paint_point_track(video, tracks, visibles)
-media.show_video(video_viz, fps=10)
+media.show_video(video_viz, fps=FPS)
 
 
 def npload(fname):
@@ -528,19 +530,35 @@ reconstructed_visibles = model_utils.postprocess_occlusions(
 # NOTE: uncomment the lines below to also visualize the support & target tracks.
 video_length = video.shape[0]
 
-# video_viz = viz_utils.paint_point_track(
-#     video,
-#     support_tracks_vis[:, : video.shape[1]],
-#     batch['support_tracks_visible'][0, :, :video_length],
-# )
-# media.show_video(video_viz, fps=10)
+print(len(support_tracks_vis))
+print(len(target_tracks_vis))
 
-# video_viz = viz_utils.paint_point_track(
-#     video,
-#     target_tracks_vis[:, :video_length],
-#     batch['target_tracks_visible'][0, :, :video_length],
-# )
-# media.show_video(video_viz, fps=10)
+print(len(support_tracks_vis[:, :video_length]), len(target_tracks_vis[:, :video_length]))
+print(len(batch['support_tracks_visible'][0, :, :video_length]), len(batch['target_tracks_visible'][0, :, :video_length]))
+
+video_viz = viz_utils.paint_point_track(
+    video,
+    support_tracks_vis[:, :video_length],
+    batch['support_tracks_visible'][0, :, :video_length],
+)
+media.write_video(
+    "support_tracks.mp4",
+    video_viz,
+    fps=FPS,
+)
+
+# media.show_video(video_viz, fps=FPS)
+
+video_viz = viz_utils.paint_point_track(
+    video,
+    target_tracks_vis[:, :video_length],
+    batch['target_tracks_visible'][0, :, :video_length],
+)
+media.write_video(
+    "target_tracks.mp4",
+    video_viz,
+    fps=FPS,
+)
 
 video_viz = viz_utils.paint_point_track(
     video,
@@ -552,7 +570,7 @@ video_viz = viz_utils.paint_point_track(
 media.write_video(
     "reconstructed_tracks.mp4",
     video_viz,
-    fps=10,
+    fps=FPS,
 )
 
 # Query from the first frame onward.

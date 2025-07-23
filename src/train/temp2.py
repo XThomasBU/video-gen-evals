@@ -9,7 +9,14 @@ from torch import nn
 from torch.utils.data import Dataset, DataLoader
 from torch.nn.utils.rnn import pad_sequence
 from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
+from collections import defaultdict
+import math
+
+# set seed
+torch.manual_seed(1)
+np.random.seed(1)
 
 # ——— CONFIG ———
 REAL_ROOT = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/videos/ucf101/mesh_real_videos"
@@ -19,7 +26,7 @@ BATCH_SIZE = 256
 LATENT_DIM = 128
 EPOCHS = 100
 WINDOW_SIZE = 64 # 64
-STRIDE = 16 # 32
+STRIDE = 8 # 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 def partial_shuffle_within_window(seqs, lengths, vid_ids, shuffle_fraction=0.7):
@@ -33,6 +40,18 @@ def partial_shuffle_within_window(seqs, lengths, vid_ids, shuffle_fraction=0.7):
             shuffled_part = shuffled[i, indices][torch.randperm(n_to_shuffle)]
             shuffled[i, indices] = shuffled_part
     return shuffled
+
+def reverse_sequence(seqs, lengths):
+    # [B, T, D] → reversed in T dim
+    reversed_seqs = []
+    for i, l in enumerate(lengths):
+        reversed = torch.flip(seqs[i, :l], dims=[0])
+        pad_len = seqs.shape[1] - l
+        if pad_len > 0:
+            pad = torch.zeros(pad_len, seqs.shape[2], device=seqs.device)
+            reversed = torch.cat([reversed, pad], dim=0)
+        reversed_seqs.append(reversed)
+    return torch.stack(reversed_seqs, dim=0)
 
 # ——— LOAD VIDEO FRAMES ———
 def load_video_sequence(video_folder):
@@ -57,12 +76,14 @@ def load_video_sequence(video_folder):
             body_pose     = np.array(params["body_pose"]).flatten()
             betas         = np.array(params["betas"]).flatten()
 
-            # Normalize each part
-            global_orient /= np.linalg.norm(global_orient) + 1e-8
-            body_pose     /= np.linalg.norm(body_pose) + 1e-8
-            betas         /= np.linalg.norm(betas) + 1e-8
+            # # Normalize each part
+            # vit_feature   /= np.linalg.norm(vit_feature) + 1e-8
+            # global_orient /= np.linalg.norm(global_orient) + 1e-8
+            # body_pose     /= np.linalg.norm(body_pose) + 1e-8
+            # betas         /= np.linalg.norm(betas) + 1e-8
 
             vec = np.concatenate([vit_feature, global_orient, body_pose, betas], axis=0)
+            vec = vec / np.linalg.norm(vec) + 1e-8
             if vec.shape[0] != 1250:
                 continue
 
@@ -83,7 +104,8 @@ def load_video_sequence(video_folder):
     # Concatenate original + motion
     enriched_tensor = torch.cat([frame_tensor, motion_vecs], dim=1)  # [T, 2500]
 
-    return enriched_tensor
+    # return enriched_tensor
+    return frame_tensor
 
 # ——— SLIDING WINDOW ———
 def extract_windows(seq, window_size, stride):
@@ -101,6 +123,23 @@ def extract_windows(seq, window_size, stride):
         if end >= num_frames:
             break
     return windows
+
+# def extract_windows(seq, min_size=16, max_size=128, stride=8):
+#     windows = []
+#     num_frames = seq.shape[0]
+#     for start in range(0, num_frames, stride):
+#         window_size = np.random.randint(min_size, max_size + 1)
+#         end = start + window_size
+#         if end > num_frames:
+#             pad_len = end - num_frames
+#             pad = seq[-1:].repeat(pad_len, 1)
+#             window = torch.cat([seq[start:], pad], dim=0)
+#         else:
+#             window = seq[start:end]
+#         windows.append(window)
+#         if end >= num_frames:
+#             break
+#     return windows
 
 # ——— DATASET ———
 # class PoseVideoDataset(Dataset):
@@ -173,7 +212,7 @@ class PoseVideoDataset(Dataset):
                 seq = load_video_sequence(vid_path)
                 if seq is None:
                     continue
-                windows = extract_windows(seq, window_size, stride)
+                windows = extract_windows(seq, WINDOW_SIZE, STRIDE)
                 self.samples.extend(windows)
                 self.labels.extend([self.class_to_idx[cls]] * len(windows))
                 self.vid_ids.extend([vid_path.name] * len(windows))
@@ -187,11 +226,17 @@ class PoseVideoDataset(Dataset):
         return self.samples[idx], self.labels[idx], self.vid_ids[idx]
 
 # ——— COLLATE FN ———
+# def collate_fn(batch):
+#     sequences, labels, vid_ids = zip(*batch)
+#     sequences = torch.stack(sequences)
+#     labels = torch.tensor(labels)
+#     lengths = torch.full((len(labels),), sequences.shape[1], dtype=torch.long)
+#     return sequences, lengths, labels, vid_ids
 def collate_fn(batch):
     sequences, labels, vid_ids = zip(*batch)
-    sequences = torch.stack(sequences)
+    lengths = torch.tensor([seq.shape[0] for seq in sequences])
+    sequences = pad_sequence(sequences, batch_first=True)  # [B, T_max, D]
     labels = torch.tensor(labels)
-    lengths = torch.full((len(labels),), sequences.shape[1], dtype=torch.long)
     return sequences, lengths, labels, vid_ids
 
 # ——— MODEL ———
@@ -225,6 +270,22 @@ def collate_fn(batch):
 #         x = self.proj(x)
 #         x = nn.functional.normalize(x, p=2, dim=-1)
 #         return x
+
+class SinusoidalPositionalEmbedding(nn.Module):
+    def __init__(self, d_model: int, max_len: int = 5000):
+        super().__init__()
+        pe = torch.zeros(max_len, d_model)  # [T, D]
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)  # [T, 1]
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))  # [D/2]
+
+        pe[:, 0::2] = torch.sin(position * div_term)  # even dims
+        pe[:, 1::2] = torch.cos(position * div_term)  # odd dims
+        pe = pe.unsqueeze(0)  # [1, T, D]
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        # x: [B, T, D]
+        return x + self.pe[:, :x.size(1), :]
 class TemporalTransformer(nn.Module):
     def __init__(self, input_dim, latent_dim, d_model=256, n_heads=4, n_layers=2, dropout=0.1):
         super().__init__()
@@ -236,7 +297,7 @@ class TemporalTransformer(nn.Module):
             nn.Linear(input_dim, d_model),
         )
 
-        self.positional = nn.Parameter(torch.randn(512, d_model))
+        self.positional = SinusoidalPositionalEmbedding(d_model)
 
         encoder_layer = nn.TransformerEncoderLayer(
             d_model=d_model,
@@ -254,12 +315,14 @@ class TemporalTransformer(nn.Module):
         x = self.input_proj(x)  # [B, T, d_model]
         B, T, D = x.shape
 
-        pos_emb = self.positional[:T, :].unsqueeze(0)
-        x = x + pos_emb
+        # pos_emb = self.positional[:T, :].unsqueeze(0)
+        # x = x + pos_emb
+        x = self.positional(x)
 
         # Mask: True where padding is applied
         mask = torch.arange(T, device=lengths.device)[None, :] >= lengths[:, None]
         x = self.transformer(x, src_key_padding_mask=mask)  # [B, T, D]
+        frame_embeddings = x
 
         # Attention pooling: Q = [1, 1, D], K,V = [B, T, D] → out = [B, 1, D]
         q = self.attn_query.expand(B, -1, -1)  # [B, 1, D]
@@ -269,7 +332,7 @@ class TemporalTransformer(nn.Module):
 
         x = self.proj(pooled)
         x = nn.functional.normalize(x, p=2, dim=-1)
-        return x
+        return x, frame_embeddings
 
 # ——— CONTRASTIVE LOSS ———
 class SupConLoss(nn.Module):
@@ -354,6 +417,10 @@ def train():
     print("✅ Building model...")
     input_dim = train_dataset[0][0].shape[-1]
     model = TemporalTransformer(input_dim=input_dim, latent_dim=LATENT_DIM).to(DEVICE)
+
+    # print number of parameters
+    print(f"✅ Number of parameters: {sum(p.numel() for p in model.parameters())}")
+
     loss_fn = SupConLoss()
     loss_fn_hard = SupConWithHardNegatives()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
@@ -367,21 +434,53 @@ def train():
             seqs, lengths, labels = seqs.to(DEVICE), lengths.to(DEVICE), labels.to(DEVICE)
             shuffled_seqs = partial_shuffle_within_window(seqs, lengths, vid_ids)
             optimizer.zero_grad()
-            embeddings = model(seqs, lengths)
-            shuffled_embeddings = model(shuffled_seqs, lengths)
+            embeddings, frame_embeddings = model(seqs, lengths)
+            shuffled_embeddings, _ = model(shuffled_seqs, lengths)
             positive = embeddings.detach()
-            hard_negative = shuffled_embeddings.detach()
-            loss_hard = loss_fn_hard(embeddings, positive, hard_negative)
-            loss = loss_fn(embeddings, labels)
-            print(loss, loss_hard)
-            loss = loss + loss_hard
+            # hard_negative = shuffled_embeddings.detach()
+            # loss_hard = loss_fn_hard(embeddings, positive, hard_negative)
+            # loss = loss_fn(embeddings, labels)
+            # print(loss, loss_hard)
+
+            # # ——— temporal smoothness penalty ———
+            # # build a map: vid_id → list of batch‐indices
+            vid_to_indices = defaultdict(list)
+            for i, vid in enumerate(vid_ids):
+                vid_to_indices[vid].append(i)
+
+            curvature_loss = 0.0
+            for vid, idxs in vid_to_indices.items():
+                if len(idxs) < 3:
+                    continue
+                idxs = sorted(idxs)
+                z_seq = frame_embeddings[idxs]           # [T, D]
+                vel = z_seq[1:] - z_seq[:-1]            # [T-1, D]
+                acc = vel[1:] - vel[:-1]                # [T-2, D]
+                acc_loss = acc.pow(2).sum(dim=-1).mean()  # Mean over all frames in this video
+                curvature_loss += acc_loss
+            curvature_loss = curvature_loss / max(1, len(vid_to_indices))
+
+            rev_seqs = reverse_sequence(seqs, lengths)
+            reversed_embeds, _ = model(rev_seqs, lengths)
+
+            # # Encourage dissimilarity between embeddings and their reversed counterparts
+            # rev_cos_sim = torch.sum(embeddings * reversed_embeds, dim=-1)  # [B]
+            # rev_loss = rev_cos_sim.mean()  # higher = too similar → penalize
+            # print(rev_loss)\
+            loss_org = loss_fn(embeddings, labels)
+            loss_hard_combined = loss_fn_hard(embeddings, positive, shuffled_embeddings.detach()) + \
+                     loss_fn_hard(embeddings, positive, reversed_embeds.detach())
+
+
+            loss = loss_org + 10 * loss_hard_combined 
+            print(loss_org, loss_hard_combined, curvature_loss)
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
         print(f"✅ Epoch {epoch+1} Loss: {total_loss/len(train_loader):.4f}")
 
     print("✅ Saving model...")
-    torch.save(model.state_dict(), "temporal_transformer_model.pt")
+    torch.save(model.state_dict(), f"temporal_transformer_model_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
 
     print("✅ Computing train embeddings...")
     model.eval()
@@ -390,15 +489,15 @@ def train():
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids in tqdm(train_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb = model(seqs, lengths)
+            emb, _ = model(seqs, lengths)
             all_train_embeds.append(emb.cpu())
             all_train_labels.append(labels)
     all_train_embeds = torch.cat(all_train_embeds)
     all_train_labels = torch.cat(all_train_labels)
 
     # save all_train_embeds and all_train_labels
-    torch.save(all_train_embeds, "all_train_embeds.pt")
-    torch.save(all_train_labels, "all_train_labels.pt")
+    torch.save(all_train_embeds, f"all_train_embeds_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
+    torch.save(all_train_labels, f"all_train_labels_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
 
     # Compute class centroids
     centroids = {}
@@ -417,7 +516,8 @@ def train():
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids in tqdm(test_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb = model(seqs, lengths).cpu()
+            emb, _ = model(seqs, lengths)
+            emb = emb.cpu()
             for e, l in zip(emb, labels):
                 l = int(l.item())
 
@@ -474,7 +574,7 @@ def train():
     print("\n✅ Overall Class Consistency Scores:")
     pprint({ALL_CLASSES[k]: v for k, v in consistency_scores.items()})
 
-    with open("centroids.pkl", "wb") as f:
+    with open(f"centroids_window_{WINDOW_SIZE}_stride_{STRIDE}.pkl", "wb") as f:
         pickle.dump(centroids, f)
 
     print("\n✅ Done!")
@@ -488,20 +588,32 @@ def train():
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids in tqdm(test_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb = model(seqs, lengths).cpu()
+            emb, _ = model(seqs, lengths)
+            emb = emb.cpu()
             all_test_embeds.append(emb)
             all_test_labels.append(labels)
     all_test_embeds = torch.cat(all_test_embeds)
     all_test_labels = torch.cat(all_test_labels)
 
     # ---------- Combine for joint PCA ----------
-    combined_embeds = torch.cat([all_train_embeds, all_test_embeds], dim=0).numpy()
-    pca = PCA(n_components=2)
-    projected_all = pca.fit_transform(combined_embeds)
+    # combined_embeds = torch.cat([all_train_embeds, all_test_embeds], dim=0).numpy()
+    # pca = TSNE(n_components=2)
+    # projected_all = pca.fit_transform(combined_embeds)
 
+    # projected_train_embeds = projected_all[:len(all_train_embeds)]
+    # projected_test_embeds = projected_all[len(all_train_embeds):]
+    # projected_centroids = pca.transform(torch.stack([centroids[c] for c in sorted(centroids)]).numpy())
+    combined_embeds = torch.cat([all_train_embeds, all_test_embeds], dim=0).numpy()
+    centroid_matrix = torch.stack([centroids[c] for c in sorted(centroids)]).numpy()
+    full_matrix = np.concatenate([combined_embeds, centroid_matrix], axis=0)
+
+    pca = TSNE(n_components=2)
+    projected_all = pca.fit_transform(full_matrix)
+
+    # Then split back:
     projected_train_embeds = projected_all[:len(all_train_embeds)]
-    projected_test_embeds = projected_all[len(all_train_embeds):]
-    projected_centroids = pca.transform(torch.stack([centroids[c] for c in sorted(centroids)]).numpy())
+    projected_test_embeds = projected_all[len(all_train_embeds):len(all_train_embeds) + len(all_test_embeds)]
+    projected_centroids = projected_all[-len(centroids):]
 
     # ---------- Plot ----------
     colors = plt.cm.get_cmap("tab10", len(ALL_CLASSES))
@@ -523,28 +635,29 @@ def train():
     # Plot centroids
     for i, (x, y) in enumerate(projected_centroids):
         plt.scatter(x, y, color=colors(i), edgecolors='k', s=200, marker='X', linewidths=2)
-        plt.text(x, y, ALL_CLASSES[i], fontsize=9, ha='center', va='center', color='black')
+        plt.text(x, y + 0.05, ALL_CLASSES[i], fontsize=9, ha='center', va='bottom', color='black', bbox=dict(facecolor='white', alpha=0.8))
 
-    # Plot test embeddings with outline
+    # Plot test embeddings with outline using star shape
     for cls in range(len(ALL_CLASSES)):
         mask = (all_test_labels == cls).numpy()
         plt.scatter(
             projected_test_embeds[mask, 0],
             projected_test_embeds[mask, 1],
-            s=30,
+            s=100,
             facecolors=colors(cls),
             edgecolors='black',
             linewidths=0.5,
+            marker='*',  # Changed marker to star
             label=f"{ALL_CLASSES[cls]} (test)",
             alpha=0.9
         )
 
     plt.title("2D Projection of Train + Test Window Embeddings + Centroids")
-    plt.legend(loc='best', fontsize=8)
+    # plt.legend(loc='best', fontsize=8)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig("embeddings_centroids_with_test.png", dpi=200)
-    print("✅ Saved as embeddings_centroids_with_test.png")
+    plt.savefig(f"SAVE/embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}.png", dpi=200)
+    print(f"✅ Saved as embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}.png")
 
 # ——— MAIN ———
 if __name__ == "__main__":

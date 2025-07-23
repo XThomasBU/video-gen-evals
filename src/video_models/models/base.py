@@ -177,7 +177,7 @@ class BaseRunwayVideoGenerator:
         result = self.client.image_to_video.create(
             model=self.model_name,
             prompt_image=prompt_image,
-            ratio="1280:720",
+            ratio=config.get("ratio", "1280:720"),
             prompt_text=prompt,
             duration=config.get("duration", 5),
         )

@@ -20,6 +20,11 @@ def extract_frames(video_path, output_dir):
     Returns:
         int: Number of frames extracted
     """
+    # Check if the video has already been extracted
+    if os.path.exists(output_dir):
+        print(f"Skipping {video_path} as it has already been extracted.")
+        return 0
+    
     # Create output directory if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
@@ -96,7 +101,7 @@ if __name__ == "__main__":
 
     actions = os.listdir(args.video_dir)
     print(f"Extracting frames for {len(actions)} actions")
-    actions = ["BodyWeightSquats", "JumpingJack", "HandstandPushups", "WallPushups", "ThrowDiscus"]
+    actions = ["BodyWeightSquats", "HulaHoop", "JumpingJack", "PullUps", "PushUps", "Shotput", "SoccerJuggling", "TennisSwing", "ThrowDiscus", "WallPushups"]
     for action in actions:
         videos = [f for f in os.listdir(os.path.join(args.video_dir, action)) if f.endswith(".mp4")]
         print(f"Extracting frames for {len(videos)} videos in {action}")
@@ -105,6 +110,9 @@ if __name__ == "__main__":
             output_dir = os.path.join(args.output_dir, action, video.replace(".mp4", ""))
             num_frames = extract_frames(video_path, output_dir)
             # print(f"Extracted {num_frames} frames for {video} at {output_dir}")
+            if num_frames == 0:
+                print(f"Already extracted {video} at {output_dir}")
+                continue
 
             video_id = os.path.splitext(video)[0]
             metadata_path = os.path.join(args.output_dir, action, output_dir, f"metadata.json")
@@ -134,4 +142,5 @@ if __name__ == "__main__":
                 json.dump(metadata, f)
 
             print(f"Finished {video} | Action: {action_name}")
+    print("Done...All Done")
 
