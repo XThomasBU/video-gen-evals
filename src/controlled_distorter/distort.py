@@ -134,7 +134,7 @@ os.makedirs(SAVE_DIR, exist_ok=True)
 
 FPS = get_fps(ORG_PATH)
 ORG_FRAMES = extract_frames(ORG_PATH)
-print(f"✅ Extracted {len(ORG_FRAMES)} frames at {FPS:.2f} FPS")
+print(f" Extracted {len(ORG_FRAMES)} frames at {FPS:.2f} FPS")
 
 # ——— Export Variants ———
 
@@ -177,4 +177,4 @@ save_video(REPEATED_FRAMES, os.path.join(SAVE_DIR, "repeated_frames_4_video.mp4"
 REPEATED_FRAMES = repeat_frames(ORG_FRAMES, n_repeats=5)
 save_video(REPEATED_FRAMES, os.path.join(SAVE_DIR, "repeated_frames_5_video.mp4"), fps=FPS)
 
-print("✅ All distorted videos saved with correct colors.")
+print(" All distorted videos saved with correct colors.")

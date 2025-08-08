@@ -53,7 +53,7 @@ for action in actions:
             success_count += 1
 
 # Final summary
-print("\n✅ Conversion complete.")
+print("\n Conversion complete.")
 print(f"Successful conversions: {success_count}")
 print(f"Failed conversions: {len(failures)}")
 
