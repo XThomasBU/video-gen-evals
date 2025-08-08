@@ -3,7 +3,7 @@
 
 Code atm only works for single person track info. # FIXME
 
-## Project Structure (To restructure -- OUTDATED #FIXME)
+## Project Structure (OUTDATED / INCOMPLETE INSTRUCTIONS #FIXME)
 
 The project is organized into the following directories:
 
@@ -26,29 +26,6 @@ conda create -n video_eval python=3.10
 conda activate video_eval
 pip install -r requirements.txt
 ```
-
----
-
-## FIXME: TO DO
-- cost matrix is set to 0 for PHALP for now
-
-## Download HACS Video Clips
-
-**HACS (Human Action Clips and Segments)**
-
-* 2-second video clips of human actions.
-* Filtered videos downloaded using: `data/hacs/download_videos.py`.
-* Update list: `data/hacs/files/filtered_hacs.json`.
-* **Usage**: The first frame of each clip conditions the video generative models (and can also serve as reference for evaluation).
-
-```bash
-python data/hacs/download_videos.py
-```
-
-Downloaded videos are saved to `saved_data/hacs/{youtube_id}`.
-* **Note**: The first frame of each clip is saved as `saved_data/hacs/{youtube_id}/selected_frames/00000.jpg`.
-* **Note**: The first frame of each clip is used as the conditioning frame for video generation.
-* **Note**: `saved_data/hacs/{youtube_id}/metadata.json` contains the metadata for each clip (fps, action --> which can be used for the prompt, etc.).
 
 ---
 
@@ -87,37 +64,21 @@ Generated videos and frames are saved to:
 saved_data/
 ```
 
-## Generate HACS Video Generations
+## Generate UCF101 Video Generations
 
-`python src/video_models/gen_hacs_videos.py`
+`python src/video_models/gen_ucf101_videos.py`
 
 * Output Location:  
-  Generated videos are saved to `saved_data/hacs/{youtube_id}/generated_videos/`
+  Generated videos are saved to `saved_data/videos/model_name/ucf_id/video.mp4`
 
 * Text Conditioning Prompt:  
   If available, the prompt format is:  
-  `A person doing [action]` → where `action` comes from the HACS label of the clip.
+  `A person doing [action]` → where `action` comes from the UCF101 label of the clip.
 
 ---
 
-### Example Directory Structure (saved_data/hacs/x_gEdkM6kwE/): Inside the directory of each video clip:
-
-`full_frames/` → Contains the full frames of the video clip (from the downloaded video).  
-`selected_frames/` → Selected frames based on the HACS CSV.  
-`selected_frames/frame_00001.png` → First selected frame.  
-`metadata.json` → Contains `fps`, `action` (can be used for the prompt), etc.  
-`x_gEdkM6kwE.mp4` → Full downloaded video clip.  
-`x_gEdkM6kwE_selected.mp4` → Video made from selected frames.
-
-`generated_videos_{model_name}/` → Generated video outputs for the given model.  
-  `frames/` → Generated frames.  
-  `video.mp4` → Generated video.  
-  `metadata.json` → Metadata for the generated video.
-
-Example:  
-If `model_name = cogvideox`, the directory will be `generated_videos_cogvideox/`.
 
 ## Evaluation Metrics
 
-- TODO: Add evaluation metrics for video generation.
+- TODO: Consolidate evaluation metrics for video generation.
 - Should be as simple as `evaluator.evaluate(generated_video, reference_video, config)`
