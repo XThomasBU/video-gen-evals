@@ -7,7 +7,7 @@ from diffusers import AutoencoderKLWan, WanImageToVideoPipeline
 from diffusers.utils import export_to_video, load_image
 from transformers import CLIPVisionModel
 from .base import BaseHFVideoGenerator
-
+from PIL import Image
 
 class Wan2_1Generator(BaseHFVideoGenerator):
     def load_model(self):
@@ -67,7 +67,8 @@ class Wan2_1Generator(BaseHFVideoGenerator):
         os.makedirs(run_dir, exist_ok=True)
 
         for i, frame in enumerate(video_frames):
-            frame.save(os.path.join(run_dir, f"frame_{i:06d}.png"))
+            # frame.save(os.path.join(run_dir, f"frame_{i:06d}.png"))
+            Image.fromarray(frame).save(os.path.join(run_dir, f"frame_{i:06d}.png"))
 
         video_path = os.path.join(run_dir, "video.mp4")
         export_to_video(video_frames, video_path, fps=fps)

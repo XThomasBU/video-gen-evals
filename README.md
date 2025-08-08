@@ -3,7 +3,7 @@
 
 Code atm only works for single person track info. # FIXME
 
-## Project Structure
+## Project Structure (To restructure -- OUTDATED #FIXME)
 
 The project is organized into the following directories:
 

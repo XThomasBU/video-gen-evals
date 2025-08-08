@@ -159,6 +159,8 @@ class VideoEvaluator:
             query_chunk_size=32,
             feature_grids=feature_grids,
         )
+        print(outputs.keys())
+        exit()
         tracks = np.array(outputs['tracks'][0])
         occlusions = outputs['occlusion'][0]
         expected_dist = outputs['expected_dist'][0]

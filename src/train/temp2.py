@@ -25,9 +25,11 @@ ALL_CLASSES = ["JumpingJack", "PullUps", "PushUps", "HulaHoop", "WallPushups", "
 BATCH_SIZE = 256
 LATENT_DIM = 128
 EPOCHS = 100
-WINDOW_SIZE = 64 # 64
+WINDOW_SIZE = 16 # 64
 STRIDE = 8 # 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+INPUT_DIM=1250
 
 def partial_shuffle_within_window(seqs, lengths, vid_ids, shuffle_fraction=0.7):
     shuffled = seqs.clone()
@@ -82,10 +84,16 @@ def load_video_sequence(video_folder):
             # body_pose     /= np.linalg.norm(body_pose) + 1e-8
             # betas         /= np.linalg.norm(betas) + 1e-8
 
-            vec = np.concatenate([vit_feature, global_orient, body_pose, betas], axis=0)
-            vec = vec / np.linalg.norm(vec) + 1e-8
-            if vec.shape[0] != 1250:
-                continue
+            if INPUT_DIM == 1250:
+                vec = np.concatenate([vit_feature, global_orient, body_pose, betas], axis=0)
+                vec = vec / np.linalg.norm(vec) + 1e-8
+                if vec.shape[0] != 1250:
+                    continue
+            elif INPUT_DIM == 226:
+                vec = np.concatenate([global_orient, body_pose, betas], axis=0)
+                vec = vec / np.linalg.norm(vec) + 1e-8
+                if vec.shape[0] != 226:
+                    continue
 
             frame_vecs.append(torch.tensor(vec, dtype=torch.float32))
         except:
@@ -99,10 +107,10 @@ def load_video_sequence(video_folder):
 
     # Compute motion vectors (frame-to-frame deltas)
     motion_vecs = frame_tensor[1:] - frame_tensor[:-1]  # [T-1, 1250]
-    motion_vecs = torch.cat([torch.zeros(1, 1250), motion_vecs], dim=0)  # [T, 1250]
+    motion_vecs = torch.cat([torch.zeros(1, INPUT_DIM), motion_vecs], dim=0)  # [T, 1250]
 
     # Concatenate original + motion
-    enriched_tensor = torch.cat([frame_tensor, motion_vecs], dim=1)  # [T, 2500]
+    enriched_tensor = torch.cat([frame_tensor, motion_vecs], dim=1)  # [T, 2500] # 2500 = 1250 * 2
 
     # return enriched_tensor
     return frame_tensor
@@ -114,9 +122,10 @@ def extract_windows(seq, window_size, stride):
     for start in range(0, num_frames, stride):
         end = start + window_size
         if end > num_frames:
-            pad_len = end - num_frames
-            pad = seq[-1:].repeat(pad_len, 1)
-            window = torch.cat([seq[start:], pad], dim=0)
+            # pad_len = end - num_frames
+            # pad = seq[-1:].repeat(pad_len, 1)
+            # window = torch.cat([seq[start:], pad], dim=0)
+            continue
         else:
             window = seq[start:end]
         windows.append(window)
@@ -425,6 +434,8 @@ def train():
     loss_fn_hard = SupConWithHardNegatives()
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
 
+    loss_dict = {'loss': [], 'loss_org': [], 'loss_hard': [], 'loss_curvature': []}
+
     print("✅ Starting training...")
     model.train()
     for epoch in range(EPOCHS):
@@ -472,7 +483,15 @@ def train():
                      loss_fn_hard(embeddings, positive, reversed_embeds.detach())
 
 
-            loss = loss_org + 10 * loss_hard_combined 
+            # loss = loss_org + 10 * loss_hard_combined + 0.1 * curvature_loss
+            loss = loss_org + 10 * loss_hard_combined
+            loss_dict['loss'].append(loss.item())
+            loss_dict['loss_org'].append(loss_org.item())
+            loss_dict['loss_hard'].append(loss_hard_combined.item())
+            try:
+                loss_dict['loss_curvature'].append(curvature_loss.item())
+            except:
+                loss_dict['loss_curvature'].append(curvature_loss)
             print(loss_org, loss_hard_combined, curvature_loss)
             loss.backward()
             optimizer.step()
@@ -480,7 +499,29 @@ def train():
         print(f"✅ Epoch {epoch+1} Loss: {total_loss/len(train_loader):.4f}")
 
     print("✅ Saving model...")
-    torch.save(model.state_dict(), f"temporal_transformer_model_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
+    torch.save(model.state_dict(), f"SAVE_NEW/temporal_transformer_model_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.pt")
+
+    # plot all loss curves, each loss as a subplot
+    fig, axs = plt.subplots(4, figsize=(10, 12))
+    axs[0].plot(loss_dict['loss'], label='Total Loss')
+    axs[0].set_title('Total Loss')
+    axs[0].legend()
+
+    axs[1].plot(loss_dict['loss_org'], label='Original Loss')
+    axs[1].set_title('Original Loss')
+    axs[1].legend()
+
+    axs[2].plot(loss_dict['loss_hard'], label='Hard Loss')
+    axs[2].set_title('Hard Loss')
+    axs[2].legend()
+
+    axs[3].plot(loss_dict['loss_curvature'], label='Curvature Loss')
+    axs[3].set_title('Curvature Loss')
+    axs[3].legend()
+
+    plt.tight_layout()
+    plt.savefig(f"SAVE_NEW/loss_curves_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.png")
+    print(f"✅ Saved as loss_curves_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.png")
 
     print("✅ Computing train embeddings...")
     model.eval()
@@ -496,8 +537,8 @@ def train():
     all_train_labels = torch.cat(all_train_labels)
 
     # save all_train_embeds and all_train_labels
-    torch.save(all_train_embeds, f"all_train_embeds_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
-    torch.save(all_train_labels, f"all_train_labels_window_{WINDOW_SIZE}_stride_{STRIDE}.pt")
+    torch.save(all_train_embeds, f"SAVE_NEW/all_train_embeds_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.pt")
+    torch.save(all_train_labels, f"SAVE_NEW/all_train_labels_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.pt")
 
     # Compute class centroids
     centroids = {}
@@ -574,7 +615,7 @@ def train():
     print("\n✅ Overall Class Consistency Scores:")
     pprint({ALL_CLASSES[k]: v for k, v in consistency_scores.items()})
 
-    with open(f"centroids_window_{WINDOW_SIZE}_stride_{STRIDE}.pkl", "wb") as f:
+    with open(f"SAVE_NEW/centroids_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.pkl", "wb") as f:
         pickle.dump(centroids, f)
 
     print("\n✅ Done!")
@@ -656,8 +697,8 @@ def train():
     # plt.legend(loc='best', fontsize=8)
     plt.grid(True)
     plt.tight_layout()
-    plt.savefig(f"SAVE/embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}.png", dpi=200)
-    print(f"✅ Saved as embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}.png")
+    plt.savefig(f"SAVE_NEW/embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.png", dpi=200)
+    print(f"✅ Saved as embeddings_centroids_with_test_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window.png")
 
 # ——— MAIN ———
 if __name__ == "__main__":
