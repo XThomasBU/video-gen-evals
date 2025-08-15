@@ -1,15 +1,16 @@
 # Base Video Evaluation Framework
 
 
-Code atm only works for single person track info. # FIXME
+Code atm only works for single person videos, in generated videos if it all there are multiple people, only the first person information is used.
 
-## Project Structure (OUTDATED / INCOMPLETE INSTRUCTIONS #FIXME)
+## Project Structure
 
 The project is organized into the following directories:
 
 ### `src/`
 
 * **`video_models/`**: Contains all the video generative models. Models are located in: `src/video_models/models/`
+  * `gen_ucf101_videos.py`: Script for generating UCF101 generated videos.
 * **`human_mesh/`**: Contains code for extracting 3D human pose and mesh information.
 * **`eval_metrics/`**: Contains code for computing evaluation metrics.
 * **`motion_tracking/`**: Motion quality tracking (physics-IQ, VAMP, TRAJAN — *Direct Motion Models for Assessing Generated Videos*, etc.).
