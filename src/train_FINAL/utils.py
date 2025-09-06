@@ -551,7 +551,7 @@ def post_training(loss_dict, model, train_loader, test_loader, ALL_CLASSES, WIND
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids, window_ids in tqdm(train_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb, _ = model(seqs, lengths)
+            emb, _, _ = model(seqs, lengths)
             all_train_embeds.append(emb.cpu())
             all_train_labels.append(labels.cpu())
             all_train_vid_ids.extend(vid_ids)  # vid_ids should be a list/tuple of strings or ints
@@ -590,7 +590,7 @@ def post_training(loss_dict, model, train_loader, test_loader, ALL_CLASSES, WIND
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids, window_ids in tqdm(test_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb, _ = model(seqs, lengths)
+            emb, _, _ = model(seqs, lengths)
             emb = emb.cpu()
             for e, l in zip(emb, labels):
                 l = int(l.item())
@@ -662,7 +662,7 @@ def post_training(loss_dict, model, train_loader, test_loader, ALL_CLASSES, WIND
     with torch.no_grad():
         for seqs, lengths, labels, vid_ids, window_ids in tqdm(test_loader):
             seqs, lengths = seqs.to(DEVICE), lengths.to(DEVICE)
-            emb, _ = model(seqs, lengths)
+            emb, _, _ = model(seqs, lengths)
             emb = emb.cpu()
             all_test_embeds.append(emb)
             all_test_labels.append(labels)

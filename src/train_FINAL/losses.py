@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+import math
+import torch.nn.functional as F
 
 class TCL(nn.Module):
     def __init__(self, temperature=0.1, k1=5000.0, k2=1.0):
@@ -52,3 +54,33 @@ class SupConWithHardNegatives(nn.Module):
 
         loss = nn.CrossEntropyLoss()(logits, labels)
         return loss
+
+
+
+class ArcMarginProduct(nn.Module):
+    def __init__(self, in_features, out_features, s=30.0, m=0.30, easy_margin=False):
+        super().__init__()
+        self.weight = nn.Parameter(torch.FloatTensor(out_features, in_features))
+        nn.init.xavier_uniform_(self.weight)
+        self.s, self.m = s, m
+        self.cos_m, self.sin_m = math.cos(m), math.sin(m)
+        self.th = math.cos(math.pi - m)
+        self.mm = math.sin(math.pi - m) * m
+
+    def forward(self, x, labels):
+        # x: [B, D], weight: [C, D]
+        x = F.normalize(x)
+        W = F.normalize(self.weight)
+        cos = F.linear(x, W)                        # [B, C]
+        sin = torch.sqrt(1.0 - cos**2 + 1e-7)
+        phi = cos * self.cos_m - sin * self.sin_m   # cos(theta+m)
+
+        if hasattr(labels, "dtype") and labels.dtype == torch.long:
+            one_hot = torch.zeros_like(cos)
+            one_hot.scatter_(1, labels.view(-1,1), 1.0)
+        else:
+            raise ValueError("labels must be LongTensor class ids")
+
+        # use phi on true class, cos elsewhere
+        logits = (one_hot * phi) + ((1.0 - one_hot) * cos)
+        return logits * self.s

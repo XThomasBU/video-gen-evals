@@ -71,8 +71,8 @@ ALL_CLASSES = ["JumpingJack", "PullUps", "PushUps", "HulaHoop", "WallPushups", "
 BATCH_SIZE = 256
 LATENT_DIM = 128
 EPOCHS = 100
-WINDOW_SIZE = 64 # 64
-STRIDE = 16 # 32
+WINDOW_SIZE = 32 # 64
+STRIDE = 8 # 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 POSE_DIR = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/DWPose/KEYPOINTS/DWPOSE_BODIES"
@@ -103,31 +103,183 @@ def reverse_sequence(seqs, lengths):
         reversed_seqs.append(reversed)
     return torch.stack(reversed_seqs, dim=0)
 
-def get_global_stats(classes, full_videos):
-    global_stats = {}
+import math
+import numpy as np
+import torch
+import torch.nn.functional as F
+from pathlib import Path
+import pickle
+from tqdm import tqdm
+
+# ==============================
+# SO(3) helpers (rotation utils)
+# ==============================
+
+def _axis_angle_to_matrix(a: torch.Tensor) -> torch.Tensor:
+    """Axis-angle -> rotation matrix via Rodrigues.
+    a: [..., 3]
+    returns: [..., 3, 3]
+    """
+    theta = a.norm(dim=-1, keepdim=True).clamp_min(1e-8)  # [..., 1]
+    k = a / theta
+    kx, ky, kz = k[..., 0], k[..., 1], k[..., 2]
+
+    O = torch.zeros_like(kx)
+    K = torch.stack([
+        torch.stack([O,   -kz,  ky], dim=-1),
+        torch.stack([kz,   O,  -kx], dim=-1),
+        torch.stack([-ky,  kx,   O], dim=-1),
+    ], dim=-2)  # [..., 3, 3]
+
+    I = torch.eye(3, device=a.device, dtype=a.dtype).expand(a.shape[:-1] + (3, 3))
+
+    s = torch.sin(theta)[..., None]
+    c = torch.cos(theta)[..., None]
+
+    return I + s * K + (1.0 - c) * (K @ K)
+
+
+def _log_so3(R: torch.Tensor) -> torch.Tensor:
+    """Matrix log on SO(3) -> axis-angle vector.
+    R: [..., 3, 3]
+    returns: [..., 3]
+    """
+    tr = (R[..., 0, 0] + R[..., 1, 1] + R[..., 2, 2]).clamp(-1 + 1e-6, 3 - 1e-6)
+    theta = torch.acos((tr - 1) / 2)
+    denom = (2 * torch.sin(theta)).unsqueeze(-1).clamp_min(1e-6)
+    v = torch.stack([
+        R[..., 2, 1] - R[..., 1, 2],
+        R[..., 0, 2] - R[..., 2, 0],
+        R[..., 1, 0] - R[..., 0, 1],
+    ], dim=-1) / denom
+    return theta.unsqueeze(-1) * v
+
+
+# ===================
+# Modality deltas
+# ===================
+
+def _vit_delta(vit: torch.Tensor) -> torch.Tensor:
+    """Cosine-stable feature change.
+    vit: [T, D]
+    returns: [T, D]
+    """
+    v = F.normalize(vit, dim=-1)
+    v_prev = torch.cat([v[:1], v[:-1]], dim=0)
+    return v - v_prev
+
+
+def _rot_axisangle_delta(aa: torch.Tensor) -> torch.Tensor:
+    """Axis-angle pose -> SO(3) relative delta via log map.
+    aa: [T, 3*J]
+    returns: [T, 3*J] (axis-angle deltas per joint)
+    """
+    T, D = aa.shape
+    J = D // 3
+    a = aa.view(T, J, 3)
+    a_prev = torch.cat([a[:1], a[:-1]], dim=0)
+    R = _axis_angle_to_matrix(a)
+    R0 = _axis_angle_to_matrix(a_prev)
+    Rrel = torch.matmul(R0.transpose(-1, -2), R)
+    w = _log_so3(Rrel)
+    return w.view(T, D)
+
+
+def _rot_matrix_delta(Rflat: torch.Tensor) -> torch.Tensor:
+    """Relative rotation between consecutive frames in 9D matrix form.
+    Rflat: [T, 9]
+    returns: [T, 9]
+    """
+    T = Rflat.shape[0]
+    R = Rflat.view(T, 3, 3)
+    R0 = torch.cat([R[:1], R[:-1]], dim=0)
+    Rrel = torch.matmul(R0.transpose(-1, -2), R)
+    return Rrel.reshape(T, 9)
+
+
+def _procrustes_kp_delta(kp: torch.Tensor) -> torch.Tensor:
+    """Root/scale-normalized keypoint velocity.
+    kp: [T, 2*K]
+    returns: [T, 2*K]
+    """
+    T, D = kp.shape
+    pts = kp.view(T, -1, 2)
+    pts_c = pts - pts.mean(dim=1, keepdim=True)
+    s = torch.linalg.norm(pts_c, dim=(1, 2), keepdim=True).clamp_min(1e-6)
+    pts_n = pts_c / s
+    prev = torch.cat([pts_n[:1], pts_n[:-1]], dim=0)
+    return (pts_n - prev).reshape(T, D)
+
+
+def _betas_delta(betas: torch.Tensor, ema: float = 0.9, max_abs: float = 0.1) -> torch.Tensor:
+    """EMA-smoothed shape change (mostly near-zero).
+    betas: [T, B]
+    returns: [T, B]
+    """
+    diff = betas - torch.cat([betas[:1], betas[:-1]], dim=0)
+    out = torch.zeros_like(diff)
+    acc = torch.zeros((1, betas.shape[1]), device=betas.device, dtype=betas.dtype)
+    for t in range(betas.shape[0]):
+        acc = ema * acc + (1 - ema) * diff[t:t+1]
+        out[t:t+1] = acc
+    return out.clamp(-max_abs, max_abs)
+
+
+# ======================================
+# Stats helpers (compute mean/std safely)
+# ======================================
+
+def _accumulate(arr_list, x: torch.Tensor):
+    if len(arr_list) == 0:
+        arr_list.append(x.detach().cpu())
+    else:
+        arr_list.append(x.detach().cpu())
+
+
+def _finalize_stats(np_list: list):
+    if len(np_list) == 0:
+        return None, None
+    X = torch.cat(np_list, dim=0).numpy()
+    return X.mean(axis=0), X.std(axis=0)
+
+
+# ============================================================
+# Global stats (raw + motion) — compute from TRAINING videos
+# ============================================================
+
+def get_global_stats(classes, full_videos, pose_dir, save_dir: str):
+    """
+    Computes and saves mean/std for both RAW and MOTION features, per modality.
+    IMPORTANT: Call this ONLY on training data to avoid leakage.
+
+    Saves files to save_dir with keys:
+        RAW:    vit_mean/std, global_orient_mean/std, body_pose_mean/std, betas_mean/std, twod_kp_mean/std
+        MOTION: vit_d_mean/std, global_orient_d_mean/std, body_pose_d_mean/std, betas_d_mean/std, twod_kp_d_mean/std
+    """
+    save = Path(save_dir)
+    save.mkdir(parents=True, exist_ok=True)
+
+    raw_buffers = {k: [] for k in ['vit', 'global_orient', 'body_pose', 'betas', 'twod_kp']}
+    d_buffers   = {k: [] for k in ['vit_d', 'global_orient_d', 'body_pose_d', 'betas_d', 'twod_kp_d']}
+
     for cls in classes:
         videos = full_videos[cls]
-        for idx, video_folder in enumerate(tqdm(videos, desc=f"Loading {cls} videos to get global mean", total=len(videos))):
-
+        for video_folder in tqdm(videos, desc=f"Stats ({cls})", total=len(videos)):
             frames = sorted(Path(video_folder).glob("tokenhmr_mesh/*.pkl"))
-
-            twod_points_dir = str(video_folder).replace("/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101_all_classes_mesh", POSE_DIR)
+            twod_points_dir = str(video_folder).replace(
+                "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101_all_classes_mesh",
+                pose_dir,
+            )
             twod_points_paths = sorted(Path(twod_points_dir).glob("*.npy"))
+            T = min(len(frames), len(twod_points_paths))
+            if T < 2:
+                continue
 
-            collect_inputs = {
-                'vit': [],
-                'global_orient': [],
-                'body_pose': [],
-                'betas': [],
-                'twod_kp': []
-            }
-
-            for idx, p in enumerate(frames):
-                # try:
-                with open(p, "rb") as f:
+            vit_list, go_list, pose_list, betas_list, kp_list = [], [], [], [], []
+            for t in range(T):
+                with open(frames[t], "rb") as f:
                     data = pickle.load(f)
                 params = data["pred_smpl_params"]
-
                 if isinstance(params, list):
                     if len(params) < 1:
                         continue
@@ -135,64 +287,114 @@ def get_global_stats(classes, full_videos):
                 if not isinstance(params, dict):
                     continue
 
-                vit_feature   = np.array(params["token_out"]).flatten()
-                global_orient = np.array(params["global_orient"]).flatten()
-                body_pose     = np.array(params["body_pose"]).flatten()
-                betas         = np.array(params["betas"]).flatten()
+                vit = np.asarray(params["token_out"]).reshape(-1)           # e.g., 1024
+                go  = np.asarray(params["global_orient"]).reshape(-1)       # 9 (R as flat)
+                pose = np.asarray(params["body_pose"]).reshape(-1)          # 207 (axis-angle)
+                bet  = np.asarray(params["betas"]).reshape(-1)              # 10
+                kp   = np.load(twod_points_paths[t]).reshape(-1)[:120]       # 120
 
-                twod_point_path = twod_points_paths[idx]
-                twod_kp = np.load(twod_point_path).flatten()
-                twod_kp = twod_kp[:120]  # Ensure 120 keypoints
+                vit_list.append(torch.tensor(vit, dtype=torch.float32))
+                go_list.append(torch.tensor(go, dtype=torch.float32))
+                pose_list.append(torch.tensor(pose, dtype=torch.float32))
+                betas_list.append(torch.tensor(bet, dtype=torch.float32))
+                kp_list.append(torch.tensor(kp, dtype=torch.float32))
 
-                collect_inputs['vit'].append(vit_feature)
-                collect_inputs['global_orient'].append(global_orient)
-                collect_inputs['body_pose'].append(body_pose)
-                collect_inputs['betas'].append(betas)
-                collect_inputs['twod_kp'].append(twod_kp)
+            if len(vit_list) == 0:
+                continue
 
-    # get mean and std dev of each 
-    global_stats['vit_mean'] = np.mean(collect_inputs['vit'], axis=0)
-    global_stats['vit_std'] = np.std(collect_inputs['vit'], axis=0)
+            vit   = torch.stack(vit_list, dim=0)
+            go    = torch.stack(go_list, dim=0)
+            pose  = torch.stack(pose_list, dim=0)
+            betas = torch.stack(betas_list, dim=0)
+            kp2d  = torch.stack(kp_list, dim=0)
 
-    global_stats['global_orient_mean'] = np.mean(collect_inputs['global_orient'], axis=0)
-    global_stats['global_orient_std'] = np.std(collect_inputs['global_orient'], axis=0)
+            # --- accumulate RAW ---
+            _accumulate(raw_buffers['vit'], vit)
+            _accumulate(raw_buffers['global_orient'], go)
+            _accumulate(raw_buffers['body_pose'], pose)
+            _accumulate(raw_buffers['betas'], betas)
+            _accumulate(raw_buffers['twod_kp'], kp2d)
 
-    global_stats['body_pose_mean'] = np.mean(collect_inputs['body_pose'], axis=0)
-    global_stats['body_pose_std'] = np.std(collect_inputs['body_pose'], axis=0)
+            # --- compute MOTION on raw geometry, then accumulate ---
+            d_vit  = _vit_delta(vit)
+            d_go   = _rot_matrix_delta(go)
+            d_pose = _rot_axisangle_delta(pose)
+            d_bet  = _betas_delta(betas)
+            d_kp   = _procrustes_kp_delta(kp2d)
 
-    global_stats['betas_mean'] = np.mean(collect_inputs['betas'], axis=0)
-    global_stats['betas_std'] = np.std(collect_inputs['betas'], axis=0)
+            _accumulate(d_buffers['vit_d'], d_vit)
+            _accumulate(d_buffers['global_orient_d'], d_go)
+            _accumulate(d_buffers['body_pose_d'], d_pose)
+            _accumulate(d_buffers['betas_d'], d_bet)
+            _accumulate(d_buffers['twod_kp_d'], d_kp)
 
-    global_stats['twod_kp_mean'] = np.mean(collect_inputs['twod_kp'], axis=0)
-    global_stats['twod_kp_std'] = np.std(collect_inputs['twod_kp'], axis=0)
+    # finalize and save
+    stats = {}
+    # raw
+    for key in ['vit', 'global_orient', 'body_pose', 'betas', 'twod_kp']:
+        m, s = _finalize_stats(raw_buffers[key])
+        stats[f'{key}_mean'] = m
+        stats[f'{key}_std'] = s
+        if m is not None:
+            np.save(save / f'{key}_mean.npy', m)
+            np.save(save / f'{key}_std.npy', s)
+    # motion
+    for key in ['vit_d', 'global_orient_d', 'body_pose_d', 'betas_d', 'twod_kp_d']:
+        m, s = _finalize_stats(d_buffers[key])
+        stats[f'{key}_mean'] = m
+        stats[f'{key}_std'] = s
+        if m is not None:
+            np.save(save / f'{key}_mean.npy', m)
+            np.save(save / f'{key}_std.npy', s)
 
-    # save global stats as numpy files
-    for key, value in global_stats.items():
-        np.save(f"SAVE/{key}.npy", value)
+    return stats
 
-    return global_stats
 
-# ——— LOAD VIDEO FRAMES ———
-def load_video_sequence(video_folder, global_stats_file):
+# ======================================================
+# Sequence loader (delta first, then normalize)
+# ======================================================
 
-    global_stats = {}
-    for key in ['vit_mean', 'vit_std', 'global_orient_mean', 'global_orient_std',
-                'body_pose_mean', 'body_pose_std', 'betas_mean', 'betas_std',
-                'twod_kp_mean', 'twod_kp_std']:
-        global_stats[key] = np.load(f"{global_stats_file}/{key}.npy")
+def load_video_sequence(video_folder, stats_dir, pose_dir, expect_dim=1370):
+    """
+    Builds [T, 2740] = [T, 1370 raw | 1370 motion] with *geometry-respecting* deltas.
+
+    Normalization order:
+      - ROTATIONS/KEYPOINTS/BETAS: compute deltas on raw geometry -> z-score with MOTION stats
+      - ViT: L2-normalize per frame before diff (cosine change), then z-score with MOTION stats
+      - RAW branches are z-scored with RAW stats
+
+    Expected per-modality dims (adapt if different in your setup):
+      vit: 1024, global_orient: 9 (R flat), body_pose: 207 (axis-angle), betas: 10, twod_kp: 120
+    """
+    stats_dir = Path(stats_dir)
+    keys_raw = ['vit', 'global_orient', 'body_pose', 'betas', 'twod_kp']
+    keys_d   = ['vit_d', 'global_orient_d', 'body_pose_d', 'betas_d', 'twod_kp_d']
+
+    # load stats (RAW + MOTION)
+    stats = {}
+    for k in keys_raw:
+        stats[f'{k}_mean'] = np.load(stats_dir / f'{k}_mean.npy')
+        stats[f'{k}_std']  = np.load(stats_dir / f'{k}_std.npy')
+    for k in keys_d:
+        stats[f'{k}_mean'] = np.load(stats_dir / f'{k}_mean.npy')
+        stats[f'{k}_std']  = np.load(stats_dir / f'{k}_std.npy')
 
     frames = sorted(Path(video_folder).glob("tokenhmr_mesh/*.pkl"))
-    frame_vecs = []
-
-    twod_points_dir = str(video_folder).replace("/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101_all_classes_mesh", POSE_DIR)
+    twod_points_dir = str(video_folder).replace(
+        "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101_all_classes_mesh",
+        pose_dir,
+    )
     twod_points_paths = sorted(Path(twod_points_dir).glob("*.npy"))
 
-    for idx, p in enumerate(frames):
-        # try:
-        with open(p, "rb") as f:
+    T = min(len(frames), len(twod_points_paths))
+    if T < 2:
+        return None
+
+    vit_list, go_list, pose_list, betas_list, kp_list = [], [], [], [], []
+    for t in range(T):
+        with open(frames[t], "rb") as f:
             data = pickle.load(f)
         params = data["pred_smpl_params"]
-
         if isinstance(params, list):
             if len(params) < 1:
                 continue
@@ -200,40 +402,61 @@ def load_video_sequence(video_folder, global_stats_file):
         if not isinstance(params, dict):
             continue
 
-        vit_feature   = np.array(params["token_out"]).flatten()
-        global_orient = np.array(params["global_orient"]).flatten()
-        body_pose     = np.array(params["body_pose"]).flatten()
-        betas         = np.array(params["betas"]).flatten()
+        vit  = np.asarray(params["token_out"]).reshape(-1)
+        go   = np.asarray(params["global_orient"]).reshape(-1)
+        pose = np.asarray(params["body_pose"]).reshape(-1)
+        bet  = np.asarray(params["betas"]).reshape(-1)
+        kp   = np.load(twod_points_paths[t]).reshape(-1)[:120]
 
-        twod_point_path = twod_points_paths[idx]
-        twod_kp = np.load(twod_point_path).flatten()
-        twod_kp = twod_kp[:120]  # Ensure 120 keypoints
+        vit_list.append(torch.tensor(vit, dtype=torch.float32))
+        go_list.append(torch.tensor(go, dtype=torch.float32))
+        pose_list.append(torch.tensor(pose, dtype=torch.float32))
+        betas_list.append(torch.tensor(bet, dtype=torch.float32))
+        kp_list.append(torch.tensor(kp, dtype=torch.float32))
 
-        # # Normalize each part
-        vit_feature = (vit_feature - global_stats['vit_mean']) / (global_stats['vit_std'] + 1e-8)
-        global_orient = (global_orient - global_stats['global_orient_mean']) / (global_stats['global_orient_std'] + 1e-8)
-        body_pose     = (body_pose - global_stats['body_pose_mean']) / (global_stats['body_pose_std'] + 1e-8)
-        betas         = (betas - global_stats['betas_mean']) / (global_stats['betas_std'] + 1e-8)
-        twod_kp       = (twod_kp - global_stats['twod_kp_mean']) / (global_stats['twod_kp_std'] + 1e-8)
+    # [T,dim] tensors (RAW, unnormalized)
+    vit   = torch.stack(vit_list, dim=0)
+    go    = torch.stack(go_list, dim=0)
+    pose  = torch.stack(pose_list, dim=0)
+    betas = torch.stack(betas_list, dim=0)
+    kp2d  = torch.stack(kp_list, dim=0)
 
-        vec = np.concatenate([vit_feature, global_orient, body_pose, betas, twod_kp], axis=0)
+    # ---------- RAW z-score ----------
+    def z(x, mean, std):
+        return (x - torch.tensor(mean, dtype=x.dtype)) / (torch.tensor(std, dtype=x.dtype) + 1e-8)
 
-        frame_vecs.append(torch.tensor(vec, dtype=torch.float32))
+    vit_raw   = z(vit,   stats['vit_mean'],           stats['vit_std'])
+    go_raw    = z(go,    stats['global_orient_mean'], stats['global_orient_std'])
+    pose_raw  = z(pose,  stats['body_pose_mean'],     stats['body_pose_std'])
+    betas_raw = z(betas, stats['betas_mean'],         stats['betas_std'])
+    kp_raw    = z(kp2d,  stats['twod_kp_mean'],       stats['twod_kp_std'])
 
-    if len(frame_vecs) < 2:
-        return None
+    raw = torch.cat([vit_raw, go_raw, pose_raw, betas_raw, kp_raw], dim=-1)
 
-    # [T, 1250]
-    frame_tensor = torch.stack(frame_vecs, dim=0)
+    # ---------- MOTION: delta first (on raw geometry), then z-score ----------
+    d_vit  = _vit_delta(vit)
+    d_go   = _rot_matrix_delta(go)
+    d_pose = _rot_axisangle_delta(pose)
+    d_bet  = _betas_delta(betas)
+    d_kp   = _procrustes_kp_delta(kp2d)
 
-    # Compute motion vectors (frame-to-frame deltas)
-    motion_vecs = frame_tensor[1:] - frame_tensor[:-1]  # [T-1, 1250]
-    motion_vecs = torch.cat([torch.zeros(1, INPUT_DIM), motion_vecs], dim=0)  # [T, 1250]
+    d_vit_n  = z(d_vit,  stats['vit_d_mean'],            stats['vit_d_std'])
+    d_go_n   = z(d_go,   stats['global_orient_d_mean'],  stats['global_orient_d_std'])
+    d_pose_n = z(d_pose, stats['body_pose_d_mean'],      stats['body_pose_d_std'])
+    d_bet_n  = z(d_bet,  stats['betas_d_mean'],          stats['betas_d_std'])
+    d_kp_n   = z(d_kp,   stats['twod_kp_d_mean'],        stats['twod_kp_d_std'])
 
+    motion = torch.cat([d_vit_n, d_go_n, d_pose_n, d_bet_n, d_kp_n], dim=-1)
 
-    # Concatenate original + motion
-    enriched_tensor = torch.cat([frame_tensor, motion_vecs], dim=1)  # [T, 2500] # 2500 = 1250 * 2
-    return enriched_tensor
+    assert raw.shape == motion.shape, f"raw {raw.shape} != motion {motion.shape}"
+    enriched = torch.cat([raw, motion], dim=-1)
+
+    # Sanity check on expected dims (optional)
+    if expect_dim is not None:
+        assert raw.shape[-1] == expect_dim, f"Expected raw dim {expect_dim}, got {raw.shape[-1]}"
+
+    return enriched  # [T, 2*expect_dim]
+
 
 # ——— SLIDING WINDOW ———
 def extract_windows(seq, window_size, stride):
@@ -280,16 +503,27 @@ class PoseVideoDataset(Dataset):
                 selected_videos = vids[n_train:]
             self.video_split[cls] = selected_videos
 
-        print(len(self.video_split), "classes with video splits for", split)
-        if split == "train":
-            global_stats = get_global_stats(classes, self.video_split)
-            
+        # print(len(self.video_split), "classes with video splits for", split)
+        # # if split == "train":
+        # # if os.path.exists("SAVE/betas_mean.py"):
+        # # global_stats = {}
+        # # global_stats["vit_mean"] = np.load("SAVE/vit_mean.npy")
+        # # global_stats["vit_std"] = np.load("SAVE/vit_std.npy")
+        # # global_stats["global_orient_mean"] = np.load("SAVE/global_orient_mean.npy")
+        # # global_stats["global_orient_std"] = np.load("SAVE/global_orient_std.npy")
+        # # global_stats["betas_mean"] = np.load("SAVE/betas_mean.npy")
+        # # global_stats["betas_std"] = np.load("SAVE/betas_std.npy")
+        # # global_stats["twod_kp_mean"] = np.load("SAVE/twod_kp_mean.npy")
+        # # global_stats["twod_kp_std"] = np.load("SAVE/twod_kp_std.npy")
+        # # else:
+        # global_stats = get_global_stats(classes, self.video_split, POSE_DIR, "SAVE")
+        # exit()
 
         # Now extract all windows from the selected videos
         for cls in tqdm(classes, desc=f"Loading {split} videos", total=len(classes)):
             videos = self.video_split[cls]
             for idx, vid_path in enumerate(tqdm(videos, desc=f"Loading {cls} videos", total=len(videos))):
-                seq = load_video_sequence(vid_path, "SAVE")
+                seq = load_video_sequence(vid_path, "SAVE", POSE_DIR)
                 if seq is None:
                     continue
                 windows = extract_windows(seq, WINDOW_SIZE, STRIDE)

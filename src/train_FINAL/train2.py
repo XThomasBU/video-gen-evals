@@ -16,7 +16,6 @@ import math
 from utils import *
 from losses import * 
 from models import *
-import torch.nn.functional as F
 
 # set seed
 torch.manual_seed(1)
@@ -28,7 +27,7 @@ REAL_ROOT = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/save
 ALL_CLASSES = ["JumpingJack", "PullUps", "PushUps", "HulaHoop", "WallPushups", "Shotput", "SoccerJuggling", "TennisSwing", "ThrowDiscus", "BodyWeightSquats"]
 BATCH_SIZE = 256
 LATENT_DIM = 128
-EPOCHS = 30
+EPOCHS = 200
 WINDOW_SIZE = 32 # 64
 STRIDE = 8 # 32
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -80,7 +79,7 @@ def train():
         print(" Using existing datasets for training...")
     
     # sampler = EnsurePositivesSampler(train_labels, batch_size=BATCH_SIZE, min_pos_per_class=4)
-    sampler = PKBatchSampler(train_labels, P=10, K=24)
+    sampler = PKBatchSampler(train_labels, P=10, K=26)
     train_loader = DataLoader(
         train_dataset,
         # batch_size=BATCH_SIZE,
@@ -98,7 +97,7 @@ def train():
 
     print(" Building model...")
     input_dim = train_dataset[0][0].shape[-1]
-    model =  TemporalTransformerV2Plus(input_dim=INPUT_DIM*2, latent_dim=LATENT_DIM).to(DEVICE)
+    model = TemporalTransformerV1(input_dim=INPUT_DIM*2, latent_dim=LATENT_DIM).to(DEVICE)
 
     if torch.cuda.device_count() > 1:
         print(f"Using DataParallel on {torch.cuda.device_count()} GPUs")
@@ -107,22 +106,18 @@ def train():
     # print number of parameters
     print(f" Number of parameters: {sum(p.numel() for p in model.parameters())}")
 
-    num_classes = len(ALL_CLASSES)
-    arc = ArcMarginProduct(LATENT_DIM, num_classes, s=30.0, m=0.35).to(DEVICE)
-    ce = torch.nn.CrossEntropyLoss()
-
     loss_fn = TCL()
     # loss_fn = SUPCON()
     loss_hard = SupConWithHardNegatives()
     # loss_hard = SupConHardRepelOnly()
-    # optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
-    params = list(model.parameters())
-    params += list(arc.parameters())
-    optimizer = torch.optim.AdamW(params, lr=3e-4)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
     num_iter = len(train_loader) * EPOCHS
     print(f" Total iterations: {num_iter}")
-    cosine_anneal = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_iter, eta_min=1e-6)
+    cosine_annel = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_iter, eta_min=1e-6)
 
+    num_classes = len(ALL_CLASSES)
+    arc = ArcMarginProduct(LATENT_DIM, num_classes, s=30.0, m=0.35).to(DEVICE)
+    ce = torch.nn.CrossEntropyLoss()
 
     all_window_ids = [w for _, _, _, w in train_dataset]
     all_vid_ids = [v for _, _, v, _ in train_dataset]
@@ -159,46 +154,84 @@ def train():
             shuffled_seqs_small = partial_shuffle_within_window(seqs, lengths, vid_ids, shuffle_fraction=0.3)
             reverse_seqs = reverse_sequence(seqs, lengths)
             static_seqs = get_static_window(seqs)
-            static_embeddings, _, _ = model(static_seqs, lengths)
+            static_embeddings, _ = model(static_seqs, lengths)
 
             optimizer.zero_grad()
-            embeddings, frame_embeddings, _ = model(seqs, lengths)
+            embeddings, frame_embeddings = model(seqs, lengths)
+
+            arc_logits = arc(embeddings, labels)                    # [B, C]
+            loss_arc = ce(arc_logits, labels)
+            print(loss_arc)
+
+            # weights = model.last_mod_weights   # [B, M]
+            # modalities = model.modalities      # ["vit", "global", "pose", "beta", "kp2d"]
+
+            # ent = -(weights * (weights.clamp_min(1e-8)).log()).sum(dim=-1).mean() 
+
+            # mean_weights = weights.mean(dim=0)  # [M]
+            # # for m_idx, m in enumerate(modalities):
+            # #     print(f"{m}: {mean_weights[m_idx].item():.4f}")
+            # total_weights_vit += mean_weights[0].item()
+            # total_weights_global += mean_weights[1].item()
+            # total_weights_pose += mean_weights[2].item()
+            # total_weights_beta += mean_weights[3].item()
+            # total_weights_kp2d += mean_weights[4].item()
 
             # with torch.no_grad():
-            shuffled_embeddings, _, _        = model(shuffled_seqs,   lengths)
-            shuffled_embeddings_small, _, _  = model(shuffled_seqs_small, lengths)
-            reverse_embeddings, _, _         = model(reverse_seqs,        lengths)
-            static_embeddings, _, _          = model(static_seqs,         lengths)
+            shuffled_embeddings, _        = model(shuffled_seqs,   lengths)
+            shuffled_embeddings_small, _  = model(shuffled_seqs_small, lengths)
+            reverse_embeddings, _         = model(reverse_seqs,        lengths)
+            static_embeddings, _          = model(static_seqs,         lengths)
 
+            # current_window_embeddings = []
+            # next_window_embeddings = []
+
+            # for i in range(len(vid_ids)):
+            #     next_idx = get_next_window_index(all_vid_ids, all_window_ids, vid_ids[i], window_ids[i])
+            #     if next_idx is not None:
+            #         # Get the next window's input (you might want to cache/preload these for speed!)
+            #         next_seq, next_length, _, _ = train_dataset[next_idx]
+            #         next_seq = next_seq.unsqueeze(0).to(DEVICE)
+            #         next_length = torch.tensor([next_length]).to(DEVICE)
+            #         with torch.no_grad():
+            #             next_emb, _ = model(next_seq, next_length)
+            #         current_window_embeddings.append(embeddings[i])         # embeddings for the current batch
+            #         next_window_embeddings.append(next_emb.squeeze(0))      # next window's embedding
+            # if current_window_embeddings:  # Only compute if non-empty
+            #     current_window_embeddings = torch.stack(current_window_embeddings)  # [N, D]
+            #     next_window_embeddings = torch.stack(next_window_embeddings)  # [N, D]
+            #     l2_smoothness_loss = (current_window_embeddings - next_window_embeddings).norm(dim=1).mean()
+
+            # get cosine sim 
+            cosine_sim = torch.cosine_similarity(embeddings.unsqueeze(1), shuffled_embeddings.unsqueeze(0), dim=-1)  # [B, B]         
             loss_org = loss_fn(embeddings, labels)
+
+            # # # ——— temporal smoothness penalty ———
+            # # # build a map: vid_id → list of batch‐indices
+            # vid_to_indices = defaultdict(list)
+            # for i, vid in enumerate(vid_ids):
+            #     vid_to_indices[vid].append(i)
 
             shuffled_big_loss = loss_hard(embeddings, embeddings, shuffled_embeddings)
             shuffled_small_loss = loss_hard(embeddings, embeddings, shuffled_embeddings_small)
             reverse_loss = loss_hard(embeddings, embeddings, reverse_embeddings)
             static_loss = loss_hard(embeddings, embeddings, static_embeddings)
+            # print(shuffled_big_loss.item(), shuffled_small_loss.item(), reverse_loss.item(), static_loss.item())
 
             # Combine hard losses
             loss_hard_combined = shuffled_big_loss + reverse_loss + static_loss
+            # print(cosine_sim.mean().item(), loss_org.item(), loss_hard_combined.item())
 
             # frame smoothness loss
             frame_smoothness_loss = second_order_steady_loss(frame_embeddings[:, 1:])  # exclude CLS token
+            # frame_smoothness_loss = second_order_steady_loss(frame_embeddings)  # exclude CLS token
 
-            logits_arc = arc(embeddings, labels)                             # [B, C]
-            loss_arc = ce(logits_arc, labels)  
+            # print(ent)
 
-            # L_ortho = model.last_losses["ortho"]
-            # L_cov   = model.last_losses["coverage"]
-            # L_div   = model.last_losses["diversity"]
-            # # L_t = model.last_losses["t_smooth"]
-            # loss_gate = -model.last_gate_entropy  
-            L_cov = model.last_losses["coverage"]
-            # L_div = model.last_losses["diversity"] 
-            
-
-            print(f"loss_org: {loss_org.item():.4f}, loss_hard_combined: {loss_hard_combined.item():.4f}, loss_arc: {loss_arc.item():.4f}, smoothness: {frame_smoothness_loss.item():.4f}, coverage: {L_cov.item():.4f}")
-
-            loss = loss_org +  10 * loss_hard_combined  + 0.1 * loss_arc 
-            # print(loss_org)
+            loss = loss_org +  10 * loss_hard_combined + loss_arc * 0.1
+            # loss = loss_org +  10 * loss_hard_combined
+            # loss = loss_org
+            # loss = loss_org + 10 * loss_hard_combined
             loss.backward()
             optimizer.step()
             total_loss += loss.item()
@@ -209,7 +242,7 @@ def train():
             total_hard_shuffle_small_loss += shuffled_small_loss.item()
             total_reverse_loss += reverse_loss.item()
             total_static_loss += static_loss.item()
-            cosine_anneal.step()
+            # cosine_annel.step()
         print(f" Epoch {epoch+1} Loss: {total_loss/len(train_loader):.4f}")
         loss_dict['loss'].append(total_loss / len(train_loader))
         loss_dict['loss_con'].append(total_loss_con / len(train_loader))
@@ -219,6 +252,12 @@ def train():
         loss_dict['hard_shuffle_small'].append(total_hard_shuffle_small_loss / len(train_loader))
         loss_dict['reverse'].append(total_reverse_loss / len(train_loader))
         loss_dict['static'].append(total_static_loss / len(train_loader))
+
+        # weights_dict["vit"].append(total_weights_vit / len(train_loader))
+        # weights_dict["global"].append(total_weights_global / len(train_loader))
+        # weights_dict["pose"].append(total_weights_pose / len(train_loader))
+        # weights_dict["beta"].append(total_weights_beta / len(train_loader))
+        # weights_dict["kp2d"].append(total_weights_kp2d / len(train_loader))
 
     print(" Saving model...")
     torch.save(model.state_dict(), f"SAVE/temporal_transformer_model_window_{WINDOW_SIZE}_stride_{STRIDE}_valid_window_NO_ENT.pt")
