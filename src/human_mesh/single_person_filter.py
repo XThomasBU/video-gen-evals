@@ -12,10 +12,11 @@ OUTPUT_DIR = "videos/ucf101/mesh_runway_gen4_videos"
 videos = os.listdir(DIR)
 actions = os.listdir(DIR)
 
-for action in actions:
-    videos = os.listdir(os.path.join(DIR, action))
-    for video in videos:
-        input_folder_path = os.path.join(DIR, action, video)
-        single_person = mesh_generator.filter_single_person(input_folder_path)
-        print(single_person)
-        exit()
+# for action in actions:
+#     videos = os.listdir(os.path.join(DIR, action))
+#     for video in videos:
+#         input_folder_path = os.path.join(DIR, action, video)
+input_folder_path = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/saved_data/ucf101_all_classes/BlowingCandles/v_BlowingCandles_g14_c03"
+single_person = mesh_generator.filter_single_person(input_folder_path)
+print(single_person)
+exit()
