@@ -106,26 +106,25 @@ class TokenHMRMeshGenerator:
         self.renderer = renderer
         self.model_cfg = model_cfg
 
-    def filter_single_person(self, input_folder_path):
+    def filter_single_person(self, frames):
 
-        metadata_path = os.path.join(input_folder_path, "metadata.json")
-        with open(metadata_path, "r") as f:
-            metadata = json.load(f)
-        fps = metadata["fps"] if "fps" in metadata else 24
+        # metadata_path = os.path.join(input_folder_path, "metadata.json")
+        # with open(metadata_path, "r") as f:
+        #     metadata = json.load(f)
+        # fps = metadata["fps"] if "fps" in metadata else 24
 
         # Iterate over all images in folder (do not meshify if more than 1 person detected)
-        for img_path in tqdm.tqdm(sorted(list(Path(input_folder_path).glob("*.jpg")) + list(Path(input_folder_path).glob("*.png")))):
-            print(f"Processing {img_path}..")
-            img_cv2 = cv2.imread(str(img_path))
+        for img_cv2 in frames:
 
             # Detect humans in image
             det_out = self.detector(img_cv2)
             det_instances = det_out["instances"]
             valid_idx = (det_instances.pred_classes == 0) & (det_instances.scores > 0.5)
             boxes = det_instances.pred_boxes.tensor[valid_idx].cpu().numpy()
+            # print(len(boxes))
 
             if len(boxes) != 1:
-                print(f"Skipping {input_folder_path} at {img_path} because it has {len(boxes)} detections (expected 1)")
+                # print(f"Skipping {input_folder_path} at {img_path} because it has {len(boxes)} detections (expected 1)")
                 return False
         return True
 
