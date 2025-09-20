@@ -797,97 +797,16 @@ class TokenHMRMeshGenerator:
 
         # ---- 1. Run detector on all frames at once ----
         start_time = time.time()
-        # print model size of detector
-        det_batch_size = 8          # tune for your GPU
-        det_num_workers = 0          # can set >0 if your augmentations are CPU-side
-        det_loader = DataLoader(
-            _FramesDS(frames),
-            batch_size=det_batch_size,
-            shuffle=False,           # keep original order
-            num_workers=det_num_workers,
-            collate_fn=_collate_keep_list,
-            pin_memory=False
-        )
-
-        # start_time_det = time.time()
-        # det_outs = []
-        # with torch.no_grad():
-        #     for imgs in det_loader:
-        #         # imgs is List[np.ndarray]; your DefaultPredictor_Lazy.__call__ should handle lists
-        #         outs = self.detector(imgs)
-        #         print(outs)
-        #         break
-        #         # normalize to list[dict]
-        #         if isinstance(outs, dict):
-        #             outs = [outs]
-        #         det_outs.extend(outs)
-        # assert isinstance(det_outs, (list, tuple)), "detector must support list of images"
-        # end_time_det = time.time()
-        # print(f"Detector running time: {end_time_det - start_time_det:.2f} seconds for {len(frames)} frames")
-        # end_time = time.time()
-        # print(f"Detector processed {len(frames)} frames in {end_time - start_time:.2f} seconds")
-        # # # exit()
-
-        
-        # cfg = get_cfg()
-        # # add project-specific config (e.g., TensorMask) here if you're not running a model in detectron2's core library
-        # cfg.merge_from_file(model_zoo.get_config_file("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml"))
-        # cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5  # set threshold for this model
-        # # Find a model from detectron2's model zoo. You can use the https://dl.fbaipublicfiles... url as well
-        # cfg.MODEL.WEIGHTS = model_zoo.get_checkpoint_url("COCO-InstanceSegmentation/mask_rcnn_R_50_FPN_3x.yaml")
-        # predictor = DefaultPredictor(cfg)
-        start_time_det = time.time()
-        det_outs = []
-        with torch.no_grad():
-            for imgs in frames:
-                # imgs is List[np.ndarray]; your DefaultPredictor_Lazy.__call__ should handle lists
-                # imgs = imgs[:, :, ::-1]  # BGR to RGB
-                outs = self.det2_predictor(imgs)
-                # normalize to list[dict]
-                if isinstance(outs, dict):
-                    outs = [outs]
-                det_outs.extend(outs)
-        end_time_det = time.time()
-        print(f"Detectron2 default model running time: {end_time_det - start_time_det:.2f} seconds for {len(frames)} frames")
-
-        # with torch.no_grad():
-        #     for img in frames:
-        #         img = img[:, :, ::-1]
-        #         img = T.ResizeShortestEdge(short_edge_length=800, max_size=1333).get_transform(img).apply_image(img)
-        #         img_tensor = torch.as_tensor(img.astype("float32").transpose(2,0,1))
-        #         outs = self.det3([{'image': img_tensor}])[0]
-        #         if isinstance(outs, dict):
-        #             outs = [outs]
-        #         det_outs.extend(outs)
-        # end_time_det = time.time()
-        # print(f"Detectron2 default model running time: {end_time_det - start_time_det:.2f} seconds for {len(frames)} frames")
-
-
-        start_time = time.time()
         all_boxes = []
-        valid_frames = []
-        for idx, det_out in enumerate(det_outs):
+        valid_frames = []  # list of (idx, frame) with valid single-person deteions
+        for idx, f in enumerate(frames):
+            det_out = self.det2_predictor(f)
             det_instances = det_out["instances"]
-            person_mask = (det_instances.pred_classes == 0)
-            score_mask  = (det_instances.scores > 0.5)
-            mask = person_mask & score_mask
-
-            boxes_t  = det_instances.pred_boxes.tensor[mask]      # [N,4]
-            scores_t = det_instances.scores[mask]                 # [N]
-
-            # Hard-NMS to kill near-duplicates (tune IoU as needed)
-            keep_idx = nms(boxes_t, scores_t, iou_threshold=0.5)  # try 0.4–0.6
-            boxes_t  = boxes_t[keep_idx]
-            scores_t = scores_t[keep_idx]
-
-            if boxes_t.shape[0] != 1:
-                # v = Visualizer(frames[idx][:, :, ::-1], MetadataCatalog.get(self.det2_cfg.DATASETS.TRAIN[0]), scale=1.2)
-                # out = v.draw_instance_predictions(det_out["instances"].to("cpu"))
-                # cv2.imwrite(f"vis_{idx:04d}.png", out.get_image()[:, :, ::-1])
-                # print(f"Skipping frame {idx} because it has {len(boxes_t)} detections (expected 1)")
-                # exit()
+            valid_idx = (det_instances.pred_classes == 0) & (det_instances.scores > 0.5)
+            boxes = det_instances.pred_boxes.tensor[valid_idx].cpu().numpy()
+            if len(boxes) != 1:
                 continue
-            all_boxes.append(boxes_t.cpu().numpy())
+            all_boxes.append(boxes)
             valid_frames.append((idx, frames[idx]))
 
         if not valid_frames:
