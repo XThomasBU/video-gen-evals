@@ -789,11 +789,11 @@ class TokenHMRMeshGenerator:
         """
         mesh_info = {}
 
-        # print GB sizes of detector and model
-        det_params = sum(p.numel() for p in self.det2_predictor.model.parameters())
-        model_params = sum(p.numel() for p in self.model.parameters())
-        print(f"Detector params: {det_params / 1e6:.1f}M")
-        print(f"TokenHMR params: {model_params / 1e6:.1f}M")
+        # # print GB sizes of detector and model
+        # det_params = sum(p.numel() for p in self.det2_predictor.model.parameters())
+        # model_params = sum(p.numel() for p in self.model.parameters())
+        # print(f"Detector params: {det_params / 1e6:.1f}M")
+        # print(f"TokenHMR params: {model_params / 1e6:.1f}M")
 
         # ---- 1. Run detector on all frames at once ----
         start_time = time.time()
@@ -814,14 +814,14 @@ class TokenHMRMeshGenerator:
 
         # if over 20% frames are invalid, skip entire video
         if len(valid_frames) < 0.8 * len(frames):
-            print(f"Skipping video because only {len(valid_frames)}/{len(frames)} frames are valid")
+            # print(f"Skipping video because only {len(valid_frames)}/{len(frames)} frames are valid")
             return False
 
         # ---- 2. Build dataset over multiple frames ----
         imgs = [f for _, f in valid_frames]
         boxes_list = all_boxes
         dataset = ViTDetDataset(self.model_cfg, img_cv2=imgs, boxes=boxes_list)
-        print(len(dataset), "valid frames with single-person detections")
+        # print(len(dataset), "valid frames with single-person detections")
 
         # ---- 3. Run through DataLoader once ----
         dataloader = torch.utils.data.DataLoader(
@@ -835,7 +835,7 @@ class TokenHMRMeshGenerator:
                 out = self.model(batch)
                 results.append(out)
             end_time = time.time()
-            print(f"TokenHMR processed {len(dataset)} frames in {end_time - start_time:.2f} seconds")
+            # print(f"TokenHMR processed {len(dataset)} frames in {end_time - start_time:.2f} seconds")
 
         # ---- 4. Flatten and regroup per frame ----
         poses = torch.cat([o['pred_smpl_params']['body_pose']     for o in results], dim=0)  # [N, ...]

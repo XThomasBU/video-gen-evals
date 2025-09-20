@@ -5,7 +5,7 @@ import argparse
 from typing import List
 
 from .TokenHMR.mesh_generator import TokenHMRMeshGenerator
-
+from tqdm import tqdm
 import numpy as np                         # NEW
 from pathlib import Path 
 
@@ -156,17 +156,17 @@ def main():
 
         processed = set(singles) | set(nots) 
 
-        for video in videos:
+        for video in tqdm(videos, desc=f"Processing action '{action}'", total=len(videos)):
             if video in processed:
                 print(f"[SKIP] {action}/{video} (already processed)")
                 continue
 
             try:
                 video_path = os.path.join(action_dir, video)
-                print(video_path)
+                # print(video_path)
                 frames = load_all_frames(video_path, convert_bgr2rgb=BGR2RGB)
                 mesh_info = mesh_generator.process_video(frames=frames)
-                print(mesh_info)
+                # print(mesh_info)
 
                 if mesh_info:
 
