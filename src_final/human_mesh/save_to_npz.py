@@ -116,10 +116,10 @@ def save_json(path, data):
 def main():
     args = parse_args()
 
-    DIR = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/DATA/Kinetics/kinetics-dataset/k700-2020/train"
-    OUTPUT_JSON_SINGLE = "k700_single_person_videos.json"
-    OUTPUT_JSON_NOT = "k700_not_single_videos.json"
-    OUTPUT_JSON_ERRS = "k700_errors.json"  # optional but handy
+    DIR = "/home/coder/projects/DATA/kinetics-dataset/k700-2020/train"
+    OUTPUT_JSON_SINGLE = "K700_single_person_videos.json"
+    OUTPUT_JSON_NOT = "K700_not_single_videos.json"
+    OUTPUT_JSON_ERRS = "K700_errors.json"  # optional but handy
     BGR2RGB = False
 
     # ---- Load existing progress if available ----
@@ -177,7 +177,7 @@ def main():
                         "video": video,
                         "source_path": video_path,
                     }
-                    out_path = save_video_npz(video_id, mesh_info, out_root="/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/meshes_npz", meta=meta)
+                    out_path = save_video_npz(video_id, mesh_info, out_root="/home/coder/projects/video_evals/video-gen-evals/src_final/meshes_npz", meta=meta)
 
                     is_single = True
 

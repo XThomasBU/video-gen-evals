@@ -108,12 +108,12 @@ class TokenHMR(pl.LightningModule):
         # Buffer that shows whetheer we need to initialize ActNorm layers
         self.register_buffer("initialized", torch.tensor(False))
         # Setup renderer for visualization
-        if init_renderer:
-            self.renderer = SkeletonRenderer(self.cfg)
-            self.mesh_renderer = MeshRenderer(self.cfg, faces=self.smpl.faces)
-        else:
-            self.renderer = None
-            self.mesh_renderer = None
+        # if init_renderer:
+        #     self.renderer = SkeletonRenderer(self.cfg)
+        #     self.mesh_renderer = MeshRenderer(self.cfg, faces=self.smpl.faces)
+        # else:
+        self.renderer = None
+        self.mesh_renderer = None
 
         # Disable automatic optimization since we use adversarial training
         self.automatic_optimization = False

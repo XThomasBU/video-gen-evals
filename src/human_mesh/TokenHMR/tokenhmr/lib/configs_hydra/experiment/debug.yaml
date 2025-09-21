@@ -29,12 +29,12 @@ DATASETS:
   DATASET_DIR: /is/cluster/fast/scratch/sdwivedi/datasets/hmr2_training_data 
 
 SMPL:
-  DATA_DIR: src/human_mesh/TokenHMR/data/body_models 
-  MODEL_PATH: src/human_mesh/TokenHMR/data/body_models/smpl
+  DATA_DIR: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models
+  MODEL_PATH: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/smpl
   GENDER: neutral
   NUM_BODY_JOINTS: 23
-  JOINT_REGRESSOR_EXTRA: src/human_mesh/TokenHMR/data/body_models/SMPL_to_J19.pkl
-  MEAN_PARAMS: src/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz
+  JOINT_REGRESSOR_EXTRA: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/SMPL_to_J19.pkl
+  MEAN_PARAMS: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz
 
 trainer:
   precision: 16
@@ -52,14 +52,14 @@ MODEL:
   LOOSE_SUP: True
   LOOSE_WEIGHT: 0.05
   WITH_MLM: False
-  TOKENIZER_CHECKPOINT_PATH: src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth
+  TOKENIZER_CHECKPOINT_PATH: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth
 
   IMAGE_SIZE: 256
   IMAGE_MEAN: [0.485, 0.456, 0.406]
   IMAGE_STD: [0.229, 0.224, 0.225]
   BACKBONE:
     TYPE: vit
-    PRETRAINED_WEIGHTS: src/human_mesh/TokenHMR/data/checkpoints/hmr2_pretrained.pth
+    PRETRAINED_WEIGHTS: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/hmr2_pretrained.pth
   SMPL_HEAD:
     TYPE: token
     IN_CHANNELS: 2048

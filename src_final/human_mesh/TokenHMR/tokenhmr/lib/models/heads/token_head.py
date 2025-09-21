@@ -42,7 +42,10 @@ class SMPLTokenDecoderHead(nn.Module):
         self.deccam = nn.Linear(dim, 3)
         self.decpose_hands = nn.Linear(dim, 6*2)
 
-        self.decpose = TokenClassfier(dim, tokenizer_checkpoint_path=cfg.MODEL.TOKENIZER_CHECKPOINT_PATH, \
+        # cfg.MODEL.TOKENIZER_CHECKPOINT_PATH = "/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth"
+        # print(cfg.MODEL.TOKENIZER_CHECKPOINT_PATH)
+
+        self.decpose = TokenClassfier(dim, tokenizer_checkpoint_path="/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth", \
                                     token_num=cfg.MODEL.SMPL_HEAD.TOKENIZER.TOKEN_NUM, \
                                     token_class_num=cfg.MODEL.SMPL_HEAD.TOKENIZER.TOKEN_CLASS_NUM,\
                                     token_code_dim=self.token_code_dim,\
@@ -55,7 +58,7 @@ class SMPLTokenDecoderHead(nn.Module):
             nn.init.xavier_uniform_(self.decshape.weight, gain=0.01)
             nn.init.xavier_uniform_(self.deccam.weight, gain=0.01)
 
-        mean_params = np.load(cfg.SMPL.MEAN_PARAMS)
+        mean_params = np.load("/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz")
         init_body_pose = torch.from_numpy(mean_params['pose'].astype(np.float32)).unsqueeze(0)
         init_betas = torch.from_numpy(mean_params['shape'].astype('float32')).unsqueeze(0)
         init_cam = torch.from_numpy(mean_params['cam'].astype(np.float32)).unsqueeze(0)

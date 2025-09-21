@@ -84,3 +84,27 @@ class ArcMarginProduct(nn.Module):
         # use phi on true class, cos elsewhere
         logits = (one_hot * phi) + ((1.0 - one_hot) * cos)
         return logits * self.s
+
+
+def action_consistency_loss(z, y, ratio=True, eps=1e-6):
+    S = z @ z.t()
+    D = 1.0 - S
+    B = D.shape[0]
+    eye = torch.eye(B, device=D.device, dtype=torch.bool)
+    same = (y.unsqueeze(0) == y.unsqueeze(1)) & ~eye
+    diff = (~same) & ~eye
+
+    intra_vals = D[same]
+    inter_vals = D[diff]
+
+    if intra_vals.numel() == 0 or inter_vals.numel() == 0:
+        return z.new_tensor(0.0, requires_grad=True)
+
+    intra_mean = intra_vals.mean()
+    inter_mean = inter_vals.mean()
+
+    if ratio:
+        ratio_val = inter_mean / (inter_mean + intra_mean + eps)
+        return 1.0 - ratio_val      # non-negative, in [0,1]
+    else:
+        return intra_mean - inter_mean

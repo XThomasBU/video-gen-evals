@@ -14,7 +14,7 @@ import detectron2.data.transforms as T
 from detectron2.engine.defaults import DefaultPredictor
 from .tokenhmr.lib.utils.utils_detectron2 import DefaultPredictor_Lazy
 from detectron2.config import LazyConfig
-import lib
+# import lib
 from pathlib import Path
 import torch
 import os
@@ -38,6 +38,14 @@ setup_logger()
 # import some common libraries
 import numpy as np
 import os, json, cv2, random
+
+import os
+os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
+os.environ.setdefault("EGL_PLATFORM", "surfaceless")
+import pyglet
+pyglet.options["headless"] = True
+
+import pyrender  # imports after the headless options are set
 
 # import some common detectron2 utilities
 from detectron2 import model_zoo
@@ -100,8 +108,8 @@ class TokenHMRMeshGenerator:
     def __init__(self, config, device="cuda"):
         self.device = device
         self._config = {
-            "checkpoint": "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/checkpoints/tokenhmr_model_latest.ckpt",
-            "model_config": "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/checkpoints/model_config.yaml",
+            "checkpoint": "/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenhmr_model_latest.ckpt",
+            "model_config": "/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/model_config.yaml",
         }
         # merge with user config
         self.config = config
@@ -121,7 +129,7 @@ class TokenHMRMeshGenerator:
         model.eval()
         self.model = model
 
-        cfg_path = "/projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/tokenhmr/lib/configs/cascade_mask_rcnn_vitdet_h_75ep.py"
+        cfg_path = "/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/tokenhmr/lib/configs/cascade_mask_rcnn_vitdet_h_75ep.py"
         detectron2_cfg = LazyConfig.load(str(cfg_path))
         detectron2_cfg.train.init_checkpoint = "https://dl.fbaipublicfiles.com/detectron2/ViTDet/COCO/cascade_mask_rcnn_vitdet_h/f328730692/model_final_f05665.pkl"
         for i in range(3):
@@ -208,7 +216,7 @@ class TokenHMRMeshGenerator:
         mesh_frames = []  # Add list to collect mesh renderings
         overlay_frames = []  # Add list to collect overlay frames
 
-        out_dir = "DEL"
+        out_dir = "SANITY_CHECK"
 
         
 

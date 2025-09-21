@@ -29,12 +29,12 @@ DATASETS:
   DATASET_DIR: tokenhmr/dataset_dir 
 
 SMPL:
-  DATA_DIR: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/body_models 
-  MODEL_PATH: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/body_models/smpl
+  DATA_DIR: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models 
+  MODEL_PATH: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/smpl
   GENDER: neutral
   NUM_BODY_JOINTS: 23
-  JOINT_REGRESSOR_EXTRA: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/body_models/SMPL_to_J19.pkl
-  MEAN_PARAMS: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz
+  JOINT_REGRESSOR_EXTRA: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/SMPL_to_J19.pkl
+  MEAN_PARAMS: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models/smpl_mean_params.npz
 
 trainer:
   precision: 16
@@ -52,14 +52,14 @@ MODEL:
   LOOSE_SUP: True
   LOOSE_WEIGHT: 0.05
   WITH_MLM: False
-  TOKENIZER_CHECKPOINT_PATH: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth
+  TOKENIZER_CHECKPOINT_PATH: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/tokenizer.pth
 
   IMAGE_SIZE: 256
   IMAGE_MEAN: [0.485, 0.456, 0.406]
   IMAGE_STD: [0.229, 0.224, 0.225]
   BACKBONE:
     TYPE: vit
-    PRETRAINED_WEIGHTS: /projectnb/ivc-ml/xthomas/RESEARCH/video_evals/video-gen-evals/src_final/human_mesh/TokenHMR/data/checkpoints/hmr2_pretrained.pth
+    PRETRAINED_WEIGHTS: /home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/checkpoints/hmr2_pretrained.pth
     # PRETRAINED_WEIGHTS: tokenhmr/dataset_dir/vitpose_backbone.pth
   SMPL_HEAD:
     TYPE: token

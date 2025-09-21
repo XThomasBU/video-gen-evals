@@ -12,7 +12,7 @@ from smplx import SMPLHLayer, SMPLXLayer
 smpl_type='smplh'
 import os
 current_dir = os.path.dirname(os.path.realpath(__file__))
-body_model_path = os.path.join(current_dir, '..', '..', 'data/body_models', smpl_type)
+body_model_path = os.path.join("/home/coder/projects/video_evals/video-gen-evals/src/human_mesh/TokenHMR/data/body_models", smpl_type)
 body_model = eval(f'{smpl_type.upper()}Layer')(body_model_path, num_betas=10, ext='pkl')
 body_model = body_model.cuda() if torch.cuda.is_available() else body_model
 

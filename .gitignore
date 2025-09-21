@@ -18,3 +18,11 @@ src/motion_tracking/trajan/tapnet/checkpoints/
 
 DEL/
 videos/
+
+src_final/meshes_npz/*
+*log
+*.json
+
+*.png
+*.jpg
+*.jpeg
