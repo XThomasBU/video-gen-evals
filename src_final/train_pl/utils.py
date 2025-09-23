@@ -850,45 +850,32 @@ class NpzVideoDataset(Dataset):
     Scans per-class directories for .npz files saved by save_video_npz(...).
     """
     def __init__(self, root_dir: str, items: T.Optional[T.List[VideoItem]] = None,
-                 whitelist_json_dir: T.Optional[str] = None, filter_classes: T.Optional[T.List[str]] = None):
-        # self.root_dir = root_dir
-        # self.whitelist = self._load_whitelist(whitelist_json_dir) if whitelist_json_dir else {}
-        # if items is not None:
-        #     self.items = items
-        # else:
-        #     self.items = self._scan()
-
-        # # class lists
-        # self.classes = sorted(list({it.cls for it in self.items}))
-        # self.class_to_items: T.Dict[str, T.List[VideoItem]] = {}
-        # for it in self.items:
-        #     self.class_to_items.setdefault(it.cls, []).append(it)
+                 whitelist_json_dir: T.Optional[str] = None, filter_classes: T.Optional[T.List[str]] = None, min_videos_per_class: int = 10, enforce_min_per_class: bool = True):
         self.root_dir = root_dir
         self.whitelist = self._load_whitelist(whitelist_json_dir) if whitelist_json_dir else {}
-        if items is not None:
-            raw_items = items
-        else:
-            raw_items = self._scan()
+
+        raw_items = items if items is not None else self._scan()
 
         # group items by class
         class_to_items: T.Dict[str, T.List[VideoItem]] = {}
         for it in raw_items:
             class_to_items.setdefault(it.cls, []).append(it)
 
-        # filter by min #videos
-        class_to_items = {cls: vids for cls, vids in class_to_items.items() if len(vids) >= 10}
+        if enforce_min_per_class:
+            class_to_items = {
+                cls: vids for cls, vids in class_to_items.items()
+                if len(vids) >= min_videos_per_class
+            }
 
-        # filter by explicit list if provided
+        # optional explicit class filter
         if filter_classes is not None:
             allowed = set(filter_classes)
             class_to_items = {cls: vids for cls, vids in class_to_items.items() if cls in allowed}
 
-        # flatten back into items
+        # flatten
         self.class_to_items = class_to_items
-        self.items = [it for vids in self.class_to_items.values() for it in vids]
-
-        # class list
-        self.classes = sorted(self.class_to_items.keys())
+        self.items = [it for vids in class_to_items.values() for it in vids]
+        self.classes = sorted(class_to_items.keys())
 
     def _load_whitelist(self, wdir: str) -> T.Dict[str, T.Set[str]]:
         wl: T.Dict[str, T.Set[str]] = {}
@@ -933,14 +920,18 @@ def train_test_split(dataset: NpzVideoDataset, train_ratio: float = 0.8, seed: i
     rng = random.Random(seed)
     train_items: T.List[VideoItem] = []
     test_items:  T.List[VideoItem] = []
+
     for cls, vids in dataset.class_to_items.items():
         vids_copy = vids[:]
         rng.shuffle(vids_copy)
-        split_idx = int(len(vids_copy) * train_ratio)
-        train_items.extend(vids_copy[:split_idx])
-        test_items.extend(vids_copy[split_idx:])
-    return NpzVideoDataset(dataset.root_dir, items=train_items, whitelist_json_dir=None), \
-           NpzVideoDataset(dataset.root_dir, items=test_items,  whitelist_json_dir=None)
+        n = len(vids_copy)
+        n_train = max(1, min(n - 1, int(round(n * train_ratio))))  # ensure both sides non-empty
+        train_items.extend(vids_copy[:n_train])
+        test_items.extend(vids_copy[n_train:])
+
+    train_ds = NpzVideoDataset(dataset.root_dir, items=train_items, enforce_min_per_class=False)
+    test_ds  = NpzVideoDataset(dataset.root_dir, items=test_items, enforce_min_per_class=False)
+    return train_ds, test_ds
 
 # ------------------- window sampling from NPZ -------------------
 
@@ -1216,30 +1207,48 @@ def make_test_loader(
     seed: int = 999,
     batch_size: int = 256,
     num_workers: int = 0,
+    filter_classes: T.Optional[T.List[str]] = None,
 ):
     """
     Enumerate *all* windows for every video in `ds` with the given stride.
     No sampling, no caps. If a video is shorter than clip_len, you'll get one
     padded window (start=0).
     """
+    allowed: T.Optional[set] = set(filter_classes) if filter_classes else None
+
     samples: T.List[T.Tuple[VideoItem, int]] = []
     for it in ds.items:
+        if allowed is not None and it.cls not in allowed:
+            continue
         if it.length <= 0:
             continue
+
         if it.length < clip_len:
-            # one padded window
-            starts = [0]
+            starts = [0]  # one padded window
         else:
-            # standard sliding windows
             last_start = it.length - clip_len
             starts = list(range(0, last_start + 1, max(1, stride)))
+
         for s in starts:
             samples.append((it, s))
 
+    # (Optional) guardrail: avoid silent empty loader
+    if len(samples) == 0:
+        raise ValueError(
+            f"make_test_loader: no samples found. "
+            f"{'Filter matched no classes.' if allowed else 'Dataset may be empty.'}"
+        )
+
     ds_all = WindowDataset(
-        samples, clip_len=clip_len, retries=0, jitter=0,
-        pad_mode=pad_mode, seed=seed, stats=stats
+        samples,
+        clip_len=clip_len,
+        retries=0,
+        jitter=0,
+        pad_mode=pad_mode,
+        seed=seed,
+        stats=stats,
     )
+
     return DataLoader(
         ds_all,
         batch_size=batch_size,
@@ -1507,7 +1516,7 @@ def build_train_centroids_subset(model, small_loader, label_dict, device):
         feats, cls_names, _ = packed
         feats = feats.to(device, non_blocking=True)
         z, _, _ = model(feats)
-        z = F.normalize(z, dim=-1)
+        # z = F.normalize(z, dim=-1)
 
         y = torch.as_tensor([label_dict[c] for c in cls_names], device=device, dtype=torch.long)
         if sums is None:
@@ -1590,3 +1599,141 @@ def action_consistency_centroid(model, loader, label_dict, centroids, device):
 
     model.train()
     return video_scores, class_stats, avg_score, max_score, min_score, median_score
+
+
+class PKBatchSamplerRequired(BatchSampler):
+    """
+    Metric-learning sampler: each batch has P classes, K samples/class.
+    Additionally enforces that a given set of classes is included in *every* batch.
+    - If a class runs out of fresh samples in the epoch, samples with replacement.
+    - Shuffles per-class queues each epoch.
+
+    Args:
+        labels: sequence[int] length N (class id per sample)
+        P: classes per batch
+        K: samples per class
+        required_class_ids: iterable[int], must be included in every batch
+        drop_last: drop final incomplete batch (not used here because we control size)
+        generator: numpy Generator for reproducibility (optional)
+    """
+    def __init__(
+        self,
+        labels: T.Sequence[int],
+        P: int,
+        K: int,
+        required_class_ids: T.Optional[T.Sequence[int]] = None,
+        drop_last: bool = False,
+        generator=None,
+    ):
+        self.labels = np.asarray(labels)
+        self.P = int(P)
+        self.K = int(K)
+        self.drop_last = drop_last
+        self.rng = np.random.default_rng() if generator is None else generator
+
+        # map: class_id -> indices
+        self.class_to_indices = defaultdict(list)
+        for idx, y in enumerate(self.labels):
+            self.class_to_indices[int(y)].append(idx)
+
+        self.classes = list(self.class_to_indices.keys())
+
+        # sanitize required classes
+        self.required = sorted(set(required_class_ids or []))
+        assert len(self.classes) >= self.P, "P must be <= number of classes present"
+        assert self.P >= len(self.required), (
+            f"P ({self.P}) must be >= number of required classes ({len(self.required)})"
+        )
+        missing = [c for c in self.required if c not in self.class_to_indices or len(self.class_to_indices[c]) == 0]
+        if missing:
+            raise ValueError(f"Required classes missing in labels: {missing}")
+
+        self._reset_epoch()
+
+    def _reset_epoch(self):
+        # per-class shuffled queues
+        self.per_class_queues = {}
+        for c, idxs in self.class_to_indices.items():
+            idxs = np.array(idxs)
+            self.rng.shuffle(idxs)
+            self.per_class_queues[c] = idxs.tolist()
+
+        # classes available for the non-required slots
+        self.non_required = [c for c in self.classes if c not in self.required]
+        self.rng.shuffle(self.non_required)
+        self.nr_cursor = 0
+
+        # rough epoch length
+        total_items = sum(len(v) for v in self.per_class_queues.values())
+        self.num_batches = max(1, total_items // (self.P * self.K))
+
+    def __len__(self):
+        total_items = sum(len(v) for v in self.class_to_indices.values())
+        return max(1, total_items // (self.P * self.K))
+
+    def _take_from_class(self, c: int) -> T.List[int]:
+        """Take K indices from class c (without replacement where possible, else top up with replacement)."""
+        q = self.per_class_queues[c]
+        if len(q) >= self.K:
+            take = q[:self.K]
+            del q[:self.K]
+            return take
+        else:
+            take = q.copy()
+            need = self.K - len(take)
+            pool = self.class_to_indices[c]
+            # replacement draw for the remainder
+            if need > 0:
+                take.extend(self.rng.choice(pool, size=need, replace=True).tolist())
+            q.clear()
+            return take
+
+    def __iter__(self):
+        self._reset_epoch()
+        batches_emitted = 0
+
+        while True:
+            # Always include required classes
+            chosen = list(self.required)
+
+            # Fill remaining slots with non-required classes, cycling through shuffled list
+            slots_left = self.P - len(chosen)
+            if slots_left > 0:
+                # wrap around if needed, reshuffle at every wrap
+                picked = []
+                while len(picked) < slots_left:
+                    remaining = len(self.non_required) - self.nr_cursor
+                    if remaining <= 0:
+                        self.rng.shuffle(self.non_required)
+                        self.nr_cursor = 0
+                        remaining = len(self.non_required)
+                    take = min(slots_left - len(picked), remaining)
+                    picked.extend(self.non_required[self.nr_cursor:self.nr_cursor + take])
+                    self.nr_cursor += take
+                chosen.extend(picked)
+
+            # sanity (unique classes)
+            if len(set(chosen)) != self.P:
+                # Just in case P almost equals total classes and required overlaps; repair by sampling uniques
+                pool = [c for c in self.classes if c not in set(chosen)]
+                self.rng.shuffle(pool)
+                for c in pool:
+                    if len(chosen) >= self.P: break
+                    chosen.append(c)
+                chosen = chosen[:self.P]
+
+            # assemble batch
+            batch = []
+            for c in chosen:
+                batch.extend(self._take_from_class(c))
+
+            self.rng.shuffle(batch)
+            if len(batch) != self.P * self.K:
+                if self.drop_last:
+                    continue
+                # else, we still yield the (correct-sized) batch due to replacement top-up
+            yield batch
+            batches_emitted += 1
+
+            if batches_emitted >= self.num_batches:
+                break

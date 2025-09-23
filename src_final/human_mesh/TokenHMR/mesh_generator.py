@@ -861,6 +861,81 @@ class TokenHMRMeshGenerator:
             }
 
         return mesh_info
+
+    def process_video_test(self, frames):
+        """
+        Args:
+            frames: list[np.ndarray(H,W,3)] or np.ndarray(T,H,W,3)
+        Returns:
+            mesh_info: dict {frame_idx: {pose, betas, global_orient, vit}}
+        """
+        mesh_info = {}
+
+        # # print GB sizes of detector and model
+        # det_params = sum(p.numel() for p in self.det2_predictor.model.parameters())
+        # model_params = sum(p.numel() for p in self.model.parameters())
+        # print(f"Detector params: {det_params / 1e6:.1f}M")
+        # print(f"TokenHMR params: {model_params / 1e6:.1f}M")
+
+        # ---- 1. Run detector on all frames at once ----
+        start_time = time.time()
+        all_boxes = []
+        valid_frames = []  # list of (idx, frame) with valid single-person deteions
+        for idx, f in enumerate(frames):
+            det_out = self.det2_predictor(f)
+            det_instances = det_out["instances"]
+            valid_idx = (det_instances.pred_classes == 0) & (det_instances.scores > 0.5)
+            boxes = det_instances.pred_boxes.tensor[valid_idx].cpu().numpy()
+            if len(boxes) != 1:
+                continue
+            all_boxes.append(boxes)
+            valid_frames.append((idx, frames[idx]))
+
+        # if not valid_frames:
+        #     return False
+
+        # # if over 20% frames are invalid, skip entire video
+        # if len(valid_frames) < 0.8 * len(frames):
+        #     # print(f"Skipping video because only {len(valid_frames)}/{len(frames)} frames are valid")
+        #     return False
+
+        # ---- 2. Build dataset over multiple frames ----
+        imgs = [f for _, f in valid_frames]
+        boxes_list = all_boxes
+        dataset = ViTDetDataset(self.model_cfg, img_cv2=imgs, boxes=boxes_list)
+        # print(len(dataset), "valid frames with single-person detections")
+
+        # ---- 3. Run through DataLoader once ----
+        dataloader = torch.utils.data.DataLoader(
+            dataset, batch_size=8, shuffle=False, num_workers=0
+        )
+
+        results = []
+        with torch.no_grad():
+            for batch in dataloader:
+                batch = recursive_to(batch, self.device)
+                out = self.model(batch)
+                results.append(out)
+            end_time = time.time()
+            # print(f"TokenHMR processed {len(dataset)} frames in {end_time - start_time:.2f} seconds")
+
+        # ---- 4. Flatten and regroup per frame ----
+        poses = torch.cat([o['pred_smpl_params']['body_pose']     for o in results], dim=0)  # [N, ...]
+        betas = torch.cat([o['pred_smpl_params']['betas']         for o in results], dim=0)
+        gori  = torch.cat([o['pred_smpl_params']['global_orient'] for o in results], dim=0)
+        vit   = torch.cat([o['pred_smpl_params']['token_out']     for o in results], dim=0)
+
+        # dataset.flat_index is list of (frame_idx_in_valid_frames, person_idx)
+        for sample_idx, (t, _) in enumerate(dataset.flat_index):
+            mesh_info[valid_frames[t][0]] = {
+                "pose":          poses[sample_idx].detach().cpu().numpy(),
+                "betas":         betas[sample_idx].detach().cpu().numpy(),
+                "global_orient": gori[sample_idx].detach().cpu().numpy(),
+                "vit":           vit[sample_idx].detach().cpu().numpy(),
+            }
+
+        return mesh_info
+            
             
             
 

@@ -44,11 +44,11 @@ DATASET_DIR = "/home/coder/projects/video_evals/video-gen-evals/src_final/meshes
 # Expect layout: DATASET_DIR/<class>/<video>.npz produced by save_video_npz(...)
 
 # WHITELIST_JSON_DIR ="/home/coder/projects/video_evals/video-gen-evals/FINAL_MESH_UCF101/single"
-# FILTER_CLASSES =  ["JumpingJack", "PullUps", "PushUps", "HulaHoop", "WallPushups", "Shotput", "SoccerJuggling", "TennisSwing", "ThrowDiscus", "BodyWeightSquats"]
+FILTER_CLASSES_TEST =  ["JumpingJack", "PullUps", "PushUps", "HulaHoop", "WallPushups", "Shotput", "SoccerJuggling", "TennisSwing", "ThrowDiscus", "BodyWeightSquats"]
 WHITELIST_JSON_DIR = None
 FILTER_CLASSES = None
 
-BATCH_SIZE = 256
+BATCH_SIZE = 2048
 LATENT_DIM = 128
 EPOCHS = 90
 CLIP_LEN = 32
@@ -58,7 +58,7 @@ NGPUS = torch.cuda.device_count()
 USE_DP = (DEVICE == "cuda") and (NGPUS > 1)
 PRIMARY_DEVICE = torch.device("cuda:0" if DEVICE == "cuda" else "cpu")
 
-TOTAL_WINDOWS_PER_EPOCH = 8192
+TOTAL_WINDOWS_PER_EPOCH = 16384
 WINDOWS_PER_VIDEO = 8
 STRIDE = 8
 
@@ -75,8 +75,29 @@ train_ds, test_ds = train_test_split(full_ds, train_ratio=0.8, seed=SEED)
 stats = compute_stats_from_npz(train_ds.items)
 print(f"Train videos: {len(train_ds)}, Test videos: {len(test_ds)}")
 
+# After split
+from collections import Counter
+
+def class_counts(ds):
+    return Counter([it.cls for it in ds.items])
+
+print("FULL:", {k: len(v) for k, v in full_ds.class_to_items.items()})
+print("TRAIN:", class_counts(train_ds))
+print("TEST:", class_counts(test_ds))
+
+# Ensure every class in FULL appears in both TRAIN and TEST
+full_classes = set(full_ds.class_to_items.keys())
+assert full_classes.issubset(set(train_ds.classes) | set(test_ds.classes))
+assert all(c in train_ds.classes for c in full_classes)
+assert all(c in test_ds.classes  for c in full_classes)
+
 ALL_CLASSES = sorted(list({it.cls for it in full_ds.items}))
 label_dict = {cls: i for i, cls in enumerate(ALL_CLASSES)}
+
+# save label mapping
+os.makedirs("SAVE", exist_ok=True)
+with open("SAVE/label_mapping.json", "w") as f:
+    json.dump(label_dict, f, indent=2)
 
 # Peek one window to determine feature dim
 probe_samples = sample_windows_capped_npz(train_ds, clip_len=CLIP_LEN, stride=STRIDE,
@@ -158,18 +179,22 @@ for epoch in range(EPOCHS):
 
     test_loader = make_test_loader(
         test_ds, clip_len=CLIP_LEN, stride=STRIDE,
+        pad_mode=PAD_MODE, stats=stats, seed=SEED, batch_size=256, filter_classes=FILTER_CLASSES_TEST
+    )
+    test_loader_full = make_test_loader(
+        test_ds, clip_len=CLIP_LEN, stride=STRIDE,
         pad_mode=PAD_MODE, stats=stats, seed=SEED, batch_size=256
     )
 
-    train_eval_loader = make_test_loader(
-        train_ds,
-        clip_len=CLIP_LEN,
-        stride=STRIDE,
-        pad_mode=PAD_MODE,
-        stats=stats,
-        seed=SEED,
-        batch_size=256
-    )
+    # train_eval_loader = make_test_loader(
+    #     train_ds,
+    #     clip_len=CLIP_LEN,
+    #     stride=STRIDE,
+    #     pad_mode=PAD_MODE,
+    #     stats=stats,
+    #     seed=SEED,
+    #     batch_size=256
+    # )
 
     best_score = -1.0
 
@@ -202,11 +227,11 @@ for epoch in range(EPOCHS):
         logits_arc = arc(emb, labels)                             # [B, C]
         loss_arc = ce(logits_arc, labels) 
 
-        loss_org = loss_fn(emb, labels)  +  action_consistency_loss(emb, labels, ratio=True)  (
+        loss_org = loss_fn(emb, labels)  +  action_consistency_loss(emb, labels, ratio=True) + (
             loss_hard(emb, emb, sh_emb) +
             loss_hard(emb, emb, rev_emb) +
             loss_hard(emb, emb, st_emb)
-        )
+        ) + 0.1 * loss_arc 
         # loss = loss_org + 10.0 * (
         #     loss_hard(emb, emb, sh_emb) +
         #     loss_hard(emb, emb, rev_emb) +
@@ -245,32 +270,38 @@ for epoch in range(EPOCHS):
     num_ge_09 = sum(1 for v in cls_stats.values() if np.isfinite(v["avg"]) and v["avg"] >= 0.9)
     print(f"[Subset-Centroid AC] avg {avg_sc:.4f} | max {max_sc:.4f} | min {min_sc:.4f} | median {med_sc:.4f} | classes >= 0.9: {num_ge_09}/{len(cls_stats)}")
 
-    per_video_stats, avg_score, max_score, min_score, median_score = action_consistency(model, test_loader, label_dict, device=PRIMARY_DEVICE)
-    per_class_scores = defaultdict(list)
-
-    for vid, d in per_video_stats.items():
-        cls_id = d["class"]
-        per_class_scores[cls_id].append(d["score"])
-
-    class_stats = {
-        cls_id: {
-            "count_videos": len(scores),
-            "avg": float(np.nanmean(scores)) if scores else float("nan"),
-            "max": float(np.nanmax(scores))  if scores else float("nan"),
-            "min": float(np.nanmin(scores))  if scores else float("nan"),
-            "median": float(np.nanmedian(scores)) if scores else float("nan"),
-        }
-        for cls_id, scores in per_class_scores.items()
-    }
-
-    # If you really mean “classes with score > 0.9” based on class-average:
-    classes_with_score_greater_than_0_9 = sum(
-        1 for s in class_stats.values() if np.isfinite(s["avg"]) and s["avg"] > 0.9
+    vid_stats_full, cls_stats_full, avg_sc_full, max_sc_full, min_sc_full, med_sc_full = action_consistency_centroid(
+        model, test_loader_full, label_dict, centroids_sub, device=PRIMARY_DEVICE
     )
-    print(f"Epoch {epoch+1}: avg train loss {avg_loss:.4f} | avg score {avg_score:.4f} | max score {max_score:.4f} | min score {min_score:.4f} | median score {median_score:.4f} | num classes >= 0.9: {classes_with_score_greater_than_0_9} / {len(ALL_CLASSES)}")
-    # # (optional) keep best checkpoint by consistency
-    if np.isfinite(avg_score) and avg_score > best_score:
-        best_score = avg_score
-        torch.save(model.state_dict(), f"SAVE/temporal_transformer_best.pt")
+    num_ge_09_full = sum(1 for v in cls_stats_full.values() if np.isfinite(v["avg"]) and v["avg"] >= 0.9)
+    print(f"[Full-Centroid AC]   avg {avg_sc_full:.4f} | max {max_sc_full:.4f} | min {min_sc_full:.4f} | median {med_sc_full:.4f} | classes >= 0.9: {num_ge_09_full}/{len(cls_stats_full)}")
+
+    # per_video_stats, avg_score, max_score, min_score, median_score = action_consistency(model, test_loader, label_dict, device=PRIMARY_DEVICE)
+    # per_class_scores = defaultdict(list)
+
+    # for vid, d in per_video_stats.items():
+    #     cls_id = d["class"]
+    #     per_class_scores[cls_id].append(d["score"])
+
+    # class_stats = {
+    #     cls_id: {
+    #         "count_videos": len(scores),
+    #         "avg": float(np.nanmean(scores)) if scores else float("nan"),
+    #         "max": float(np.nanmax(scores))  if scores else float("nan"),
+    #         "min": float(np.nanmin(scores))  if scores else float("nan"),
+    #         "median": float(np.nanmedian(scores)) if scores else float("nan"),
+    #     }
+    #     for cls_id, scores in per_class_scores.items()
+    # }
+
+    # # If you really mean “classes with score > 0.9” based on class-average:
+    # classes_with_score_greater_than_0_9 = sum(
+    #     1 for s in class_stats.values() if np.isfinite(s["avg"]) and s["avg"] > 0.9
+    # )
+    # print(f"Epoch {epoch+1}: avg train loss {avg_loss:.4f} | avg score {avg_score:.4f} | max score {max_score:.4f} | min score {min_score:.4f} | median score {median_score:.4f} | num classes >= 0.9: {classes_with_score_greater_than_0_9} / {len(ALL_CLASSES)}")
+    # # # (optional) keep best checkpoint by consistency
+    # if np.isfinite(avg_score) and avg_score > best_score:
+    #     best_score = avg_score
+    #     torch.save(model.state_dict(), f"SAVE/temporal_transformer_best.pt")
 
 print("✅ Training complete.")

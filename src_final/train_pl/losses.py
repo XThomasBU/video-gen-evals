@@ -108,3 +108,4 @@ def action_consistency_loss(z, y, ratio=True, eps=1e-6):
         return 1.0 - ratio_val      # non-negative, in [0,1]
     else:
         return intra_mean - inter_mean
+        
