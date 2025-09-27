@@ -1,39 +1,36 @@
 import os
+import re
 import json
 import torch
 from tqdm import tqdm
 from transformers import CLIPProcessor, CLIPModel
+from torchvision.models import vit_b_16 
+import torchvision.transforms as transforms
 import torch.nn.functional as F
 from PIL import Image
 import numpy as np
 from typing import List
 import argparse
+import cv2
 
-def clip_inter_frame(
-    model,
-    tokenizer,
+DYN_SAMPLE_STEP=4
+
+def dynamic_mse(
     frame_path_list:List[str],
-):
-    device=model.device
-    frame_sim_list=[]
-    for f_idx in range(len(frame_path_list)-1):
-        frame_1 = Image.open(frame_path_list[f_idx])
-        frame_2 = Image.open(frame_path_list[f_idx+1])
-        input_1 = tokenizer(images=frame_1, return_tensors="pt", padding=True).to(device)
-        input_2 = tokenizer(images=frame_2, return_tensors="pt", padding=True).to(device)
-        output_1 = model.get_image_features(**input_1).flatten()
-        output_2 = model.get_image_features(**input_2).flatten()
-        cos_sim = F.cosine_similarity(output_1, output_2, dim=0).item()
-        frame_sim_list.append(cos_sim)
-    clip_frame_score = np.mean(frame_sim_list)
-    
-    return clip_frame_score
-
-def load_models(device):
-    clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
-    clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-
-    return clip_model, clip_processor
+    ):
+    mse_list=[]
+    sampled_list = frame_path_list[::DYN_SAMPLE_STEP]
+    for f_idx in range(len(sampled_list)-1):        
+        imageA = cv2.imread(sampled_list[f_idx])
+        imageB = cv2.imread(sampled_list[f_idx+1])
+        
+        err = np.sum((imageA.astype("float") - imageB.astype("float")) ** 2)
+        err /= float(imageA.shape[0] * imageA.shape[1])
+        mse_value = err
+        mse_list.append(mse_value)
+    mse_avg=np.mean(mse_list)
+        
+    return mse_avg
 
 def parse_filenames(video_dir):
 
@@ -53,12 +50,10 @@ def parse_filenames(video_dir):
     return mapping
 
 def main(video_dir, frames_dir, output_dir):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model, processor = load_models(device)
 
     video_map = parse_filenames(video_dir)
 
-    clip_scores = {}
+    MSE_dyn_scores = {}
 
     for code, full_name in tqdm(video_map.items()):
         frames_dir_full = os.path.join(frames_dir, code)
@@ -73,18 +68,18 @@ def main(video_dir, frames_dir, output_dir):
             print(f"No frames found in {frames_dir_full}. Skipping.")
             continue
 
-        clip_raw_score = clip_inter_frame(model, processor, frame_files)
+        MSE_dyn_raw_score = dynamic_mse(frame_files)
         
-        if clip_raw_score is not None:
-            clip_scores[full_name] = float(clip_raw_score)
+        if MSE_dyn_raw_score is not None:
+            MSE_dyn_scores[full_name] = float(MSE_dyn_raw_score)
 
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
     with open(output_dir, 'w') as f:
-        json.dump(clip_scores, f, indent=4)
+        json.dump(MSE_dyn_scores, f, indent=4)
     print("Done!")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Calculate CLIP cosine similarities')
+    parser = argparse.ArgumentParser(description='Calculate MSE Dynamic similarities')
     parser.add_argument('--video_dir', type=str, help='Path to the directory containing the original videos')
     parser.add_argument('--frames_dir', type=str, help='Directory where the frames are stored')
     parser.add_argument('--output_dir', type=str, help='JSON where the similarities will be stored')    

@@ -1,33 +1,38 @@
 import os
+import re
 import json
 import torch
 from tqdm import tqdm
 from transformers import CLIPProcessor, CLIPModel
+from torchvision.models import vit_b_16 
+import torchvision.transforms as transforms
 import torch.nn.functional as F
 from PIL import Image
 import numpy as np
 from typing import List
 import argparse
 
-def clip_inter_frame(
-    model,
+MAX_LENGTH = 76
+
+def clip_score(
+    model, 
     tokenizer,
+    text:str,
     frame_path_list:List[str],
 ):
     device=model.device
-    frame_sim_list=[]
-    for f_idx in range(len(frame_path_list)-1):
-        frame_1 = Image.open(frame_path_list[f_idx])
-        frame_2 = Image.open(frame_path_list[f_idx+1])
-        input_1 = tokenizer(images=frame_1, return_tensors="pt", padding=True).to(device)
-        input_2 = tokenizer(images=frame_2, return_tensors="pt", padding=True).to(device)
-        output_1 = model.get_image_features(**input_1).flatten()
-        output_2 = model.get_image_features(**input_2).flatten()
-        cos_sim = F.cosine_similarity(output_1, output_2, dim=0).item()
-        frame_sim_list.append(cos_sim)
-    clip_frame_score = np.mean(frame_sim_list)
-    
-    return clip_frame_score
+    input_t = tokenizer(text=text, max_length=MAX_LENGTH, truncation=True, return_tensors="pt", padding=True).to(device)
+    cos_sim_list=[]
+    for frame_path in frame_path_list:
+        image=Image.open(frame_path)
+        input_f = tokenizer(images=image, return_tensors="pt", padding=True).to(device)
+        output_t = model.get_text_features(**input_t).flatten()
+        output_f = model.get_image_features(**input_f).flatten()
+        cos_sim = F.cosine_similarity(output_t, output_f, dim=0).item()
+        cos_sim_list.append(cos_sim)
+    clip_score_avg=np.mean(cos_sim_list)
+
+    return clip_score_avg
 
 def load_models(device):
     clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32").to(device)
@@ -47,7 +52,7 @@ def parse_filenames(video_dir):
         
         class_part, code_ext = f.split('__', 1)
         code = code_ext[:-4]
-        key = f"{class_part}__{code}"
+        key = re.sub(r'(?<=[a-z0-9])(?=[A-Z])', ' ', class_part).strip()
         mapping[code] = key
     
     return mapping
@@ -73,10 +78,10 @@ def main(video_dir, frames_dir, output_dir):
             print(f"No frames found in {frames_dir_full}. Skipping.")
             continue
 
-        clip_raw_score = clip_inter_frame(model, processor, frame_files)
+        clip_raw_score = clip_score(model, processor, full_name, frame_files)
         
         if clip_raw_score is not None:
-            clip_scores[full_name] = float(clip_raw_score)
+            clip_scores[f"{full_name}__{code}"] = float(clip_raw_score)
 
     os.makedirs(os.path.dirname(output_dir), exist_ok=True)
     with open(output_dir, 'w') as f:
@@ -84,7 +89,7 @@ def main(video_dir, frames_dir, output_dir):
     print("Done!")
 
 def parse_args():
-    parser = argparse.ArgumentParser(description='Calculate CLIP cosine similarities')
+    parser = argparse.ArgumentParser(description='Calculate CLIP Score')
     parser.add_argument('--video_dir', type=str, help='Path to the directory containing the original videos')
     parser.add_argument('--frames_dir', type=str, help='Directory where the frames are stored')
     parser.add_argument('--output_dir', type=str, help='JSON where the similarities will be stored')    
