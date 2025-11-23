@@ -1,7 +1,0 @@
-defaults:
-  - default.yaml
-  - default_hmr.yaml
-
-accelerator: gpu
-devices: 1
-#strategy: ddp_find_unused_parameters_true
