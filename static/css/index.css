@@ -1,5 +1,8 @@
 body {
   font-family: 'Noto Sans', sans-serif;
+  font-weight: 300;
+  color: #333;
+  letter-spacing: 0.01em;
 }
 
 
@@ -49,10 +52,14 @@ body {
 
 .publication-title {
     font-family: 'Google Sans', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
 }
 
 .publication-authors {
     font-family: 'Google Sans', sans-serif;
+    font-weight: 300;
+    letter-spacing: 0.01em;
 }
 
 .publication-venue {
@@ -143,4 +150,91 @@ figcaption {
   color: #777;
   margin-top: 0.5em;
   text-align: center;
+}
+
+/* Smooth animations */
+* {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fade-in animation for sections */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Staggered animations for sequential appearance */
+.section:nth-child(1) { animation-delay: 0s; }
+.section:nth-child(2) { animation-delay: 0.1s; }
+.section:nth-child(3) { animation-delay: 0.2s; }
+.section:nth-child(4) { animation-delay: 0.3s; }
+.section:nth-child(5) { animation-delay: 0.4s; }
+.section:nth-child(6) { animation-delay: 0.5s; }
+
+/* Button hover animations */
+.external-link.button {
+  transition: all 0.3s ease;
+  transform: translateY(0);
+}
+
+.external-link.button:hover {
+  transform: translateY(-2px);
+  border-color: #999;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Video container animation */
+.video-container {
+  animation: fadeInUp 0.8s ease-out;
+  transition: transform 0.3s ease;
+}
+
+.video-container:hover {
+  transform: scale(1.01);
+}
+
+/* Title animations */
+.title {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Image hover effect */
+img {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+img:hover {
+  transform: scale(1.02);
+  opacity: 0.95;
+}
+
+/* Smooth fade-in for content */
+.content {
+  animation: fadeInUp 0.7s ease-out;
+}
+
+/* Scroll-triggered animations */
+.fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
 }

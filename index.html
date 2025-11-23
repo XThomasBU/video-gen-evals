@@ -53,63 +53,72 @@
 <body>
 
 
-  <section class="hero">
+  <section class="hero" style="padding-top: 2rem; padding-bottom: 0.5rem; animation: fadeInUp 0.8s ease-out;">
     <div class="hero-body">
       <div class="container is-max-desktop">
         <div class="columns is-centered">
           <div class="column has-text-centered">
-            <h1 class="title is-1 publication-title">
+            <h1 class="title is-2 publication-title" style="font-weight: 700; letter-spacing: -0.02em; margin-bottom: 1.5rem;">
               Generative Action Tell-Tales: Assessing Human Motion in Synthesized Videos
             </h1>
             <!-- <div class="is-size-5 has-text-centered" style="margin-bottom: 1rem;">
               <strong>ICCV 2025</strong>
             </div> -->
-            <div class="is-size-5 publication-authors">
+            <div class="is-size-6 publication-authors" style="font-weight: 300; letter-spacing: 0.01em; line-height: 1.8;">
               <span class="author-block">Xavier Thomas<sup>1</sup>,</span>
               <span class="author-block">Youngsun Lim<sup>1</sup>,</span>
-              <span class="author-block">Ananya Srinivasan<sup>3</sup>,</span>
-              <span class="author-block">Audrey Zheng<sup>4</sup>,</span>
-              <span class="author-block">Deepti Ghadiyaram<sup>1,2</sup></span>
+              <span class="author-block">Ananya Srinivasan<sup>2</sup><sup>*</sup>,</span>
+              <span class="author-block">Audrey Zheng<sup>3</sup><sup>*</sup>,</span>
+              <span class="author-block">Deepti Ghadiyaram<sup>1,4</sup></span>
             </div>
 
-            <div class="is-size-5 publication-authors" style="margin-top: 0.5rem;">
-              <span class="author-block"><sup>1</sup>Boston University, <sup>2</sup>Runway, <sup>3</sup>Belmont High School, <sup>4</sup>Canyon Crest Academy</span>
+            <div class="is-size-7 publication-authors" style="margin-top: 0.75rem; font-weight: 300; color: #666; letter-spacing: 0.01em;">
+              <span class="author-block">
+                <sup>1</sup>Boston University,
+                <sup>2</sup>Belmont High School,
+                <sup>3</sup>Canyon Crest Academy,
+                <sup>4</sup>Runway
+              </span>
+            </div>
+
+            <div class="is-size-7" style="margin-top: 0.4rem; font-weight: 300; color: #666; letter-spacing: 0.01em;">
+              <span class="author-block"><sup>*</sup>Equal contribution</span>
             </div>
 
   
   
-            <div class="column has-text-centered">
+            <div class="column has-text-centered" style="margin-top: 2rem;">
               <div class="publication-links">
-                <!-- Arxiv PDF link -->
+                <!-- ArXiv abstract Link -->
                 <span class="link-block">
                   <a href="" target="_blank"
-                    class="external-link button is-normal is-rounded is-dark">
+                    class="external-link button is-normal is-rounded" style="background: transparent; border: 1px solid #ddd; color: #333; font-weight: 300; letter-spacing: 0.02em;">
                     <span class="icon">
-                      <i class="fas fa-file-pdf"></i>
+                      <i class="ai ai-arxiv"></i>
                     </span>
-                    <span>Paper</span>
+                    <span>arXiv</span>
                   </a>
                 </span>
   
                 <!-- Github link -->
                 <span class="link-block">
                   <a href="" target="_blank"
-                    class="external-link button is-normal is-rounded is-dark">
+                    class="external-link button is-normal is-rounded" style="background: transparent; border: 1px solid #ddd; color: #333; font-weight: 300; letter-spacing: 0.02em;">
                     <span class="icon">
                       <i class="fab fa-github"></i>
                     </span>
-                    <span>Code</span>
+                    <span>Code (coming soon)</span>
                   </a>
                 </span>
   
-                <!-- ArXiv abstract Link -->
+                <!-- Data link -->
                 <span class="link-block">
                   <a href="" target="_blank"
-                    class="external-link button is-normal is-rounded is-dark">
+                    class="external-link button is-normal is-rounded" style="background: transparent; border: 1px solid #ddd; color: #333; font-weight: 300; letter-spacing: 0.02em;">
                     <span class="icon">
-                      <i class="ai ai-arxiv"></i>
+                      <i class="fas fa-database"></i>
                     </span>
-                    <span>arXiv</span>
+                    <span>Data (TAG-Bench)</span>
                   </a>
                 </span>
               </div>
@@ -120,13 +129,37 @@
     </div>
   </section>
 
-<!-- Paper abstract -->
-<section class="section hero is-light">
+<!-- Video container -->
+<section class="section" style="padding-top: 0.5rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-3">Abstract</h2>
-        <div class="content has-text-justified">
+        <p style="font-size: 0.85rem; color: #888; font-weight: 300; margin-bottom: 1rem; letter-spacing: 0.02em;">A short silent video designed to supplement the paper</p>
+        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 2px;">
+          <video 
+            muted 
+            loop 
+            playsinline
+            controls
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+          >
+            <source src="static/videos/banner_video.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End video container -->
+
+<!-- Paper abstract -->
+<section class="section" style="padding-top: 4rem; padding-bottom: 4rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem;">Abstract</h2>
+        <div class="content has-text-justified" style="font-size: 1rem; line-height: 1.75; font-weight: 300; color: #333;">
           <p>
             Despite rapid advances in video generative models, robust metrics for evaluating visual and temporal correctness of complex human actions remain elusive. Critically, existing pure-vision encoders and Multimodal Large Language Models (MLLMs) are strongly appearance-biased, lack temporal understanding, and thus struggle to discern intricate motion dynamics and anatomical implausibilities in generated videos. We tackle this gap by introducing a novel evaluation metric derived from a learned latent space of real-world human actions. Our method first captures the nuances, constraints, and temporal smoothness of real-world motion by fusing appearance-agnostic human skeletal geometry features with appearance-based features. We posit that this combined feature space provides a robust representation of action plausibility. Given a generated video, our metric quantifies its action quality by measuring the distance between its underlying representations to this learned real-world action distribution. For rigorous validation, we develop a new multi-faceted benchmark specifically designed to probe temporally challenging aspects of human action fidelity. Through extensive experiments, we demonstrate that our metric achieves substantial improvement of over 68% over existing state-of-the-art methods on our benchmark, performs competitively on established external benchmarks, and has a stronger correlation with human perception. Our in-depth analysis reveals critical limitations in current video generative models and establishes a new standard for advanced research in video generation.
           </p>
@@ -137,13 +170,54 @@
 </section>
 <!-- End paper abstract -->
 
+<!-- Section 1: Current metrics fail -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
+          Current automatic video metrics and MLLMs struggle to evaluate human motion in generated videos
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End section 1 -->
+
+<!-- Section 2: Key Idea -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
+          Key Idea: Judge realism by looking at how real humans perform an action
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End section 2 -->
+
+<!-- Section 3: TAG-Bench -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
+          Telltale Action Generation Bench (TAG-Bench)
+        </h2>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End section 3 -->
 
 <!-- Teaser image -->
-<section class="section">
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
     <div class="hero-body has-text-centered">
-      <img src="static/images/tsne_features_models.png" alt="Teaser image" style="max-width: 80%; height: auto;" />
-      <h2 class="subtitle has-text-centered">
+      <img src="static/images/tsne_features_models.png" alt="Teaser image" style="max-width: 80%; height: auto; border-radius: 2px;" />
+      <h2 class="subtitle has-text-centered" style="font-weight: 300; color: #666; margin-top: 1rem; font-size: 0.9rem; letter-spacing: 0.05em;">
         Teaser Image
       </h2>
     </div>
