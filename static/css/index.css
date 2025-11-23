@@ -212,9 +212,22 @@ html {
   animation: fadeInUp 0.5s ease-out;
 }
 
-/* Image hover effect */
+/* Image hover effect and high quality rendering */
 img {
   transition: transform 0.3s ease, opacity 0.3s ease;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: auto;
+  -ms-interpolation-mode: bicubic;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: transform;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent blur from scaling */
+  -webkit-perspective: 1000;
+  perspective: 1000;
 }
 
 img:hover {
