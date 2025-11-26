@@ -95,7 +95,7 @@ body {
 }
 
 .publication-authors a {
-   color: hsl(204, 86%, 53%) !important;
+   color: inherit !important;
 }
 
 .publication-authors a:hover {
@@ -120,7 +120,6 @@ body {
     padding-bottom: 56.25%;
 
     overflow: hidden;
-    border-radius: 10px !important;
 }
 
 .publication-video iframe {

@@ -65,11 +65,11 @@
               <strong>ICCV 2025</strong>
             </div> -->
             <div class="is-size-5 publication-authors" style="font-weight: 300; letter-spacing: 0.01em; line-height: 1.8;">
-              <span class="author-block">Xavier Thomas<sup>1</sup>,</span>
-              <span class="author-block">Youngsun Lim<sup>1</sup>,</span>
-              <span class="author-block">Ananya Srinivasan<sup>2</sup><sup>*</sup>,</span>
-              <span class="author-block">Audrey Zheng<sup>3</sup><sup>*</sup>,</span>
-              <span class="author-block">Deepti Ghadiyaram<sup>1,4</sup></span>
+              <span class="author-block"><a href="https://xavierohan.github.io" style="color: inherit; text-decoration: none;">Xavier Thomas</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="https://sgt-lim.github.io" style="color: inherit; text-decoration: none;">Youngsun Lim</a><sup>1</sup>,</span>
+              <span class="author-block"><a href="http://www.linkedin.com/in/ananya-srinivasann" style="color: inherit; text-decoration: none;">Ananya Srinivasan</a><sup>2</sup><sup>*</sup>,</span>
+              <span class="author-block"><a href="https://www.linkedin.com/in/audrey-zheng-6443b5314/" style="color: inherit; text-decoration: none;">Audrey Zheng</a><sup>3</sup><sup>*</sup>,</span>
+              <span class="author-block"><a href="https://deeptigp.github.io" style="color: inherit; text-decoration: none;">Deepti Ghadiyaram</a><sup>1,4</sup></span>
             </div>
 
             <div class="is-size-6 publication-authors" style="margin-top: 0.75rem; font-weight: 300; color: #666; letter-spacing: 0.01em;">
@@ -138,13 +138,13 @@
     <div class="columns is-centered has-text-centered">
       <div class="column is-full">
         <p style="font-size: 0.85rem; color: #888; font-weight: 300; margin-bottom: 1rem; letter-spacing: 0.02em;">A short silent video designed to supplement the paper</p>
-        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px;">
+        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden;">
           <video 
             muted 
             loop 
             playsinline
             controls
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
           >
             <source src="static/videos/Generative Action Tell-Tales_ Assessing Human Motion in Synthesized Videos.mp4" type="video/mp4">
             Your browser does not support the video tag.
@@ -309,8 +309,8 @@
           Results
         </h2>
         <div style="margin-top: 2rem;">
-          <img src="static/images/Temp-corr1-2.pdf" alt="Correlation visualization 1" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
-          <img src="static/images/Temp-corr2-2.pdf" alt="Correlation visualization 2" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          <img src="static/images/barplot_action_consistency.pdf" alt="Action consistency barplot" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          <img src="static/images/barplot_temporal_coherence.pdf" alt="Temporal coherence barplot" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
           
           <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">
             Overall model performance (win ratios)
@@ -327,7 +327,9 @@
           </div>
           
           <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">Are some actions universally easy / hard to generate?</h3>
-          <img src="static/images/Temp-tsne-2.pdf" alt="Results visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <img src="static/images/tsne_gen_vs_real_centroids_no_train-2.pdf" alt="Results visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <p style="color: #6D5BBD; text-align: center; margin-top: 1rem; font-size: 0.95rem;">Push-ups is relatively easy for all models<br>(generated video embeddings lie close to the centroid of real video embeddings)</p>
+          <p style="color: #AA7942; text-align: center; margin-top: 0.5rem; font-size: 0.95rem;">Shot put is hard<br>(generated video embeddings lie far away from the centroid of real video embeddings)</p>
         </div>
       </div>
     </div>
