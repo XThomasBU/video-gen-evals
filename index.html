@@ -118,7 +118,7 @@
                     <span class="icon">
                       <i class="fas fa-database"></i>
                     </span>
-                    <span>Data (TAG-Bench)</span>
+                    <span>Data (TAG-Bench) (Coming soon)</span>
                   </a>
                 </span>
               </div>
@@ -129,21 +129,24 @@
     </div>
   </section>
 
+<!-- Hero divider -->
+<div class="hero-divider"></div>
+
 <!-- Video container -->
 <section class="section" style="padding-top: 0.5rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
-      <div class="column is-four-fifths">
+      <div class="column is-full">
         <p style="font-size: 0.85rem; color: #888; font-weight: 300; margin-bottom: 1rem; letter-spacing: 0.02em;">A short silent video designed to supplement the paper</p>
-        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 2px;">
+        <div class="video-container" style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px;">
           <video 
             muted 
             loop 
             playsinline
             controls
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;"
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border-radius: 12px;"
           >
-            <source src="static/videos/banner_video.mp4" type="video/mp4">
+            <source src="static/videos/Generative Action Tell-Tales_ Assessing Human Motion in Synthesized Videos.mp4" type="video/mp4">
             Your browser does not support the video tag.
           </video>
         </div>
@@ -152,6 +155,9 @@
   </div>
 </section>
 <!-- End video container -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
 
 <!-- Paper abstract -->
 <section class="section" style="padding-top: 4rem; padding-bottom: 4rem;">
@@ -170,6 +176,9 @@
 </section>
 <!-- End paper abstract -->
 
+<!-- Section divider -->
+<div class="section-divider"></div>
+
 <!-- Section 1: Current metrics fail -->
 <section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
@@ -184,13 +193,16 @@
 </section>
 <!-- End section 1 -->
 
+<!-- Section divider -->
+<div class="section-divider"></div>
+
 <!-- Section 2: Key Idea -->
 <section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
-          Key Idea: Judge realism by looking at how real humans perform an action
+          Key idea: Judge realism by looking at how real humans perform an action
         </h2>
         <div style="margin-top: 2rem;">
           <img src="static/images/hero.pdf" alt="Key Idea visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
@@ -201,19 +213,92 @@
 </section>
 <!-- End section 2 -->
 
+<!-- Section divider -->
+<div class="section-divider"></div>
+
 <!-- Section 3: TAG-Bench -->
 <section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
   <div class="container is-max-desktop">
-    <div class="columns is-centered has-text-centered">
+    <div class="columns is-centered">
       <div class="column is-four-fifths">
-        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 3rem; color: #333; text-align: center;">
           Telltale Action Generation Bench (TAG-Bench)
         </h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; margin-bottom: 4rem;">
+          <!-- Generative Models -->
+          <div>
+            <h3 style="font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem;">
+              5 Generative Models
+            </h3>
+            <p style="color: #555; font-weight: 300; letter-spacing: 0.01em; margin: 0; line-height: 1.6;">
+              Runway Gen4, Wan2.1, Wan2.2, Opensora, HunyuanVideo
+            </p>
+          </div>
+          
+          <!-- Actions -->
+          <div>
+            <h3 style="font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333; border-bottom: 1px solid #e0e0e0; padding-bottom: 0.5rem;">
+              10 Actions
+            </h3>
+            <p style="color: #555; font-weight: 300; letter-spacing: 0.01em; margin: 0; line-height: 1.6;">
+              Squats, Hulahoop, Jumping jack, Pull ups, Push ups, Shot put, Soccer juggling, Tennis swing, Discus throw, Wall push up
+            </p>
+          </div>
+        </div>
+        
+        <!-- Human Evaluation -->
+        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e0e0e0;">
+          <h3 style="font-weight: 700; font-size: 1.1rem; letter-spacing: -0.01em; margin-bottom: 2rem; color: #333; text-align: center;">
+            Humans evaluate each video on:
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem;">
+            <div>
+              <h4 style="font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; color: #333;">
+                Action Consistency (1-10)
+              </h4>
+              <p style="color: #666; font-weight: 300; line-height: 1.6; letter-spacing: 0.01em; margin: 0;">
+                How accurately the generated video depicts the intended action mentioned in the prompt.
+              </p>
+            </div>
+            <div>
+              <h4 style="font-weight: 700; font-size: 1rem; margin-bottom: 0.75rem; color: #333;">
+                Temporal Coherence (1-10)
+              </h4>
+              <p style="color: #666; font-weight: 300; line-height: 1.6; letter-spacing: 0.01em; margin: 0;">
+                How physically plausible and temporally smooth the human motion appears in the generated video.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 <!-- End section 3 -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
+
+<!-- Metrics section -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
+          Metrics
+        </h2>
+        <div style="margin-top: 2rem;">
+          <img src="static/images/Temp-metrics.pdf" alt="Metrics visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Metrics section -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
 
 <!-- Results section -->
 <section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
@@ -224,13 +309,77 @@
           Results
         </h2>
         <div style="margin-top: 2rem;">
-          <img src="static/images/tsne_gen_vs_real_centroids_no_train-2.pdf" alt="Results visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <img src="static/images/Temp-corr1-2.pdf" alt="Correlation visualization 1" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          <img src="static/images/Temp-corr2-2.pdf" alt="Correlation visualization 2" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          
+          <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">
+            Overall model performance (win ratios)
+          </h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem;">
+            <div>
+              <img src="static/images/vbench_cons.pdf" alt="Action Consistency" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
+              <p style="text-align: center; color: #666; font-weight: 400; font-size: 0.95rem; margin: 0;">Action Consistency</p>
+            </div>
+            <div>
+              <img src="static/images/vbench_temp.pdf" alt="Temporal Coherence" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
+              <p style="text-align: center; color: #666; font-weight: 400; font-size: 0.95rem; margin: 0;">Temporal Coherence</p>
+            </div>
+          </div>
+          
+          <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">Are some actions universally easy / hard to generate?</h3>
+          <img src="static/images/Temp-tsne-2.pdf" alt="Results visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
         </div>
       </div>
     </div>
   </div>
 </section>
 <!-- End Results section -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
+
+<!-- References section -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 4rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-5" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 2rem; color: #333; text-align: center;">
+          References
+        </h2>
+        <div style="font-size: 0.9rem; line-height: 1.8; color: #555; font-weight: 300;">
+          <p style="margin-bottom: 1.25rem;">
+            <strong>RunwayGen4:</strong> Runway Research Team. Runway gen-4: Advancing realistic text-to-video generation. Technical Report, 2024. <a href="https://research.runwayml.com/gen4" target="_blank" style="color: #0066cc; text-decoration: none;">https://research.runwayml.com/gen4</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>Wan2.1:</strong> Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et al. Wan: Open and advanced large-scale video generative models. arXiv preprint arXiv:2503.20314, 2025. <a href="https://arxiv.org/abs/2503.20314" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2503.20314</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>Wan2.2:</strong> Team Wan, Ang Wang, Baole Ai, Bin Wen, Chaojie Mao, Chen-Wei Xie, Di Chen, Feiwu Yu, Haiming Zhao, Jianxiao Yang, et al. Wan: Open and advanced large-scale video generative models. arXiv preprint arXiv:2503.20314, 2025. <a href="https://arxiv.org/abs/2503.20314" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2503.20314</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>Hunyuan:</strong> Weijie Kong, Qi Tian, Zijian Zhang, Rox Min, Zuozhuo Dai, Jin Zhou, Jiangfeng Xiong, Xin Li, Bo Wu, Jianwei Zhang, et al. Hunyuanvideo: A systematic framework for large video generative models. arXiv preprint arXiv:2412.03603, 2024. <a href="https://arxiv.org/abs/2412.03603" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2412.03603</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>Opensora:</strong> Langwei Zheng, Xiangyu Peng, Tianji Yang, Chenhui Shen, Shenggui Li, Hongxin Liu, Yukun Zhou, Tianyi Li, and Yang You. Open-sora: Democratizing efficient video production for all. arXiv preprint arXiv:2412.20404, 2024. <a href="https://arxiv.org/abs/2412.20404" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2412.20404</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>VideoScore2:</strong> Lian Zheng, Ziqi Huang, Hongbo Liu, Kai Zou, Yinan He, Fan Zhang, Lulu Gu, Yuanhan Zhang, Jingwen He, Wei-Shi Zheng, et al. Vbench-2.0: Advancing video generation benchmark suite for intrinsic faithfulness. arXiv preprint arXiv:2503.21755, 2025. <a href="https://arxiv.org/abs/2503.21755" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2503.21755</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>VideoPhy-2:</strong> Ritik Bansal, Clark Peng, Yonatan Bitton, Roman Goldenberg, Aditya Grover, and Kai-Wei Chang. Videophy-2: A challenging action-centric physical commonsense evaluation in video generation. arXiv preprint arXiv:2503.06800, 2025. <a href="https://arxiv.org/abs/2503.06800" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2503.06800</a>.
+          </p>
+          <p style="margin-bottom: 1.25rem;">
+            <strong>GPT-5:</strong> OpenAI. Gpt-5 system card. Technical report, OpenAI, 2025. Accessed: 2025-11-10.
+          </p>
+          <p style="margin-bottom: 0;">
+            <strong>Gemini-2.5-Pro:</strong> Gheorghe Comanici, Eric Bieber, Mike Schaekermann, Ice Pasupat, Noveen Sachdeva, Inderjit Dhillon, Marcel Blistein, Ori Ram, Dan Zhang, Evan Rosen, et al. Gemini 2.5: Pushing the frontier with advanced reasoning, multimodality, long context, and next generation agentic capabilities. arXiv preprint arXiv:2507.06261, 2025. <a href="https://arxiv.org/abs/2507.06261" target="_blank" style="color: #0066cc; text-decoration: none;">arXiv:2507.06261</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End References section -->
 
 <!-- Statcounter tracking code -->
   

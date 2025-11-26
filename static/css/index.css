@@ -68,6 +68,23 @@ body {
     font-weight: bold;
 }
 
+.venue-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.35rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.08));
+  color: #444;
+  font-size: 1.05rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
 .publication-awards {
     color: #ff3860;
     width: fit-content;
@@ -250,4 +267,73 @@ img:hover {
 .fade-in.visible {
   opacity: 1;
   transform: translateY(0);
+}
+
+/* Elegant section separators */
+.section-divider {
+  position: relative;
+  margin: 2rem 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.08) 20%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.08) 80%,
+    transparent 100%
+  );
+}
+
+/* Hero section separator - more prominent */
+.hero-divider {
+  position: relative;
+  margin: 2rem auto 2rem;
+  max-width: 800px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    rgba(0, 0, 0, 0.1) 15%,
+    rgba(0, 0, 0, 0.15) 50%,
+    rgba(0, 0, 0, 0.1) 85%,
+    transparent 100%
+  );
+}
+
+/* Section spacing and visual hierarchy */
+.section {
+  position: relative;
+}
+
+.section:not(:first-of-type) {
+  margin-top: 0;
+}
+
+/* Subtle background alternation for major sections */
+.section-content {
+  position: relative;
+}
+
+/* Decorative accent for section headers */
+.section-title-accent {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 0.5rem;
+}
+
+.section-title-accent::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.2),
+    transparent
+  );
+  border-radius: 1px;
 }
