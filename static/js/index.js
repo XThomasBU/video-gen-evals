@@ -155,9 +155,10 @@ function createTSNEPlot() {
             customdata: modelPoints.map(d => ({
               video_id: d.video_id,
               class: cls,
-              model: pm
+              model: pm,
+              color: colorMap[cls]
             })),
-            hovertemplate: '<b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>Video: %{customdata.video_id}<extra></extra>',
+            hovertemplate: '<span style="color: white; background-color: %{customdata.color}; padding: 4px 8px; border-radius: 4px; display: inline-block;"><b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>Video: %{customdata.video_id}</span><extra></extra>',
             class: cls,
             model: pm,
             visible: true
@@ -183,10 +184,11 @@ function createTSNEPlot() {
             }
           },
           showlegend: false,
-          hovertemplate: '<b>Centroid: %{customdata.class}</b><extra></extra>',
+          hovertemplate: '<span style="color: white; background-color: %{customdata.color}; padding: 4px 8px; border-radius: 4px; display: inline-block;"><b>Centroid: %{customdata.class}</b></span><extra></extra>',
           customdata: [{
             class: centroid.class,
-            isCentroid: true
+            isCentroid: true,
+            color: colorMap[centroid.class]
           }],
           class: centroid.class,
           isCentroid: true,
@@ -339,20 +341,6 @@ function createTSNEPlot() {
       
       // Plot
       Plotly.newPlot('tsne-plot', allTraces, layout, config).then(function() {
-        // Add click handler to show video in modal
-        const plotDiv = document.getElementById('tsne-plot');
-        plotDiv.on('plotly_click', function(data) {
-          if (data.points && data.points.length > 0) {
-            const point = data.points[0];
-            const customData = point.data.customdata[point.pointNumber];
-            
-            // Only show videos for generated points, not centroids
-            if (customData && !customData.isCentroid && customData.video_id) {
-              showVideoModal(customData.video_id, customData.class, customData.model);
-            }
-          }
-        });
-        
         // Add click handlers for filtering after plot is rendered
         let selectedClass = null;
         let selectedModel = null;
@@ -980,9 +968,10 @@ function createScoresPlot() {
             model: p.prettyModel,
             class: p.class,
             ac: p.ac,
-            tc: p.tc
+            tc: p.tc,
+            color: colorMap[cls]
           })),
-            hovertemplate: '<b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>AC: %{x:.2f}<br>TC: %{y:.2f}<extra></extra>',
+            hovertemplate: '<span style="color: white; background-color: %{customdata.color}; padding: 4px 8px; border-radius: 4px; display: inline-block;"><b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>AC: %{x:.2f}<br>TC: %{y:.2f}<br>Video: %{customdata.filename}</span><extra></extra>',
             class: cls,
             model: pm,
             visible: true
@@ -1048,23 +1037,11 @@ function createScoresPlot() {
       
       // Create plot
       Plotly.newPlot('scores-plot', traces, layout, config).then(function() {
-        // Add click handler to show video in modal
         const plotDiv = document.getElementById('scores-plot');
         if (!plotDiv) {
           console.error('scores-plot element not found');
           return;
         }
-        
-        plotDiv.on('plotly_click', function(data) {
-          if (data.points && data.points.length > 0) {
-            const point = data.points[0];
-            const customData = point.data.customdata[point.pointNumber];
-            
-            if (customData && customData.filename) {
-              showVideoModalByFilename(customData.filename, customData.class, customData.model);
-            }
-          }
-        });
         
         // Filtering state
         let selectedClass = null;
