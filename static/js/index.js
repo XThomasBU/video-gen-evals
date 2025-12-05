@@ -121,7 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
 function createTSNEPlot() {
   // Model name mapping and markers (matching Python code style)
   const MODEL_NAME_MAP = {
-    'Runway Gen-4': 'Runway Gen4',
+    'Runway Gen-4': 'Runway Gen-4 Turbo',
     'Wan2.1': 'Wan2.1',
     'Wan2.2': 'Wan2.2',
     'Opensora': 'Opensora',
@@ -129,7 +129,7 @@ function createTSNEPlot() {
   };
   
   const MODEL_MARKERS = {
-    'Runway Gen4': 'circle',
+    'Runway Gen-4 Turbo': 'circle',
     'Wan2.1': 'square',
     'Wan2.2': 'diamond',
     'Opensora': 'triangle-up',
@@ -693,7 +693,7 @@ function createTSNEPlot() {
       // Model legend (right side) with click handlers
       const modelLegend = document.createElement('div');
       modelLegend.className = 'tsne-model-legend';
-      modelLegend.style.cssText = 'position: absolute; right: 10px; top: 60px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; width: 160px; box-sizing: border-box;';
+      modelLegend.style.cssText = 'position: absolute; right: 10px; top: 60px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; width: 175px; box-sizing: border-box;';
       modelLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Generative models</div>';
       
       // Add "All" button for models
@@ -788,7 +788,7 @@ function createTSNEPlot() {
       // Action classes legend (right side, below model legend)
       const classLegend = document.createElement('div');
       classLegend.className = 'tsne-class-legend';
-      classLegend.style.cssText = 'position: absolute; right: 10px; top: 280px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; max-height: 400px; overflow-y: auto; width: 160px; box-sizing: border-box;';
+      classLegend.style.cssText = 'position: absolute; right: 10px; top: 280px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; max-height: 400px; overflow-y: auto; width: 175px; box-sizing: border-box;';
       classLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Action classes</div>';
       
       // Add "All" button for classes
@@ -1083,7 +1083,7 @@ function createScoresPlot() {
   
   // Model name mapping
   const MODEL_NAME_MAP = {
-    'Runway Gen-4': 'Runway Gen4',
+    'Runway Gen-4': 'Runway Gen-4 Turbo',
     'Wan2.1': 'Wan2.1',
     'Wan2.2': 'Wan2.2',
     'Opensora': 'Opensora',
@@ -1403,7 +1403,7 @@ function createScoresPlot() {
       
       // Model markers (same as t-SNE plot)
       const MODEL_MARKERS = {
-        'Runway Gen4': 'circle',
+        'Runway Gen-4 Turbo': 'circle',
         'Wan2.1': 'square',
         'Wan2.2': 'diamond',
         'Opensora': 'triangle-up',
@@ -1619,7 +1619,7 @@ function createScoresPlot() {
           // Model legend (right side) with click handlers
           const modelLegend = document.createElement('div');
           modelLegend.className = 'scores-model-legend';
-          modelLegend.style.cssText = 'position: absolute; right: 10px; top: 60px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; width: 160px; box-sizing: border-box;';
+          modelLegend.style.cssText = 'position: absolute; right: 10px; top: 60px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; width: 175px; box-sizing: border-box;';
           modelLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Generative models</div>';
           
           // Add "All" button for models
@@ -1708,7 +1708,7 @@ function createScoresPlot() {
           // Action classes legend (right side, below model legend)
           const classLegend = document.createElement('div');
           classLegend.className = 'scores-class-legend';
-          classLegend.style.cssText = 'position: absolute; right: 10px; top: 280px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; max-height: 400px; overflow-y: auto; width: 160px; box-sizing: border-box;';
+          classLegend.style.cssText = 'position: absolute; right: 10px; top: 280px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; max-height: 400px; overflow-y: auto; width: 175px; box-sizing: border-box;';
           classLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Action classes</div>';
           
           // Add "All" button for classes
