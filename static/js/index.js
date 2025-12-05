@@ -152,8 +152,12 @@ function createTSNEPlot() {
               opacity: 0.6
             },
             showlegend: false,
-            customdata: modelPoints.map(d => d.video_id),
-            hovertemplate: `<span style="color: white;"><b>Class: ${cls}</b><br>Model: ${pm}<br>Video: %{customdata}</span><extra></extra>`,
+            customdata: modelPoints.map(d => ({
+              video_id: d.video_id,
+              class: cls,
+              model: pm
+            })),
+            hovertemplate: '<b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>Video: %{customdata.video_id}<extra></extra>',
             class: cls,
             model: pm,
             visible: true
@@ -179,7 +183,11 @@ function createTSNEPlot() {
             }
           },
           showlegend: false,
-          hovertemplate: `<span style="color: white;"><b>Class: ${centroid.class}</b></span><extra></extra>`,
+          hovertemplate: '<b>Centroid: %{customdata.class}</b><extra></extra>',
+          customdata: [{
+            class: centroid.class,
+            isCentroid: true
+          }],
           class: centroid.class,
           isCentroid: true,
           visible: true
@@ -188,6 +196,20 @@ function createTSNEPlot() {
       
       // Combine all traces (no legend traces needed, using custom HTML legends)
       const allTraces = traces;
+      
+      // Calculate fixed axis ranges from all generated points (not centroids)
+      const allGenX = genPoints.map(d => d.x);
+      const allGenY = genPoints.map(d => d.y);
+      const xMin = Math.min(...allGenX);
+      const xMax = Math.max(...allGenX);
+      const yMin = Math.min(...allGenY);
+      const yMax = Math.max(...allGenY);
+      
+      // Add padding to ranges
+      const xRange = xMax - xMin;
+      const yRange = yMax - yMin;
+      const xPadding = xRange * 0.05;
+      const yPadding = yRange * 0.05;
       
       // Layout configuration matching matplotlib style
       const layout = {
@@ -202,7 +224,9 @@ function createTSNEPlot() {
           linecolor: 'black',
           mirror: false,
           zeroline: false,
-          tickfont: { size: 12 }
+          tickfont: { size: 12 },
+          range: [xMin - xPadding, xMax + xPadding],
+          fixedrange: true
         },
         yaxis: {
           title: {
@@ -215,7 +239,9 @@ function createTSNEPlot() {
           linecolor: 'black',
           mirror: false,
           zeroline: false,
-          tickfont: { size: 12 }
+          tickfont: { size: 12 },
+          range: [yMin - yPadding, yMax + yPadding],
+          fixedrange: true
         },
         plot_bgcolor: 'white',
         paper_bgcolor: 'white',
@@ -239,10 +265,89 @@ function createTSNEPlot() {
       window.tsneColorMap = colorMap;
       window.tsneModelMarkers = MODEL_MARKERS;
       
+      // Google Drive folder URL
+      const GOOGLE_DRIVE_FOLDER = 'https://drive.google.com/drive/u/0/folders/1-VP6Rdr4qDNJ8k3IU2XcRbR85YIfqrRY';
+      
+      // Function to show video modal
+      function showVideoModal(videoId, className, modelName) {
+        const modal = document.getElementById('video-modal');
+        const modalInfo = document.getElementById('video-modal-info');
+        const modalIframe = document.getElementById('video-modal-iframe');
+        
+        if (!modal) return;
+        
+        // Set modal info
+        modalInfo.textContent = `${className} - ${modelName}`;
+        
+        // Construct Google Drive embed URL
+        // Google Drive requires file IDs for embedding, but we can try using the folder with search
+        // The format for Google Drive file preview is: https://drive.google.com/file/d/FILE_ID/preview
+        // Since we don't have file IDs, we'll use the folder search URL
+        // Note: This may not work perfectly for embedding, but it's the best we can do without file IDs
+        const searchTerm = encodeURIComponent(videoId);
+        const embedUrl = `${GOOGLE_DRIVE_FOLDER}?q=${searchTerm}`;
+        
+        modalIframe.src = embedUrl;
+        
+        // Show modal
+        modal.style.display = 'flex';
+      }
+      
+      // Function to hide video modal
+      function hideVideoModal() {
+        const modal = document.getElementById('video-modal');
+        const modalIframe = document.getElementById('video-modal-iframe');
+        if (modal) {
+          modal.style.display = 'none';
+          // Clear iframe src to stop video playback
+          if (modalIframe) {
+            modalIframe.src = '';
+          }
+        }
+      }
+      
+      // Close modal handlers
+      document.addEventListener('DOMContentLoaded', function() {
+        const closeBtn = document.getElementById('video-modal-close');
+        const modal = document.getElementById('video-modal');
+        
+        if (closeBtn) {
+          closeBtn.addEventListener('click', hideVideoModal);
+        }
+        
+        if (modal) {
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+              hideVideoModal();
+            }
+          });
+        }
+        
+        // Close on Escape key
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape') {
+            hideVideoModal();
+          }
+        });
+      });
+      
       // Plot
       Plotly.newPlot('tsne-plot', allTraces, layout, config).then(function() {
-        // Add click handlers for filtering after plot is rendered
+        // Add click handler to show video in modal
         const plotDiv = document.getElementById('tsne-plot');
+        plotDiv.on('plotly_click', function(data) {
+          if (data.points && data.points.length > 0) {
+            const point = data.points[0];
+            const customData = point.data.customdata[point.pointNumber];
+            
+            // Only show videos for generated points, not centroids
+            if (customData && !customData.isCentroid && customData.video_id) {
+              showVideoModal(customData.video_id, customData.class, customData.model);
+            }
+          }
+        });
+        
+        // Add click handlers for filtering after plot is rendered
         let selectedClass = null;
         let selectedModel = null;
         
@@ -678,6 +783,464 @@ function initAblationTable() {
   updateScores();
 }
 
+// Create Action Consistency vs Temporal Coherence plot
+function createScoresPlot() {
+  // Tab10 colormap colors (matching matplotlib)
+  const TAB10_COLORS = [
+    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+  ];
+  
+  // Model name mapping
+  const MODEL_NAME_MAP = {
+    'Runway Gen-4': 'Runway Gen4',
+    'Wan2.1': 'Wan2.1',
+    'Wan2.2': 'Wan2.2',
+    'Opensora': 'Opensora',
+    'Hunyuan': 'HunyuanVideo'
+  };
+  
+  // Google Drive folder URL
+  const GOOGLE_DRIVE_FOLDER = 'https://drive.google.com/drive/u/0/folders/1-VP6Rdr4qDNJ8k3IU2XcRbR85YIfqrRY';
+  
+  // Function to show video modal with filename
+  function showVideoModalByFilename(filename, className, modelName) {
+    const modal = document.getElementById('video-modal');
+    const modalInfo = document.getElementById('video-modal-info');
+    const modalIframe = document.getElementById('video-modal-iframe');
+    
+    if (!modal) return;
+    
+    // Set modal info
+    modalInfo.textContent = `${className} - ${modelName}`;
+    
+    // Construct Google Drive embed URL
+    // Google Drive requires file IDs for proper embedding, but we can try using the folder with search
+    // The format for Google Drive file preview is: https://drive.google.com/file/d/FILE_ID/preview
+    // Since we don't have file IDs, we'll use the folder search URL
+    const searchTerm = encodeURIComponent(filename);
+    const embedUrl = `${GOOGLE_DRIVE_FOLDER}?q=${searchTerm}`;
+    
+    modalIframe.src = embedUrl;
+    
+    // Show modal
+    modal.style.display = 'flex';
+  }
+  
+  // Load scores data
+  fetch('static/images/scores.json')
+    .then(response => response.json())
+    .then(data => {
+      // Parse data and extract class/model from filenames
+      const points = [];
+      const classes = new Set();
+      const models = new Set();
+      
+      Object.keys(data).forEach(filename => {
+        const scores = data[filename];
+        // Parse filename: "Model_Class_XX_hash.mp4" or "Model_Number_Class_XX_hash.mp4"
+        const parts = filename.replace('.mp4', '').split('_');
+        let model = parts[0];
+        // Get parts between model and the last two (number and hash)
+        let classNameParts = parts.slice(1, -2);
+        // Filter out purely numeric parts (like "768")
+        classNameParts = classNameParts.filter(part => !/^\d+$/.test(part));
+        let className = classNameParts.join('_');
+        
+        // Handle special cases - normalize model names from filenames
+        if (model === 'RunwayGen4') {
+          model = 'Runway Gen-4';
+        } else if (model === 'Wan2p1') {
+          model = 'Wan2.1';
+        } else if (model === 'Wan2p2') {
+          model = 'Wan2.2';
+        }
+        
+        const prettyModel = MODEL_NAME_MAP[model] || model;
+        
+        points.push({
+          x: scores.ac,
+          y: scores.tc,
+          filename: filename,
+          model: model,
+          prettyModel: prettyModel,
+          class: className,
+          ac: scores.ac,
+          tc: scores.tc
+        });
+        
+        classes.add(className);
+        models.add(prettyModel);
+      });
+      
+      const sortedClasses = Array.from(classes).sort();
+      const sortedModels = Array.from(models).sort();
+      
+      // Create color map for classes
+      const colorMap = {};
+      sortedClasses.forEach((cls, i) => {
+        colorMap[cls] = TAB10_COLORS[i % TAB10_COLORS.length];
+      });
+      
+      // Model markers (same as t-SNE plot)
+      const MODEL_MARKERS = {
+        'Runway Gen4': 'circle',
+        'Wan2.1': 'square',
+        'Wan2.2': 'diamond',
+        'Opensora': 'triangle-up',
+        'HunyuanVideo': 'triangle-down'
+      };
+      
+      // Calculate fixed axis ranges from all points
+      const allX = points.map(p => p.x);
+      const allY = points.map(p => p.y);
+      const xMin = Math.min(...allX);
+      const xMax = Math.max(...allX);
+      const yMin = Math.min(...allY);
+      const yMax = Math.max(...allY);
+      
+      // Add padding to ranges
+      const xRange = xMax - xMin;
+      const yRange = yMax - yMin;
+      const xPadding = xRange * 0.05;
+      const yPadding = yRange * 0.05;
+      
+      // Group points by class and model (same as t-SNE plot)
+      const traces = [];
+      sortedClasses.forEach(cls => {
+        const classPoints = points.filter(p => p.class === cls);
+        if (classPoints.length === 0) return;
+        
+        sortedModels.forEach(pm => {
+          const modelPoints = classPoints.filter(p => p.prettyModel === pm);
+          if (modelPoints.length === 0) return;
+          
+          const marker = MODEL_MARKERS[pm] || 'circle';
+        
+        traces.push({
+            x: modelPoints.map(p => p.x),
+            y: modelPoints.map(p => p.y),
+          mode: 'markers',
+          type: 'scatter',
+            name: `${cls} (${pm})`,
+          marker: {
+              symbol: marker,
+            size: 12,
+            color: colorMap[cls],
+            line: {
+              color: 'black',
+              width: 0.6
+            },
+            opacity: 0.6
+          },
+            showlegend: false,
+            customdata: modelPoints.map(p => ({
+            filename: p.filename,
+            model: p.prettyModel,
+            class: p.class,
+            ac: p.ac,
+            tc: p.tc
+          })),
+            hovertemplate: '<b>Class: %{customdata.class}</b><br>Model: %{customdata.model}<br>AC: %{x:.2f}<br>TC: %{y:.2f}<extra></extra>',
+            class: cls,
+            model: pm,
+            visible: true
+          });
+        });
+      });
+      
+      // Layout matching t-SNE plot style
+      const layout = {
+        xaxis: {
+          title: {
+            text: 'Action Consistency',
+            font: { size: 14 }
+          },
+          showgrid: true,
+          gridcolor: 'rgba(0,0,0,0.12)',
+          showline: true,
+          linecolor: 'black',
+          mirror: false,
+          zeroline: false,
+          tickfont: { size: 12 },
+          range: [xMin - xPadding, xMax + xPadding],
+          fixedrange: true
+        },
+        yaxis: {
+          title: {
+            text: 'Temporal Coherence',
+            font: { size: 14 }
+          },
+          showgrid: true,
+          gridcolor: 'rgba(0,0,0,0.12)',
+          showline: true,
+          linecolor: 'black',
+          mirror: false,
+          zeroline: false,
+          tickfont: { size: 12 },
+          range: [yMin - yPadding, yMax + yPadding],
+          fixedrange: true
+        },
+        plot_bgcolor: 'white',
+        paper_bgcolor: 'white',
+        autosize: true,
+        margin: { l: 80, r: 220, t: 60, b: 60 },
+        showlegend: false,
+        hovermode: 'closest'
+      };
+      
+      const config = {
+        displayModeBar: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: ['pan2d', 'lasso2d'],
+        responsive: true
+      };
+      
+      // Store traces for filtering
+      window.scoresTraces = traces;
+      
+      // Create plot
+      Plotly.newPlot('scores-plot', traces, layout, config).then(function() {
+        // Add click handler to show video in modal
+        const plotDiv = document.getElementById('scores-plot');
+        plotDiv.on('plotly_click', function(data) {
+          if (data.points && data.points.length > 0) {
+            const point = data.points[0];
+            const customData = point.data.customdata[point.pointNumber];
+            
+            if (customData && customData.filename) {
+              showVideoModalByFilename(customData.filename, customData.class, customData.model);
+            }
+          }
+        });
+        
+        // Filtering state
+        let selectedClass = null;
+        let selectedModel = null;
+        let allClassButton = null;
+        let allModelButtonRef = null;
+        
+        // Function to update plot visibility (same as t-SNE plot)
+        function updateScoresVisibility() {
+          const visibility = traces.map(trace => {
+            if (selectedModel === null && selectedClass === null) {
+              return true; // Show all
+            }
+            if (selectedModel !== null && selectedClass !== null) {
+              return trace.model === selectedModel && trace.class === selectedClass;
+            }
+            if (selectedModel !== null) {
+              return trace.model === selectedModel;
+            }
+            if (selectedClass !== null) {
+              return trace.class === selectedClass;
+            }
+            return true;
+          });
+          
+          Plotly.restyle('scores-plot', { visible: visibility });
+          
+          // Update button states
+          if (allClassButton) {
+            if (selectedClass === null) {
+              allClassButton.style.backgroundColor = 'rgba(0,0,0,0.1)';
+            } else {
+              allClassButton.style.backgroundColor = '';
+            }
+          }
+          if (allModelButtonRef) {
+            if (selectedModel === null) {
+              allModelButtonRef.style.backgroundColor = 'rgba(0,0,0,0.1)';
+            } else {
+              allModelButtonRef.style.backgroundColor = '';
+            }
+          }
+        }
+        
+        // Store functions for legend access
+        window.scoresSetSelectedClass = (cls) => {
+          selectedClass = cls;
+          updateScoresVisibility();
+        };
+        window.scoresGetSelectedClass = () => selectedClass;
+        window.scoresSetSelectedModel = (mod) => {
+          selectedModel = mod;
+          updateScoresVisibility();
+        };
+        window.scoresGetSelectedModel = () => selectedModel;
+        
+        // Add legends (same as t-SNE plot)
+        const plotContainer = document.getElementById('scores-plot');
+        
+        // Wait for plot to be fully rendered
+        setTimeout(function() {
+          // Model legend (right side) with click handlers
+          const modelLegend = document.createElement('div');
+          modelLegend.className = 'scores-model-legend';
+          modelLegend.style.cssText = 'position: absolute; right: 10px; top: 60px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; width: 160px; box-sizing: border-box;';
+          modelLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Generative models</div>';
+          
+          // Add "All" button for models
+          const allModelButton = document.createElement('div');
+          allModelButton.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px; font-weight: bold; background: rgba(0,0,0,0.1);';
+          allModelButton.textContent = 'All';
+          allModelButtonRef = allModelButton;
+          allModelButton.addEventListener('click', function() {
+            if (window.scoresSetSelectedModel) window.scoresSetSelectedModel(null);
+            // Remove highlights from model items
+            document.querySelectorAll('.scores-model-legend > div[data-model]').forEach(el => {
+              el.style.backgroundColor = '';
+            });
+          });
+          allModelButton.addEventListener('mouseenter', function() {
+            if (window.scoresGetSelectedModel && window.scoresGetSelectedModel() === null) {
+              this.style.backgroundColor = 'rgba(0,0,0,0.15)';
+            } else {
+              this.style.backgroundColor = 'rgba(0,0,0,0.15)';
+            }
+          });
+          allModelButton.addEventListener('mouseleave', function() {
+            if (window.scoresGetSelectedModel && window.scoresGetSelectedModel() === null) {
+              this.style.backgroundColor = 'rgba(0,0,0,0.1)';
+            } else {
+              this.style.backgroundColor = '';
+            }
+          });
+          modelLegend.appendChild(allModelButton);
+          
+          sortedModels.forEach(pm => {
+            const item = document.createElement('div');
+            item.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px;';
+            item.dataset.model = pm;
+            item.addEventListener('click', function() {
+              const currentSelectedModel = window.scoresGetSelectedModel ? window.scoresGetSelectedModel() : null;
+              
+              // Toggle model selection
+              if (currentSelectedModel === pm) {
+                if (window.scoresSetSelectedModel) window.scoresSetSelectedModel(null);
+                item.style.backgroundColor = '';
+              } else {
+                if (window.scoresSetSelectedModel) window.scoresSetSelectedModel(pm);
+                // Highlight selected and remove highlight from "All" and other items
+                document.querySelectorAll('.scores-model-legend > div[data-model]').forEach(el => {
+                  el.style.backgroundColor = '';
+                });
+                item.style.backgroundColor = 'rgba(0,0,0,0.1)';
+              }
+            });
+            const marker = document.createElement('span');
+            marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: gray; border: 0.5px solid black; vertical-align: middle;`;
+            // Set marker shape using CSS (same as t-SNE plot)
+            if (MODEL_MARKERS[pm] === 'circle') {
+              marker.style.borderRadius = '50%';
+            } else if (MODEL_MARKERS[pm] === 'square') {
+              marker.style.borderRadius = '0';
+            } else if (MODEL_MARKERS[pm] === 'diamond') {
+              marker.style.transform = 'rotate(45deg)';
+              marker.style.borderRadius = '0';
+            } else if (MODEL_MARKERS[pm] === 'triangle-up') {
+              marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
+              const outlineTriangle = document.createElement('span');
+              outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-bottom: 10.5px solid black;';
+              const fillTriangle = document.createElement('span');
+              fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid gray;';
+              marker.appendChild(outlineTriangle);
+              marker.appendChild(fillTriangle);
+            } else if (MODEL_MARKERS[pm] === 'triangle-down') {
+              marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
+              const outlineTriangle = document.createElement('span');
+              outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 10.5px solid black;';
+              const fillTriangle = document.createElement('span');
+              fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid gray;';
+              marker.appendChild(outlineTriangle);
+              marker.appendChild(fillTriangle);
+            }
+            item.appendChild(marker);
+            const label = document.createElement('span');
+            label.textContent = pm;
+            item.appendChild(label);
+            modelLegend.appendChild(item);
+          });
+          plotContainer.appendChild(modelLegend);
+          
+          // Action classes legend (right side, below model legend)
+          const classLegend = document.createElement('div');
+          classLegend.className = 'scores-class-legend';
+          classLegend.style.cssText = 'position: absolute; right: 10px; top: 280px; background: rgba(255,255,255,0.85); border: 1px solid #666; padding: 8px; font-size: 12px; z-index: 1000; max-height: 400px; overflow-y: auto; width: 160px; box-sizing: border-box;';
+          classLegend.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px; font-size: 13px;">Action classes</div>';
+          
+          // Add "All" button for classes
+          const allClassButtonHtml = document.createElement('div');
+          allClassButtonHtml.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px; font-weight: bold; background: rgba(0,0,0,0.1);';
+          allClassButtonHtml.textContent = 'All';
+          allClassButtonHtml.addEventListener('click', function() {
+            if (window.scoresSetSelectedClass) window.scoresSetSelectedClass(null);
+            // Remove highlights from class items
+            document.querySelectorAll('.scores-class-legend > div[data-class]').forEach(el => {
+              el.style.backgroundColor = '';
+            });
+          });
+          allClassButtonHtml.addEventListener('mouseenter', function() {
+            if (window.scoresGetSelectedClass && window.scoresGetSelectedClass() === null) {
+              this.style.backgroundColor = 'rgba(0,0,0,0.15)';
+            } else {
+              this.style.backgroundColor = 'rgba(0,0,0,0.15)';
+            }
+          });
+          allClassButtonHtml.addEventListener('mouseleave', function() {
+            if (window.scoresGetSelectedClass && window.scoresGetSelectedClass() === null) {
+              this.style.backgroundColor = 'rgba(0,0,0,0.1)';
+            } else {
+              this.style.backgroundColor = '';
+            }
+          });
+          classLegend.appendChild(allClassButtonHtml);
+          allClassButton = allClassButtonHtml;
+          
+          // Add class items
+          sortedClasses.forEach((cls, i) => {
+            const item = document.createElement('div');
+            item.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px;';
+            item.dataset.class = cls;
+            item.addEventListener('click', function() {
+              const currentSelectedClass = window.scoresGetSelectedClass ? window.scoresGetSelectedClass() : null;
+              
+              // Toggle class selection
+              if (currentSelectedClass === cls) {
+                if (window.scoresSetSelectedClass) window.scoresSetSelectedClass(null);
+                item.style.backgroundColor = '';
+              } else {
+                if (window.scoresSetSelectedClass) window.scoresSetSelectedClass(cls);
+                // Highlight selected and remove highlight from "All" and other items
+                document.querySelectorAll('.scores-class-legend > div[data-class]').forEach(el => {
+                  el.style.backgroundColor = '';
+                });
+                allClassButtonHtml.style.backgroundColor = '';
+                item.style.backgroundColor = 'rgba(0,0,0,0.1)';
+              }
+            });
+            
+            const marker = document.createElement('span');
+            marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: ${colorMap[cls]}; border: 0.5px solid black; border-radius: 50%; opacity: 0.6;`;
+            item.appendChild(marker);
+            
+            const label = document.createElement('span');
+            label.textContent = cls;
+            item.appendChild(label);
+            
+            classLegend.appendChild(item);
+          });
+          
+          plotContainer.appendChild(classLegend);
+        }, 100);
+      });
+    })
+    .catch(error => {
+      console.error('Error loading scores data:', error);
+      document.getElementById('scores-plot').innerHTML = '<p>Error loading plot data.</p>';
+    });
+}
+
 // Initialize plot when page loads
 document.addEventListener('DOMContentLoaded', function() {
   if (document.getElementById('tsne-plot')) {
@@ -694,6 +1257,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize ablation table
   initAblationTable();
+  
+  // Initialize scores plot
+  createScoresPlot();
   
   // Initialize citation copy button
   const copyBtn = document.getElementById('copy-citation-btn');
