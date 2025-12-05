@@ -36,31 +36,72 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Fallback for PDF images: if a browser can't render the PDF as an image,
-  // automatically swap to the corresponding .jpg version.
+  // automatically swap to the corresponding .png or .jpg version.
   const pdfImages = document.querySelectorAll('img[src$=".pdf"]');
   pdfImages.forEach(img => {
     const pdfSrc = img.getAttribute('src');
     if (!pdfSrc) return;
 
+    const pngSrc = pdfSrc.replace(/\.pdf(\?.*)?$/i, '.png$1');
     const jpgSrc = pdfSrc.replace(/\.pdf(\?.*)?$/i, '.jpg$1');
 
-    const useJpg = () => {
-      if (img.getAttribute('src') !== jpgSrc) {
-        img.setAttribute('src', jpgSrc);
-      }
+    let fallbackAttempted = false;
+
+    const tryFallback = (fallbackSrc, nextFallback) => {
+      if (fallbackAttempted) return;
+      const testImg = new Image();
+      testImg.onload = function() {
+        if (img.getAttribute('src') !== fallbackSrc) {
+          img.setAttribute('src', fallbackSrc);
+        }
+        fallbackAttempted = true;
+      };
+      testImg.onerror = function() {
+        if (nextFallback) {
+          nextFallback();
+        }
+      };
+      testImg.src = fallbackSrc;
     };
 
-    // If loading the PDF fails, fall back to JPG.
+    const tryJpg = () => {
+      tryFallback(jpgSrc, null);
+    };
+
+    const tryPng = () => {
+      tryFallback(pngSrc, tryJpg);
+    };
+
+    // If loading the PDF fails, try PNG first, then JPG
     const onError = function() {
-      useJpg();
+      if (!fallbackAttempted) {
+        tryPng();
+      }
       img.removeEventListener('error', onError);
     };
 
     img.addEventListener('error', onError);
 
-    // If the image has already finished loading but failed, also swap.
-    if (img.complete && img.naturalWidth === 0) {
-      useJpg();
+    // Check if PDF loaded but didn't render properly (Chrome case)
+    const checkRender = () => {
+      if (img.complete) {
+        // If image has no dimensions, it likely didn't render properly
+        if (img.naturalWidth === 0 || img.naturalHeight === 0) {
+          if (!fallbackAttempted) {
+            tryPng();
+          }
+        }
+      }
+    };
+
+    img.addEventListener('load', checkRender);
+
+    // If already loaded, check immediately
+    if (img.complete) {
+      checkRender();
+    } else {
+      // Also check after a delay in case Chrome loads PDF but doesn't render it
+      setTimeout(checkRender, 500);
     }
   });
 });
