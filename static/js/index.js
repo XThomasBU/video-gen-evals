@@ -745,7 +745,7 @@ function createTSNEPlot() {
           }
         });
         const marker = document.createElement('span');
-        marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: gray; border: 0.5px solid black; vertical-align: middle;`;
+        marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: gray; vertical-align: middle;`;
         // Set marker shape using CSS
         if (MODEL_MARKERS[pm] === 'circle') {
           marker.style.borderRadius = '50%';
@@ -757,24 +757,16 @@ function createTSNEPlot() {
         } else if (MODEL_MARKERS[pm] === 'triangle-up') {
           // Create wrapper for triangle - same size as other markers for alignment
           marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
-          // Black outline triangle (0.5px larger on each side = 1px total, matching 0.5px border)
-          const outlineTriangle = document.createElement('span');
-          outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-bottom: 10.5px solid black;';
-          // Gray fill triangle (0.5px smaller to show 0.5px border effect)
+          // Gray fill triangle
           const fillTriangle = document.createElement('span');
           fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid gray;';
-          marker.appendChild(outlineTriangle);
           marker.appendChild(fillTriangle);
         } else if (MODEL_MARKERS[pm] === 'triangle-down') {
           // Create wrapper for triangle - same size as other markers for alignment
           marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
-          // Black outline triangle (0.5px larger on each side = 1px total, matching 0.5px border)
-          const outlineTriangle = document.createElement('span');
-          outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 10.5px solid black;';
-          // Gray fill triangle (0.5px smaller to show 0.5px border effect)
+          // Gray fill triangle
           const fillTriangle = document.createElement('span');
           fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid gray;';
-          marker.appendChild(outlineTriangle);
           marker.appendChild(fillTriangle);
         }
         item.appendChild(marker);
@@ -1671,7 +1663,7 @@ function createScoresPlot() {
               }
             });
             const marker = document.createElement('span');
-            marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: gray; border: 0.5px solid black; vertical-align: middle;`;
+            marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: gray; vertical-align: middle;`;
             // Set marker shape using CSS (same as t-SNE plot)
             if (MODEL_MARKERS[pm] === 'circle') {
               marker.style.borderRadius = '50%';
@@ -1682,19 +1674,13 @@ function createScoresPlot() {
               marker.style.borderRadius = '0';
             } else if (MODEL_MARKERS[pm] === 'triangle-up') {
               marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
-              const outlineTriangle = document.createElement('span');
-              outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-bottom: 10.5px solid black;';
               const fillTriangle = document.createElement('span');
               fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid gray;';
-              marker.appendChild(outlineTriangle);
               marker.appendChild(fillTriangle);
             } else if (MODEL_MARKERS[pm] === 'triangle-down') {
               marker.style.cssText = 'position: relative; display: inline-block; width: 12px; height: 12px; margin-right: 6px; vertical-align: middle;';
-              const outlineTriangle = document.createElement('span');
-              outlineTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6.5px solid transparent; border-right: 6.5px solid transparent; border-top: 10.5px solid black;';
               const fillTriangle = document.createElement('span');
               fillTriangle.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 10px solid gray;';
-              marker.appendChild(outlineTriangle);
               marker.appendChild(fillTriangle);
             }
             item.appendChild(marker);
