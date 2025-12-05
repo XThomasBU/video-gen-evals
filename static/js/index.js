@@ -1473,7 +1473,7 @@ function createScoresPlot() {
       const layout = {
         xaxis: {
           title: {
-            text: 'Action Consistency',
+            text: 'Action Consistency (AC) <span style="color: #22c55e; font-size: 18px; font-weight: bold;">↑</span>',
             font: { size: 14 }
           },
           showgrid: true,
@@ -1488,7 +1488,7 @@ function createScoresPlot() {
         },
         yaxis: {
           title: {
-            text: 'Temporal Coherence',
+            text: 'Temporal Coherence (TC) <span style="color: #22c55e; font-size: 18px; font-weight: bold;">↑</span>',
             font: { size: 14 }
           },
           showgrid: true,
