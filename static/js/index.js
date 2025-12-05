@@ -799,6 +799,19 @@ function initAblationTable() {
 
 // Create Action Consistency vs Temporal Coherence plot
 function createScoresPlot() {
+  const plotElement = document.getElementById('scores-plot');
+  if (!plotElement) {
+    console.error('scores-plot element not found');
+    return;
+  }
+  
+  // Check if Plotly is loaded
+  if (typeof Plotly === 'undefined') {
+    console.error('Plotly is not loaded');
+    plotElement.innerHTML = '<p style="color: red; padding: 2rem; text-align: center;">Error: Plotly library not loaded.</p>';
+    return;
+  }
+  
   // Tab10 colormap colors (matching matplotlib)
   const TAB10_COLORS = [
     '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
@@ -841,10 +854,17 @@ function createScoresPlot() {
     modal.style.display = 'flex';
   }
   
-  // Load scores data
-  fetch('static/images/scores.json')
-    .then(response => response.json())
+  // Load scores data - try both relative and absolute paths
+  const scoresPath = 'static/images/scores.json';
+  fetch(scoresPath)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status} for ${scoresPath}`);
+      }
+      return response.json();
+    })
     .then(data => {
+      console.log('Scores data loaded successfully');
       // Parse data and extract class/model from filenames
       const points = [];
       const classes = new Set();
@@ -1270,7 +1290,10 @@ function createScoresPlot() {
     })
     .catch(error => {
       console.error('Error loading scores data:', error);
-      document.getElementById('scores-plot').innerHTML = '<p>Error loading plot data.</p>';
+      const plotElement = document.getElementById('scores-plot');
+      if (plotElement) {
+        plotElement.innerHTML = '<p style="color: red; padding: 2rem; text-align: center;">Error loading plot data. Please check the console for details.</p>';
+      }
     });
 }
 
@@ -1291,9 +1314,32 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialize ablation table
   initAblationTable();
   
-  // Initialize scores plot
-  if (document.getElementById('scores-plot')) {
-    createScoresPlot();
+  // Initialize scores plot - wait for element to be available
+  function initScoresPlot() {
+    const scoresPlotElement = document.getElementById('scores-plot');
+    if (scoresPlotElement) {
+      console.log('Initializing scores plot...');
+      createScoresPlot();
+      return true;
+    }
+    return false;
+  }
+  
+  // Try to initialize immediately
+  if (!initScoresPlot()) {
+    // If element not found, wait and try again
+    console.warn('scores-plot element not found, retrying...');
+    let retries = 0;
+    const maxRetries = 10;
+    const retryInterval = setInterval(function() {
+      retries++;
+      if (initScoresPlot() || retries >= maxRetries) {
+        clearInterval(retryInterval);
+        if (retries >= maxRetries) {
+          console.error('Failed to initialize scores plot after', maxRetries, 'retries');
+        }
+      }
+    }, 200);
   }
   
   // Initialize citation copy button
