@@ -365,7 +365,14 @@ function createTSNEPlot() {
         function updateVisibility() {
           const visibility = allTraces.map(trace => {
             if (trace.isCentroid) {
-              return true; // Keep centroids visible
+              // Show centroids based on filter:
+              // - If filtering by class, show centroid for that class
+              // - If filtering by model only, show all centroids
+              // - If no filter, show all centroids
+              if (selectedClass !== null) {
+                return trace.class === selectedClass;
+              }
+              return true; // Show all centroids if no class filter
             }
             if (selectedModel === null && selectedClass === null) {
               return true; // Show all
@@ -1319,7 +1326,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const scoresPlotElement = document.getElementById('scores-plot');
     if (scoresPlotElement) {
       console.log('Initializing scores plot...');
-      createScoresPlot();
+  createScoresPlot();
       return true;
     }
     return false;
