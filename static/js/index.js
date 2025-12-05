@@ -236,7 +236,7 @@ function createTSNEPlot() {
             }
           },
           showlegend: false,
-          hovertemplate: '<span style="color: white; background-color: %{customdata.color}; padding: 4px 8px; border-radius: 4px; display: inline-block;"><b>Centroid: %{customdata.class}</b></span><extra></extra>',
+          hoverinfo: 'skip',
           customdata: [{
             class: centroid.class,
             isCentroid: true,
@@ -325,81 +325,284 @@ function createTSNEPlot() {
         yMax: yMax + yPadding
       };
       
-      // Google Drive folder URL
-      const GOOGLE_DRIVE_FOLDER = 'https://drive.google.com/drive/u/0/folders/1-VP6Rdr4qDNJ8k3IU2XcRbR85YIfqrRY';
-      
-      // Function to show video modal
-      function showVideoModal(videoId, className, modelName) {
-        const modal = document.getElementById('video-modal');
-        const modalInfo = document.getElementById('video-modal-info');
-        const modalIframe = document.getElementById('video-modal-iframe');
-        
-        if (!modal) return;
-        
-        // Set modal info
-        modalInfo.textContent = `${className} - ${modelName}`;
-        
-        // Construct Google Drive embed URL
-        // Google Drive requires file IDs for embedding, but we can try using the folder with search
-        // The format for Google Drive file preview is: https://drive.google.com/file/d/FILE_ID/preview
-        // Since we don't have file IDs, we'll use the folder search URL
-        // Note: This may not work perfectly for embedding, but it's the best we can do without file IDs
-        const searchTerm = encodeURIComponent(videoId);
-        const embedUrl = `${GOOGLE_DRIVE_FOLDER}?q=${searchTerm}`;
-        
-        modalIframe.src = embedUrl;
-        
-        // Show modal with smooth animation
-        modal.style.display = 'flex';
-        // Force reflow to trigger animation
-        void modal.offsetWidth;
-        modal.style.opacity = '1';
-      }
-      
-      // Function to hide video modal
-      function hideVideoModal() {
-        const modal = document.getElementById('video-modal');
-        const modalIframe = document.getElementById('video-modal-iframe');
-        if (modal) {
-          // Smooth fade out
-          modal.style.opacity = '0';
-          setTimeout(() => {
-            modal.style.display = 'none';
-            // Clear iframe src to stop video playback
-            if (modalIframe) {
-              modalIframe.src = '';
-            }
-          }, 300);
-        }
-      }
-      
-      // Close modal handlers
-      document.addEventListener('DOMContentLoaded', function() {
-        const closeBtn = document.getElementById('video-modal-close');
-        const modal = document.getElementById('video-modal');
-        
-        if (closeBtn) {
-          closeBtn.addEventListener('click', hideVideoModal);
-        }
-        
-        if (modal) {
-          modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-              hideVideoModal();
-            }
+      // Load drive files mapping
+      let driveFilesMap = {};
+      fetch('static/images/drive_files.json')
+        .then(response => response.json())
+        .then(data => {
+          // Create case-insensitive lookup map
+          driveFilesMap = {};
+          Object.keys(data).forEach(key => {
+            const lowerKey = key.toLowerCase();
+            driveFilesMap[lowerKey] = data[key];
+            // Also store original key for exact matches
+            driveFilesMap[key] = data[key];
           });
+        })
+        .catch(error => {
+          console.error('Error loading drive_files.json:', error);
+        });
+      
+      // Normalize filename for matching (remove common variations)
+      function normalizeFilename(filename) {
+        if (!filename) return '';
+        // Remove .mp4 extension
+        let normalized = filename.replace('.mp4', '');
+        
+        // Remove the last part (hash) - everything after the last underscore
+        // Pattern: Model_Action_Number_hash -> Model_Action_Number
+        const parts = normalized.split('_');
+        // Keep everything except the last part (hash)
+        if (parts.length > 3) {
+          normalized = parts.slice(0, -1).join('_');
         }
         
-        // Close on Escape key
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape') {
-            hideVideoModal();
+        // Normalize model name variations (keep "W" capitalized)
+        normalized = normalized
+          .replace(/_videos_/g, '_')
+          .replace(/^Wan2p1/i, 'Wan2.1')
+          .replace(/^Wan2p2/i, 'Wan2.2')
+          .replace(/^wan2p1/i, 'Wan2.1')
+          .replace(/^wan2p2/i, 'Wan2.2')
+          .replace(/^Wan21/i, 'Wan2.1')
+          .replace(/^Wan22/i, 'Wan2.2')
+          .replace(/^wan21/i, 'Wan2.1')
+          .replace(/^wan22/i, 'Wan2.2')
+          .replace(/^Wan2\.1/i, 'Wan2.1')
+          .replace(/^Wan2\.2/i, 'Wan2.2');
+        
+        // Lowercase for comparison (but we've already normalized the model name)
+        return normalized.toLowerCase();
+      }
+      
+      // Function to find Google Drive ID for a video_id/filename
+      function findDriveId(videoIdOrFilename) {
+        if (!videoIdOrFilename) return null;
+        
+        // Try exact match first
+        if (driveFilesMap[videoIdOrFilename] && driveFilesMap[videoIdOrFilename].length > 0) {
+          return driveFilesMap[videoIdOrFilename][0];
+        }
+        
+        // Try case-insensitive match
+        const lowerKey = videoIdOrFilename.toLowerCase();
+        if (driveFilesMap[lowerKey] && driveFilesMap[lowerKey].length > 0) {
+          return driveFilesMap[lowerKey][0];
+        }
+        
+        // Try normalized matching
+        const normalizedSearch = normalizeFilename(videoIdOrFilename);
+        for (const key in driveFilesMap) {
+          const normalizedKey = normalizeFilename(key);
+          if (normalizedSearch === normalizedKey) {
+            return driveFilesMap[key][0];
           }
-        });
-      });
+        }
+        
+        // Try partial matching (for cases where only part of the filename matches)
+        for (const key in driveFilesMap) {
+          const normalizedKey = normalizeFilename(key);
+          // Check if normalized search is contained in normalized key or vice versa
+          if (normalizedKey.includes(normalizedSearch) || normalizedSearch.includes(normalizedKey)) {
+            // Make sure they're similar enough (at least 70% match)
+            const similarity = Math.min(normalizedSearch.length, normalizedKey.length) / Math.max(normalizedSearch.length, normalizedKey.length);
+            if (similarity > 0.7) {
+              return driveFilesMap[key][0];
+            }
+          }
+        }
+        
+        return null;
+      }
+      
+      // Function to show video preview next to clicked point
+      function showVideoPreview(clickX, clickY, videoId, className, modelName, ac, tc) {
+        const preview = document.getElementById('video-preview');
+        const previewIframe = document.getElementById('video-preview-iframe');
+        const previewModel = document.getElementById('video-preview-model');
+        const previewClass = document.getElementById('video-preview-class');
+        const previewVideoId = document.getElementById('video-preview-videoid');
+        const previewAC = document.getElementById('video-preview-ac');
+        const previewTC = document.getElementById('video-preview-tc');
+        const previewDebug = document.getElementById('video-preview-debug');
+        const connectionLine = document.getElementById('video-preview-connection');
+        const lineElement = document.getElementById('video-preview-line');
+        const pointIndicator = document.getElementById('video-preview-point-indicator');
+        
+        if (!preview) return;
+        
+        // Update info box
+        if (previewModel) previewModel.textContent = `Model: ${modelName || 'N/A'}`;
+        if (previewClass) previewClass.textContent = `Class: ${className || 'N/A'}`;
+        if (previewAC) previewAC.textContent = ac !== undefined && ac !== null ? `AC: ${ac.toFixed(2)}` : '';
+        if (previewTC) previewTC.textContent = tc !== undefined && tc !== null ? `TC: ${tc.toFixed(2)}` : '';
+        if (previewVideoId) previewVideoId.textContent = `ID: ${videoId || 'N/A'}`;
+        
+        // Find the Google Drive ID for this video
+        const driveId = findDriveId(videoId);
+        let embedUrl = '';
+        if (driveId) {
+          embedUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+          previewIframe.src = embedUrl;
+          if (previewDebug) {
+            previewDebug.textContent = '';
+            previewDebug.style.display = 'none';
+          }
+        } else {
+          console.warn('Could not find Google Drive ID for:', videoId);
+          console.log('Searching for:', videoId);
+          console.log('Normalized search:', normalizeFilename(videoId));
+          console.log('Available keys (first 10):', Object.keys(driveFilesMap).slice(0, 10));
+          // Show debug info only when no match found
+          if (previewDebug) {
+            previewDebug.textContent = `No match found for: ${videoId}\nNormalized: ${normalizeFilename(videoId)}`;
+            previewDebug.style.color = '#d00';
+            previewDebug.style.display = 'block';
+          }
+          previewIframe.src = '';
+        }
+        
+        // Position preview window next to the point
+        // Try to place it to the right, but adjust if it goes off screen
+        const previewWidth = 320;
+        const previewHeight = 180 + 60; // Add height for info box
+        const offset = 20;
+        
+        let left = clickX + offset;
+        let top = clickY - previewHeight / 2;
+        
+        // Adjust if goes off right edge
+        if (left + previewWidth > window.innerWidth) {
+          left = clickX - previewWidth - offset;
+        }
+        
+        // Adjust if goes off bottom edge
+        if (top + previewHeight > window.innerHeight) {
+          top = window.innerHeight - previewHeight - 10;
+        }
+        
+        // Adjust if goes off top edge
+        if (top < 10) {
+          top = 10;
+        }
+        
+        // Adjust if goes off left edge
+        if (left < 10) {
+          left = 10;
+        }
+        
+        // Use viewport coordinates (not page coordinates) to keep preview static on scroll
+        preview.style.left = left + 'px';
+        preview.style.top = top + 'px';
+        preview.style.position = 'fixed'; // Ensure it's fixed to viewport
+        preview.style.display = 'block';
+        preview.style.opacity = '0';
+        
+        // Show point indicator at clicked location
+        if (pointIndicator) {
+          pointIndicator.style.left = clickX + 'px';
+          pointIndicator.style.top = clickY + 'px';
+          pointIndicator.style.display = 'block';
+        }
+        
+        // Draw connection lines from point to preview corners
+        if (connectionLine && lineElement) {
+          const bottomLeftLine = document.getElementById('video-preview-line-bottom-left');
+          
+          // Determine which corner to connect to (top or bottom)
+          // Connect to the corner closest to the clicked point
+          const topLeftX = left;
+          const topLeftY = top;
+          const topRightX = left + previewWidth;
+          const topRightY = top;
+          const bottomLeftX = left;
+          const bottomLeftY = top + previewHeight;
+          const bottomRightX = left + previewWidth;
+          const bottomRightY = top + previewHeight;
+          
+          // Calculate distances to each corner
+          const distTopLeft = Math.sqrt(Math.pow(clickX - topLeftX, 2) + Math.pow(clickY - topLeftY, 2));
+          const distTopRight = Math.sqrt(Math.pow(clickX - topRightX, 2) + Math.pow(clickY - topRightY, 2));
+          const distBottomLeft = Math.sqrt(Math.pow(clickX - bottomLeftX, 2) + Math.pow(clickY - bottomLeftY, 2));
+          const distBottomRight = Math.sqrt(Math.pow(clickX - bottomRightX, 2) + Math.pow(clickY - bottomRightY, 2));
+          
+          // Find closest corner
+          const minDist = Math.min(distTopLeft, distTopRight, distBottomLeft, distBottomRight);
+          let cornerX, cornerY;
+          
+          if (minDist === distTopLeft) {
+            cornerX = topLeftX;
+            cornerY = topLeftY + 8; // Slightly lower for better visual connection
+          } else if (minDist === distTopRight) {
+            cornerX = topRightX;
+            cornerY = topRightY;
+          } else if (minDist === distBottomLeft) {
+            cornerX = bottomLeftX;
+            cornerY = bottomLeftY;
+          } else {
+            cornerX = bottomRightX;
+            cornerY = bottomRightY;
+          }
+          
+          // Draw line from clicked point to closest corner
+          lineElement.setAttribute('x1', clickX);
+          lineElement.setAttribute('y1', clickY);
+          lineElement.setAttribute('x2', cornerX);
+          lineElement.setAttribute('y2', cornerY);
+          
+          // Always draw a second line to bottom left corner
+          if (bottomLeftLine) {
+            bottomLeftLine.setAttribute('x1', clickX);
+            bottomLeftLine.setAttribute('y1', clickY);
+            bottomLeftLine.setAttribute('x2', bottomLeftX);
+            bottomLeftLine.setAttribute('y2', bottomLeftY);
+          }
+          
+          connectionLine.style.display = 'block';
+          connectionLine.style.opacity = '0';
+        }
+        
+        // Fade in
+        setTimeout(() => {
+          preview.style.opacity = '1';
+          preview.style.transition = 'opacity 0.2s ease';
+          if (connectionLine) {
+            connectionLine.style.opacity = '1';
+            connectionLine.style.transition = 'opacity 0.3s ease';
+          }
+        }, 10);
+      }
+      
       
       // Plot
       Plotly.newPlot('tsne-plot', allTraces, layout, config).then(function() {
+        // Track mouse position globally for positioning preview
+        if (!window.lastMouseX) {
+          window.lastMouseX = 0;
+          window.lastMouseY = 0;
+          document.addEventListener('mousedown', function(e) {
+            window.lastMouseX = e.clientX;
+            window.lastMouseY = e.clientY;
+          });
+        }
+        
+        // Add click handler to show video preview when clicking on points
+        const plotDiv = document.getElementById('tsne-plot');
+        plotDiv.on('plotly_click', function(data) {
+          if (data.points && data.points.length > 0) {
+            const point = data.points[0];
+            const customData = point.customdata;
+            if (customData && !customData.isCentroid) {
+              // Use last mouse position
+              const clickX = window.lastMouseX || window.innerWidth / 2;
+              const clickY = window.lastMouseY || window.innerHeight / 2;
+              
+              // t-SNE plot may not have AC/TC scores
+              showVideoPreview(clickX, clickY, customData.video_id, customData.class, customData.model, customData.ac, customData.tc);
+            }
+          }
+        });
+        
         // Add click handlers for filtering after plot is rendered
         let selectedClass = null;
         let selectedModel = null;
@@ -887,35 +1090,254 @@ function createScoresPlot() {
     'Hunyuan': 'HunyuanVideo'
   };
   
-  // Google Drive folder URL
-  const GOOGLE_DRIVE_FOLDER = 'https://drive.google.com/drive/u/0/folders/1-VP6Rdr4qDNJ8k3IU2XcRbR85YIfqrRY';
+  // Load drive files mapping
+  let driveFilesMapScores = {};
+  fetch('static/images/drive_files.json')
+    .then(response => response.json())
+    .then(data => {
+      // Create case-insensitive lookup map
+      driveFilesMapScores = {};
+      Object.keys(data).forEach(key => {
+        const lowerKey = key.toLowerCase();
+        driveFilesMapScores[lowerKey] = data[key];
+        // Also store original key for exact matches
+        driveFilesMapScores[key] = data[key];
+      });
+    })
+    .catch(error => {
+      console.error('Error loading drive_files.json:', error);
+    });
   
-  // Function to show video modal with filename
-  function showVideoModalByFilename(filename, className, modelName) {
-    const modal = document.getElementById('video-modal');
-    const modalInfo = document.getElementById('video-modal-info');
-    const modalIframe = document.getElementById('video-modal-iframe');
+  // Normalize filename for matching (remove common variations)
+  function normalizeFilenameForScores(filename) {
+    if (!filename) return '';
+    // Remove .mp4 extension
+    let normalized = filename.replace('.mp4', '');
     
-    if (!modal) return;
+    // Remove the last part (hash) - everything after the last underscore
+    // Pattern: Model_Action_Number_hash -> Model_Action_Number
+    const parts = normalized.split('_');
+    // Keep everything except the last part (hash)
+    if (parts.length > 3) {
+      normalized = parts.slice(0, -1).join('_');
+    }
     
-    // Set modal info
-    modalInfo.textContent = `${className} - ${modelName}`;
+    // Normalize model name variations (keep "W" capitalized)
+    normalized = normalized
+      .replace(/_videos_/g, '_')
+      .replace(/^Wan2p1/i, 'Wan2.1')
+      .replace(/^Wan2p2/i, 'Wan2.2')
+      .replace(/^wan2p1/i, 'Wan2.1')
+      .replace(/^wan2p2/i, 'Wan2.2')
+      .replace(/^Wan21/i, 'Wan2.1')
+      .replace(/^Wan22/i, 'Wan2.2')
+      .replace(/^wan21/i, 'Wan2.1')
+      .replace(/^wan22/i, 'Wan2.2')
+      .replace(/^Wan2\.1/i, 'Wan2.1')
+      .replace(/^Wan2\.2/i, 'Wan2.2');
     
-    // Construct Google Drive embed URL
-    // Google Drive requires file IDs for proper embedding, but we can try using the folder with search
-    // The format for Google Drive file preview is: https://drive.google.com/file/d/FILE_ID/preview
-    // Since we don't have file IDs, we'll use the folder search URL
-    const searchTerm = encodeURIComponent(filename);
-    const embedUrl = `${GOOGLE_DRIVE_FOLDER}?q=${searchTerm}`;
-    
-    modalIframe.src = embedUrl;
-    
-    // Show modal with smooth animation
-    modal.style.display = 'flex';
-    // Force reflow to trigger animation
-    void modal.offsetWidth;
-    modal.style.opacity = '1';
+    // Lowercase for comparison (but we've already normalized the model name)
+    return normalized.toLowerCase();
   }
+  
+  // Function to find Google Drive ID for a video_id/filename
+  function findDriveIdByFilename(filename) {
+    if (!filename) return null;
+    
+    // Try exact match first
+    if (driveFilesMapScores[filename] && driveFilesMapScores[filename].length > 0) {
+      return driveFilesMapScores[filename][0];
+    }
+    
+    // Try case-insensitive match
+    const lowerKey = filename.toLowerCase();
+    if (driveFilesMapScores[lowerKey] && driveFilesMapScores[lowerKey].length > 0) {
+      return driveFilesMapScores[lowerKey][0];
+    }
+    
+    // Try normalized matching
+    const normalizedSearch = normalizeFilenameForScores(filename);
+    for (const key in driveFilesMapScores) {
+      const normalizedKey = normalizeFilenameForScores(key);
+      if (normalizedSearch === normalizedKey) {
+        return driveFilesMapScores[key][0];
+      }
+    }
+    
+    // Try partial matching (for cases where only part of the filename matches)
+    for (const key in driveFilesMapScores) {
+      const normalizedKey = normalizeFilenameForScores(key);
+      // Check if normalized search is contained in normalized key or vice versa
+      if (normalizedKey.includes(normalizedSearch) || normalizedSearch.includes(normalizedKey)) {
+        // Make sure they're similar enough (at least 70% match)
+        const similarity = Math.min(normalizedSearch.length, normalizedKey.length) / Math.max(normalizedSearch.length, normalizedKey.length);
+        if (similarity > 0.7) {
+          return driveFilesMapScores[key][0];
+        }
+      }
+    }
+    
+    return null;
+  }
+  
+  // Function to show video preview next to clicked point
+  function showVideoPreviewByFilename(clickX, clickY, filename, className, modelName, ac, tc) {
+    const preview = document.getElementById('video-preview');
+    const previewIframe = document.getElementById('video-preview-iframe');
+    const previewModel = document.getElementById('video-preview-model');
+    const previewClass = document.getElementById('video-preview-class');
+    const previewVideoId = document.getElementById('video-preview-videoid');
+    const previewAC = document.getElementById('video-preview-ac');
+    const previewTC = document.getElementById('video-preview-tc');
+    const previewDebug = document.getElementById('video-preview-debug');
+    const connectionLine = document.getElementById('video-preview-connection');
+    const lineElement = document.getElementById('video-preview-line');
+    const pointIndicator = document.getElementById('video-preview-point-indicator');
+    
+    if (!preview) return;
+    
+    // Update info box
+    if (previewModel) previewModel.textContent = `Model: ${modelName || 'N/A'}`;
+    if (previewClass) previewClass.textContent = `Class: ${className || 'N/A'}`;
+    if (previewAC) previewAC.textContent = ac !== undefined && ac !== null ? `AC: ${ac.toFixed(2)}` : '';
+    if (previewTC) previewTC.textContent = tc !== undefined && tc !== null ? `TC: ${tc.toFixed(2)}` : '';
+    if (previewVideoId) previewVideoId.textContent = `File: ${filename || 'N/A'}`;
+    
+    // Find the Google Drive ID for this video
+    const driveId = findDriveIdByFilename(filename);
+    let embedUrl = '';
+    if (driveId) {
+      embedUrl = `https://drive.google.com/file/d/${driveId}/preview`;
+      previewIframe.src = embedUrl;
+      if (previewDebug) {
+        previewDebug.textContent = '';
+        previewDebug.style.display = 'none';
+      }
+    } else {
+      console.warn('Could not find Google Drive ID for:', filename);
+      console.log('Searching for:', filename);
+      console.log('Normalized search:', normalizeFilenameForScores(filename));
+      console.log('Available keys (first 10):', Object.keys(driveFilesMapScores).slice(0, 10));
+      // Show debug info only when no match found
+      if (previewDebug) {
+        previewDebug.textContent = `No match found for: ${filename}\nNormalized: ${normalizeFilenameForScores(filename)}`;
+        previewDebug.style.color = '#d00';
+        previewDebug.style.display = 'block';
+      }
+      previewIframe.src = '';
+    }
+    
+    // Position preview window next to the point
+    // Try to place it to the right, but adjust if it goes off screen
+    const previewWidth = 320;
+    const previewHeight = 180 + 60; // Add height for info box
+    const offset = 20;
+    
+    let left = clickX + offset;
+    let top = clickY - previewHeight / 2;
+    
+    // Adjust if goes off right edge
+    if (left + previewWidth > window.innerWidth) {
+      left = clickX - previewWidth - offset;
+    }
+    
+    // Adjust if goes off bottom edge
+    if (top + previewHeight > window.innerHeight) {
+      top = window.innerHeight - previewHeight - 10;
+    }
+    
+    // Adjust if goes off top edge
+    if (top < 10) {
+      top = 10;
+    }
+    
+    // Adjust if goes off left edge
+    if (left < 10) {
+      left = 10;
+    }
+    
+    // Use viewport coordinates (not page coordinates) to keep preview static on scroll
+    preview.style.left = left + 'px';
+    preview.style.top = top + 'px';
+    preview.style.position = 'fixed'; // Ensure it's fixed to viewport
+    preview.style.display = 'block';
+    preview.style.opacity = '0';
+    
+    // Show point indicator at clicked location
+    if (pointIndicator) {
+      pointIndicator.style.left = clickX + 'px';
+      pointIndicator.style.top = clickY + 'px';
+      pointIndicator.style.display = 'block';
+    }
+    
+    // Draw connection lines from point to preview corners
+    if (connectionLine && lineElement) {
+      const bottomLeftLine = document.getElementById('video-preview-line-bottom-left');
+      
+      // Determine which corner to connect to (top or bottom)
+      // Connect to the corner closest to the clicked point
+      const topLeftX = left;
+      const topLeftY = top;
+      const topRightX = left + previewWidth;
+      const topRightY = top;
+      const bottomLeftX = left;
+      const bottomLeftY = top + previewHeight;
+      const bottomRightX = left + previewWidth;
+      const bottomRightY = top + previewHeight;
+      
+      // Calculate distances to each corner
+      const distTopLeft = Math.sqrt(Math.pow(clickX - topLeftX, 2) + Math.pow(clickY - topLeftY, 2));
+      const distTopRight = Math.sqrt(Math.pow(clickX - topRightX, 2) + Math.pow(clickY - topRightY, 2));
+      const distBottomLeft = Math.sqrt(Math.pow(clickX - bottomLeftX, 2) + Math.pow(clickY - bottomLeftY, 2));
+      const distBottomRight = Math.sqrt(Math.pow(clickX - bottomRightX, 2) + Math.pow(clickY - bottomRightY, 2));
+      
+      // Find closest corner
+      const minDist = Math.min(distTopLeft, distTopRight, distBottomLeft, distBottomRight);
+      let cornerX, cornerY;
+      
+      if (minDist === distTopLeft) {
+        cornerX = topLeftX;
+        cornerY = topLeftY + 8; // Slightly lower for better visual connection
+      } else if (minDist === distTopRight) {
+        cornerX = topRightX;
+        cornerY = topRightY;
+      } else if (minDist === distBottomLeft) {
+        cornerX = bottomLeftX;
+        cornerY = bottomLeftY;
+      } else {
+        cornerX = bottomRightX;
+        cornerY = bottomRightY;
+      }
+      
+      // Draw line from clicked point to closest corner
+      lineElement.setAttribute('x1', clickX);
+      lineElement.setAttribute('y1', clickY);
+      lineElement.setAttribute('x2', cornerX);
+      lineElement.setAttribute('y2', cornerY);
+      
+      // Always draw a second line to bottom left corner
+      if (bottomLeftLine) {
+        bottomLeftLine.setAttribute('x1', clickX);
+        bottomLeftLine.setAttribute('y1', clickY);
+        bottomLeftLine.setAttribute('x2', bottomLeftX);
+        bottomLeftLine.setAttribute('y2', bottomLeftY);
+      }
+      
+      connectionLine.style.display = 'block';
+      connectionLine.style.opacity = '0';
+    }
+    
+    // Fade in
+    setTimeout(() => {
+      preview.style.opacity = '1';
+      preview.style.transition = 'opacity 0.2s ease';
+      if (connectionLine) {
+        connectionLine.style.opacity = '1';
+        connectionLine.style.transition = 'opacity 0.3s ease';
+      }
+    }, 10);
+  }
+  
   
   // Load scores data - try both relative and absolute paths
   const scoresPath = 'static/images/scores.json';
@@ -1110,6 +1532,21 @@ function createScoresPlot() {
           console.error('scores-plot element not found');
           return;
         }
+        
+        // Add click handler to show video preview when clicking on points
+        plotDiv.on('plotly_click', function(data) {
+          if (data.points && data.points.length > 0) {
+            const point = data.points[0];
+            const customData = point.customdata;
+            if (customData) {
+              // Use last mouse position (viewport coordinates, not page coordinates)
+              const clickX = window.lastMouseX || window.innerWidth / 2;
+              const clickY = window.lastMouseY || window.innerHeight / 2;
+              
+              showVideoPreviewByFilename(clickX, clickY, customData.filename, customData.class, customData.model, customData.ac, customData.tc);
+            }
+          }
+        });
         
         // Filtering state
         let selectedClass = null;
@@ -1349,8 +1786,87 @@ function createScoresPlot() {
     });
 }
 
+// Global function to hide video preview
+function hideVideoPreview() {
+  const preview = document.getElementById('video-preview');
+  const previewIframe = document.getElementById('video-preview-iframe');
+  const connectionLine = document.getElementById('video-preview-connection');
+  const pointIndicator = document.getElementById('video-preview-point-indicator');
+  
+  if (preview) {
+    preview.style.opacity = '0';
+    if (connectionLine) {
+      connectionLine.style.opacity = '0';
+    }
+    if (pointIndicator) {
+      pointIndicator.style.display = 'none';
+    }
+    setTimeout(() => {
+      preview.style.display = 'none';
+      if (connectionLine) {
+        connectionLine.style.display = 'none';
+      }
+      // Clear iframe src to stop video playback
+      if (previewIframe) {
+        previewIframe.src = '';
+      }
+    }, 200);
+  }
+}
+
 // Initialize plot when page loads
 document.addEventListener('DOMContentLoaded', function() {
+  // Set up video preview close button handlers
+  const closeBtn = document.getElementById('video-preview-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      hideVideoPreview();
+      return false;
+    });
+  }
+  
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      hideVideoPreview();
+    }
+  });
+  
+  // Hide preview when scrolling to prevent it from floating into other sections
+  let scrollTimeout;
+  document.addEventListener('scroll', function() {
+    const preview = document.getElementById('video-preview');
+    if (preview && preview.style.display === 'block') {
+      hideVideoPreview();
+    }
+  }, { passive: true });
+  
+  // Close when clicking outside (but not on plot points)
+  document.addEventListener('click', function(e) {
+    const preview = document.getElementById('video-preview');
+    if (preview && preview.style.display === 'block') {
+      // Check if click is outside the preview
+      if (!preview.contains(e.target)) {
+        // Check if click is on a plot point (plotly graph)
+        const plotContainers = ['tsne-plot', 'scores-plot'];
+        let isPlotClick = false;
+        for (const plotId of plotContainers) {
+          const plotDiv = document.getElementById(plotId);
+          if (plotDiv && plotDiv.contains(e.target)) {
+            isPlotClick = true;
+            break;
+          }
+        }
+        // Only close if not clicking on plot
+        if (!isPlotClick) {
+          hideVideoPreview();
+        }
+      }
+    }
+  });
+  
   if (document.getElementById('tsne-plot')) {
     createTSNEPlot();
     
