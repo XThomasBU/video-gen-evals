@@ -203,8 +203,28 @@ html {
 
 /* Button hover animations */
 .external-link.button {
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   transform: translateY(0);
+  position: relative;
+  overflow: hidden;
+}
+
+.external-link.button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.03);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.external-link.button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 .external-link.button:hover {
@@ -230,7 +250,7 @@ html {
 
 /* Image hover effect and high quality rendering */
 img {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, box-shadow 0.3s ease;
   image-rendering: -webkit-optimize-contrast;
   image-rendering: auto;
   -ms-interpolation-mode: bicubic;
@@ -249,6 +269,7 @@ img {
 img:hover {
   transform: scale(1.02);
   opacity: 0.95;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 /* Smooth fade-in for content */
@@ -281,6 +302,14 @@ img:hover {
     rgba(0, 0, 0, 0.08) 80%,
     transparent 100%
   );
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.3s forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
 }
 
 /* Hero section separator - more prominent */
@@ -297,6 +326,8 @@ img:hover {
     rgba(0, 0, 0, 0.1) 85%,
     transparent 100%
   );
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out 0.5s forwards;
 }
 
 /* Section spacing and visual hierarchy */
@@ -335,4 +366,178 @@ img:hover {
     transparent
   );
   border-radius: 1px;
+  animation: expandWidth 0.6s ease-out 0.3s both;
 }
+
+@keyframes expandWidth {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 40px;
+    opacity: 1;
+  }
+}
+
+/* Staggered animation for author blocks */
+.publication-authors .author-block {
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.publication-authors .author-block:nth-child(1) { animation-delay: 0.1s; }
+.publication-authors .author-block:nth-child(2) { animation-delay: 0.15s; }
+.publication-authors .author-block:nth-child(3) { animation-delay: 0.2s; }
+.publication-authors .author-block:nth-child(4) { animation-delay: 0.25s; }
+.publication-authors .author-block:nth-child(5) { animation-delay: 0.3s; }
+.publication-authors .author-block:nth-child(6) { animation-delay: 0.35s; }
+
+/* Enhanced modal animations */
+#video-modal {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+#video-modal[style*="display: flex"] {
+  opacity: 1;
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+#video-modal > div {
+  transform: scale(0.95);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#video-modal[style*="display: flex"] > div {
+  transform: scale(1);
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Smooth transitions for interactive elements */
+.feature-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+.feature-button:hover::after {
+  width: 200px;
+  height: 200px;
+}
+
+/* Enhanced citation button animation */
+#copy-citation-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+#copy-citation-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+#copy-citation-btn:hover::after {
+  width: 150px;
+  height: 150px;
+}
+
+/* Smooth transitions for plot legends */
+.tsne-model-legend > div,
+.tsne-class-legend > div,
+.scores-model-legend > div,
+.scores-class-legend > div {
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.tsne-model-legend > div:hover,
+.tsne-class-legend > div:hover,
+.scores-model-legend > div:hover,
+.scores-class-legend > div:hover {
+  transform: translateX(2px);
+}
+
+/* Loading state for images - only for images that haven't loaded yet */
+img:not([data-loaded]) {
+  opacity: 0;
+  animation: imageFadeIn 0.6s ease-out forwards;
+}
+
+img[data-loaded] {
+  opacity: 1;
+}
+
+@keyframes imageFadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Subtle parallax effect for hero */
+.hero {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Enhanced video container */
+.video-container {
+  position: relative;
+}
+
+.video-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.video-container:hover::before {
+  opacity: 1;
+}
+
+/* Smooth transitions for grid items in TAG-Bench section */
+.section[style*="padding-top: 3rem"] [style*="grid-template-columns"] > div {
+  opacity: 0;
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.section[style*="padding-top: 3rem"] [style*="grid-template-columns"] > div:nth-child(1) { animation-delay: 0.1s; }
+.section[style*="padding-top: 3rem"] [style*="grid-template-columns"] > div:nth-child(2) { animation-delay: 0.2s; }
+.section[style*="padding-top: 3rem"] [style*="grid-template-columns"] > div:nth-child(3) { animation-delay: 0.3s; }
+.section[style*="padding-top: 3rem"] [style*="grid-template-columns"] > div:nth-child(4) { animation-delay: 0.4s; }

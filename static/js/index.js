@@ -35,6 +35,17 @@ document.addEventListener('DOMContentLoaded', function() {
     observer.observe(section);
   });
 
+  // Mark images as loaded when they finish loading
+  document.querySelectorAll('img').forEach(img => {
+    if (img.complete) {
+      img.setAttribute('data-loaded', 'true');
+    } else {
+      img.addEventListener('load', function() {
+        this.setAttribute('data-loaded', 'true');
+      });
+    }
+  });
+
   // Fallback for PDF images: if a browser can't render the PDF as an image,
   // automatically swap to the corresponding .png or .jpg version.
   const pdfImages = document.querySelectorAll('img[src$=".pdf"]');
@@ -338,8 +349,11 @@ function createTSNEPlot() {
         
         modalIframe.src = embedUrl;
         
-        // Show modal
+        // Show modal with smooth animation
         modal.style.display = 'flex';
+        // Force reflow to trigger animation
+        void modal.offsetWidth;
+        modal.style.opacity = '1';
       }
       
       // Function to hide video modal
@@ -347,11 +361,15 @@ function createTSNEPlot() {
         const modal = document.getElementById('video-modal');
         const modalIframe = document.getElementById('video-modal-iframe');
         if (modal) {
-          modal.style.display = 'none';
-          // Clear iframe src to stop video playback
-          if (modalIframe) {
-            modalIframe.src = '';
-          }
+          // Smooth fade out
+          modal.style.opacity = '0';
+          setTimeout(() => {
+            modal.style.display = 'none';
+            // Clear iframe src to stop video playback
+            if (modalIframe) {
+              modalIframe.src = '';
+            }
+          }, 300);
         }
       }
       
@@ -748,7 +766,8 @@ function initAblationTable() {
       letter-spacing: 0.01em;
       border-radius: 4px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(1);
     `;
     featureButtons[feature] = button;
     
@@ -760,6 +779,7 @@ function initAblationTable() {
         this.style.background = 'white';
         this.style.color = '#333';
         this.style.textDecoration = 'none';
+        this.style.transform = 'scale(1)';
       } else {
         // Remove previous feature if any
         if (removedFeature !== null) {
@@ -768,6 +788,7 @@ function initAblationTable() {
           prevButton.style.background = 'white';
           prevButton.style.color = '#333';
           prevButton.style.textDecoration = 'none';
+          prevButton.style.transform = 'scale(1)';
         }
         // Remove this feature
         removedFeature = feature;
@@ -775,6 +796,7 @@ function initAblationTable() {
         this.style.background = 'rgba(0,0,0,0.05)';
         this.style.color = '#999';
         this.style.textDecoration = 'line-through';
+        this.style.transform = 'scale(0.98)';
       }
       updateScores();
     });
@@ -783,6 +805,7 @@ function initAblationTable() {
       if (removedFeature !== feature) {
         this.style.background = 'rgba(0,0,0,0.02)';
         this.style.borderColor = 'rgba(0,0,0,0.2)';
+        this.style.transform = 'scale(1.02)';
       }
     });
     
@@ -790,6 +813,7 @@ function initAblationTable() {
       if (removedFeature !== feature) {
         this.style.background = 'white';
         this.style.borderColor = 'rgba(0,0,0,0.15)';
+        this.style.transform = 'scale(1)';
       }
     });
     
@@ -886,8 +910,11 @@ function createScoresPlot() {
     
     modalIframe.src = embedUrl;
     
-    // Show modal
+    // Show modal with smooth animation
     modal.style.display = 'flex';
+    // Force reflow to trigger animation
+    void modal.offsetWidth;
+    modal.style.opacity = '1';
   }
   
   // Load scores data - try both relative and absolute paths
@@ -1373,10 +1400,17 @@ document.addEventListener('DOMContentLoaded', function() {
   if (copyBtn && citationText) {
     copyBtn.addEventListener('click', function() {
       const text = citationText.textContent;
+      // Add click animation
+      this.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        this.style.transform = 'scale(1)';
+      }, 150);
+      
       navigator.clipboard.writeText(text).then(function() {
         const originalText = copyBtn.textContent;
         copyBtn.textContent = 'Copied!';
         copyBtn.style.background = 'rgba(0,0,0,0.05)';
+        copyBtn.style.transform = 'scale(1)';
         setTimeout(function() {
           copyBtn.textContent = originalText;
           copyBtn.style.background = 'white';
@@ -1403,4 +1437,21 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+  
+  // Add smooth scroll behavior for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      const href = this.getAttribute('href');
+      if (href !== '#' && href.length > 1) {
+        e.preventDefault();
+        const target = document.querySelector(href);
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }
+      }
+    });
+  });
 });
