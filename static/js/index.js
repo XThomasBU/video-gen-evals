@@ -258,12 +258,18 @@ function createTSNEPlot() {
         responsive: true
       };
       
-      // Store original traces for filtering
+      // Store original traces and ranges for filtering
       window.tsneTraces = allTraces;
       window.tsneClasses = classes;
       window.tsneModels = uniquePrettyModels;
       window.tsneColorMap = colorMap;
       window.tsneModelMarkers = MODEL_MARKERS;
+      const tsneRanges = {
+        xMin: xMin - xPadding,
+        xMax: xMax + xPadding,
+        yMin: yMin - yPadding,
+        yMax: yMax + yPadding
+      };
       
       // Google Drive folder URL
       const GOOGLE_DRIVE_FOLDER = 'https://drive.google.com/drive/u/0/folders/1-VP6Rdr4qDNJ8k3IU2XcRbR85YIfqrRY';
@@ -376,7 +382,15 @@ function createTSNEPlot() {
             return true;
           });
           
-          Plotly.restyle('tsne-plot', { visible: visibility });
+          Plotly.restyle('tsne-plot', { visible: visibility }).then(function() {
+            // Ensure ranges stay fixed after restyle
+            Plotly.relayout('tsne-plot', {
+              'xaxis.range': [tsneRanges.xMin, tsneRanges.xMax],
+              'yaxis.range': [tsneRanges.yMin, tsneRanges.yMax],
+              'xaxis.fixedrange': true,
+              'yaxis.fixedrange': true
+            });
+          });
           
           // Update button states
           if (allClassButton) {
@@ -996,13 +1010,24 @@ function createScoresPlot() {
         responsive: true
       };
       
-      // Store traces for filtering
+      // Store traces and ranges for filtering
       window.scoresTraces = traces;
+      const scoresRanges = {
+        xMin: xMin - xPadding,
+        xMax: xMax + xPadding,
+        yMin: yMin - yPadding,
+        yMax: yMax + yPadding
+      };
       
       // Create plot
       Plotly.newPlot('scores-plot', traces, layout, config).then(function() {
         // Add click handler to show video in modal
         const plotDiv = document.getElementById('scores-plot');
+        if (!plotDiv) {
+          console.error('scores-plot element not found');
+          return;
+        }
+        
         plotDiv.on('plotly_click', function(data) {
           if (data.points && data.points.length > 0) {
             const point = data.points[0];
@@ -1038,7 +1063,15 @@ function createScoresPlot() {
             return true;
           });
           
-          Plotly.restyle('scores-plot', { visible: visibility });
+          Plotly.restyle('scores-plot', { visible: visibility }).then(function() {
+            // Ensure ranges stay fixed after restyle
+            Plotly.relayout('scores-plot', {
+              'xaxis.range': [scoresRanges.xMin, scoresRanges.xMax],
+              'yaxis.range': [scoresRanges.yMin, scoresRanges.yMax],
+              'xaxis.fixedrange': true,
+              'yaxis.fixedrange': true
+            });
+          });
           
           // Update button states
           if (allClassButton) {
@@ -1259,7 +1292,9 @@ document.addEventListener('DOMContentLoaded', function() {
   initAblationTable();
   
   // Initialize scores plot
-  createScoresPlot();
+  if (document.getElementById('scores-plot')) {
+    createScoresPlot();
+  }
   
   // Initialize citation copy button
   const copyBtn = document.getElementById('copy-citation-btn');
