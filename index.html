@@ -31,6 +31,7 @@
   <script defer src="static/js/fontawesome.all.min.js"></script>
   <script src="static/js/bulma-carousel.min.js"></script>
   <script src="static/js/bulma-slider.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
   <script src="static/js/index.js"></script>
 </head>
 <body>
@@ -186,10 +187,24 @@
     <div class="columns is-centered has-text-centered">
       <div class="column is-four-fifths">
         <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333;">
-          Key idea: Judge realism by looking at how real humans perform an action
+          <strong>Key idea</strong>: Judge realism by looking at how <strong>real humans</strong> perform an action
         </h2>
         <div style="margin-top: 2rem;">
-          <img src="static/images/hero.pdf" alt="Key Idea visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <img src="static/images/hero.pdf" alt="Key Idea visualization" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+        </div>
+        
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-top: 4rem; margin-bottom: 1.5rem; color: #333;">
+          Break human motion down to its <strong>intrinsics</strong>
+        </h2>
+        <div style="margin-top: 2rem; margin-bottom: 5rem;">
+          <img src="static/images/Temp-pages-intrinsics-2.pdf" alt="Break human motion down to its intrinsics" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+        </div>
+        
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-top: 4.5rem; margin-bottom: 1.5rem; color: #333;">
+          Use these <strong>ingredients</strong> to <strong>learn what constitutes an action</strong>
+        </h2>
+        <div style="margin-top: 2rem;">
+          <img src="static/images/Temp-pages-encoder-2.pdf" alt="Encoder visualization" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
         </div>
       </div>
     </div>
@@ -273,7 +288,7 @@
           Metrics
         </h2>
         <div style="margin-top: 2rem;">
-          <img src="static/images/Temp-metrics.pdf" alt="Metrics visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <img src="static/images/Temp-metrics.pdf" alt="Metrics visualization" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
         </div>
       </div>
     </div>
@@ -293,33 +308,96 @@
           Results
         </h2>
         <div style="margin-top: 2rem;">
-          <img src="static/images/barplot_action_consistency.pdf" alt="Action consistency barplot" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
-          <img src="static/images/barplot_temporal_coherence.pdf" alt="Temporal coherence barplot" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          <img src="static/images/barplot_action_consistency.pdf" alt="Action consistency barplot" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
+          <img src="static/images/barplot_temporal_coherence.pdf" alt="Temporal coherence barplot" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 2.5rem;" />
           
           <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">
             Overall model performance (win ratios)
           </h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2.5rem;">
             <div>
-              <img src="static/images/vbench_cons.pdf" alt="Action Consistency" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
+              <img src="static/images/vbench_cons.pdf" alt="Action Consistency" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
               <p style="text-align: center; color: #666; font-weight: 400; font-size: 0.95rem; margin: 0;">Action Consistency</p>
             </div>
             <div>
-              <img src="static/images/vbench_temp.pdf" alt="Temporal Coherence" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
+              <img src="static/images/vbench_temp.pdf" alt="Temporal Coherence" style="width: 110%; height: auto; margin-left: -5%; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden; margin-bottom: 0.75rem;" />
               <p style="text-align: center; color: #666; font-weight: 400; font-size: 0.95rem; margin: 0;">Temporal Coherence</p>
             </div>
           </div>
           
           <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 3rem; color: #333; text-align: center;">Are some actions universally easy / hard to generate?</h3>
-          <img src="static/images/tsne_gen_vs_real_centroids_no_train-2.pdf" alt="Results visualization" style="width: 100%; height: auto; border-radius: 2px; image-rendering: -webkit-optimize-contrast; transform: translateZ(0); -webkit-backface-visibility: hidden; backface-visibility: hidden;" />
+          <div id="tsne-plot" style="width: 110%; margin-left: -5%; position: relative; min-height: 700px;"></div>
           <p style="color: #6D5BBD; text-align: center; margin-top: 1rem; font-size: 0.95rem;">Push-ups is relatively easy for all models<br>(generated video embeddings lie close to the centroid of real video embeddings)</p>
           <p style="color: #AA7942; text-align: center; margin-top: 0.5rem; font-size: 0.95rem;">Shot put is hard<br>(generated video embeddings lie far away from the centroid of real video embeddings)</p>
+          
+          <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 4rem; color: #333; text-align: center;">Are all input features required?</h3>
+          <div style="display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 2rem;">
+            <div id="ablation-interactive" style="max-width: 600px; width: 100%;">
+              <!-- Feature selection -->
+              <div style="margin-bottom: 2rem;">
+                <div style="font-weight: 300; color: #666; font-size: 0.95rem; margin-bottom: 1rem; text-align: center;">Click features to remove them</div>
+                <div id="feature-list" style="display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center;">
+                  <!-- Features will be populated by JavaScript -->
+                </div>
+              </div>
+              
+              <!-- Results display -->
+              <div id="ablation-results" style="text-align: center; padding: 2rem; background: rgba(0,0,0,0.02); border-radius: 12px; transition: all 0.3s ease;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                  <div>
+                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; font-weight: 300;">Action Consistency</div>
+                    <div id="score-consistency" style="font-size: 2rem; font-weight: 700; color: #333; letter-spacing: -0.02em;">0.61</div>
+                    <div id="drop-consistency" style="font-size: 0.85rem; color: #999; margin-top: 0.25rem; font-weight: 300;"></div>
+                  </div>
+                  <div>
+                    <div style="font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; font-weight: 300;">Temporal Coherence</div>
+                    <div id="score-coherence" style="font-size: 2rem; font-weight: 700; color: #333; letter-spacing: -0.02em;">0.64</div>
+                    <div id="drop-coherence" style="font-size: 0.85rem; color: #999; margin-top: 0.25rem; font-weight: 300;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #666; line-height: 1.6; max-width: 800px; margin-left: auto; margin-right: auto; font-weight: 300; letter-spacing: 0.01em;">
+            <strong style="font-weight: 700; color: #333;">Effect of each input feature.</strong> We report Spearman's correlation (ρ) with human scores after zeroing each input feature independently. Models are retrained from scratch for each setting. "Motion" denotes temporal derivatives of all inputs. Removing motion causes the largest degradation.
+          </p>
         </div>
       </div>
     </div>
   </div>
 </section>
 <!-- End Results section -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
+
+<!-- Citation section -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4" style="font-weight: 700; letter-spacing: -0.01em; margin-bottom: 1.5rem; color: #333; text-align: center;">
+          Citation
+        </h2>
+        <div style="background: rgba(0,0,0,0.02); border-radius: 8px; padding: 1.5rem; margin-top: 1.5rem; position: relative;">
+          <button id="copy-citation-btn" style="position: absolute; top: 1rem; right: 1rem; padding: 0.4rem 0.8rem; background: white; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; cursor: pointer; font-family: 'Noto Sans', sans-serif; font-weight: 300; font-size: 0.85rem; color: #333; letter-spacing: 0.01em; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.02)'" onmouseout="this.style.background='white'">
+            Copy
+          </button>
+          <pre id="citation-text" style="font-family: 'Noto Sans', sans-serif; font-size: 0.85rem; line-height: 1.6; color: #333; margin: 0; padding-right: 4rem; white-space: pre-wrap; word-wrap: break-word; font-weight: 300; letter-spacing: 0.01em;">@misc{thomas2025generativeactiontelltalesassessing,
+      title={Generative Action Tell-Tales: Assessing Human Motion in Synthesized Videos}, 
+      author={Xavier Thomas and Youngsun Lim and Ananya Srinivasan and Audrey Zheng and Deepti Ghadiyaram},
+      year={2025},
+      eprint={2512.01803},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2512.01803}, 
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Citation section -->
 
 <!-- Section divider -->
 <div class="section-divider"></div>

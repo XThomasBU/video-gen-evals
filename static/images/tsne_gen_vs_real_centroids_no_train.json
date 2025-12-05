@@ -1,0 +1,2387 @@
+[
+  {
+    "index": 0,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_01_08d40ea1.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": 7.3556952476501465,
+    "y": -7.204959869384766,
+    "kind": "gen"
+  },
+  {
+    "index": 1,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_02_16fedfb4.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": 5.722522735595703,
+    "y": -6.732622146606445,
+    "kind": "gen"
+  },
+  {
+    "index": 2,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_03_88c332fc.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": -2.9390368461608887,
+    "y": 1.3802953958511353,
+    "kind": "gen"
+  },
+  {
+    "index": 3,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_04_3baca80d.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": 6.139540672302246,
+    "y": -6.201366424560547,
+    "kind": "gen"
+  },
+  {
+    "index": 4,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_05_ffda8f1d.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": 4.713089466094971,
+    "y": -6.657688617706299,
+    "kind": "gen"
+  },
+  {
+    "index": 5,
+    "video_id": "Hunyuan_videos_BodyWeightSquats_06_1337a14b.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Hunyuan",
+    "x": 1.1318540573120117,
+    "y": -0.5154295563697815,
+    "kind": "gen"
+  },
+  {
+    "index": 6,
+    "video_id": "Hunyuan_videos_HulaHoop_01_0b048d15.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": -4.015664577484131,
+    "y": 6.95053768157959,
+    "kind": "gen"
+  },
+  {
+    "index": 7,
+    "video_id": "Hunyuan_videos_HulaHoop_02_13da5d63.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": -4.610720634460449,
+    "y": 7.016031265258789,
+    "kind": "gen"
+  },
+  {
+    "index": 8,
+    "video_id": "Hunyuan_videos_HulaHoop_03_0a427fad.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": -2.367076873779297,
+    "y": 3.7152953147888184,
+    "kind": "gen"
+  },
+  {
+    "index": 9,
+    "video_id": "Hunyuan_videos_HulaHoop_04_9fee46c2.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": -3.174398183822632,
+    "y": 7.925839900970459,
+    "kind": "gen"
+  },
+  {
+    "index": 10,
+    "video_id": "Hunyuan_videos_HulaHoop_05_8e657567.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": 0.017250284552574158,
+    "y": 0.3659500479698181,
+    "kind": "gen"
+  },
+  {
+    "index": 11,
+    "video_id": "Hunyuan_videos_HulaHoop_06_d78c5d93.mp4",
+    "class": "HulaHoop",
+    "model": "Hunyuan",
+    "x": -6.416532516479492,
+    "y": -1.587561011314392,
+    "kind": "gen"
+  },
+  {
+    "index": 12,
+    "video_id": "Hunyuan_videos_JumpingJack_01_68d301af.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": 0.44080960750579834,
+    "y": 5.0776753425598145,
+    "kind": "gen"
+  },
+  {
+    "index": 13,
+    "video_id": "Hunyuan_videos_JumpingJack_02_36e022c0.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": -0.20211884379386902,
+    "y": 1.1281623840332031,
+    "kind": "gen"
+  },
+  {
+    "index": 14,
+    "video_id": "Hunyuan_videos_JumpingJack_03_0de0f8f8.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": 0.012527523562312126,
+    "y": 1.9635553359985352,
+    "kind": "gen"
+  },
+  {
+    "index": 15,
+    "video_id": "Hunyuan_videos_JumpingJack_04_91dddb7e.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": -0.04511350765824318,
+    "y": 4.038459300994873,
+    "kind": "gen"
+  },
+  {
+    "index": 16,
+    "video_id": "Hunyuan_videos_JumpingJack_05_28871043.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": 4.270715713500977,
+    "y": -5.599544048309326,
+    "kind": "gen"
+  },
+  {
+    "index": 17,
+    "video_id": "Hunyuan_videos_JumpingJack_06_9137a496.mp4",
+    "class": "JumpingJack",
+    "model": "Hunyuan",
+    "x": 6.957760810852051,
+    "y": -7.7681565284729,
+    "kind": "gen"
+  },
+  {
+    "index": 18,
+    "video_id": "Hunyuan_videos_PullUps_01_62d9a6d5.mp4",
+    "class": "PullUps",
+    "model": "Hunyuan",
+    "x": 13.245208740234375,
+    "y": 3.9850008487701416,
+    "kind": "gen"
+  },
+  {
+    "index": 19,
+    "video_id": "Hunyuan_videos_PullUps_02_d87a2478.mp4",
+    "class": "PullUps",
+    "model": "Hunyuan",
+    "x": 8.299362182617188,
+    "y": 8.246654510498047,
+    "kind": "gen"
+  },
+  {
+    "index": 20,
+    "video_id": "Hunyuan_videos_PullUps_03_ad01d9cc.mp4",
+    "class": "PullUps",
+    "model": "Hunyuan",
+    "x": 6.1588263511657715,
+    "y": 8.0891752243042,
+    "kind": "gen"
+  },
+  {
+    "index": 21,
+    "video_id": "Hunyuan_videos_PullUps_05_2bafb529.mp4",
+    "class": "PullUps",
+    "model": "Hunyuan",
+    "x": -2.821057081222534,
+    "y": 7.619639873504639,
+    "kind": "gen"
+  },
+  {
+    "index": 22,
+    "video_id": "Hunyuan_videos_PullUps_06_27b32002.mp4",
+    "class": "PullUps",
+    "model": "Hunyuan",
+    "x": 1.455208420753479,
+    "y": 5.313590049743652,
+    "kind": "gen"
+  },
+  {
+    "index": 23,
+    "video_id": "Hunyuan_videos_PushUps_01_be27b793.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 14.475685119628906,
+    "y": -4.889029502868652,
+    "kind": "gen"
+  },
+  {
+    "index": 24,
+    "video_id": "Hunyuan_videos_PushUps_02_f6efa427.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 14.761322021484375,
+    "y": -4.187280654907227,
+    "kind": "gen"
+  },
+  {
+    "index": 25,
+    "video_id": "Hunyuan_videos_PushUps_03_2d063f70.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 15.167707443237305,
+    "y": -4.187526226043701,
+    "kind": "gen"
+  },
+  {
+    "index": 26,
+    "video_id": "Hunyuan_videos_PushUps_04_870cd7b3.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 11.997733116149902,
+    "y": -5.48382043838501,
+    "kind": "gen"
+  },
+  {
+    "index": 27,
+    "video_id": "Hunyuan_videos_PushUps_05_05f546db.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 14.5883150100708,
+    "y": -4.268083095550537,
+    "kind": "gen"
+  },
+  {
+    "index": 28,
+    "video_id": "Hunyuan_videos_PushUps_06_a22fa5b2.mp4",
+    "class": "PushUps",
+    "model": "Hunyuan",
+    "x": 13.830629348754883,
+    "y": -4.301647186279297,
+    "kind": "gen"
+  },
+  {
+    "index": 29,
+    "video_id": "Hunyuan_videos_Shotput_01_32383339.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": 1.0016989707946777,
+    "y": -2.5358080863952637,
+    "kind": "gen"
+  },
+  {
+    "index": 30,
+    "video_id": "Hunyuan_videos_Shotput_02_daf8c2a3.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": 0.768027663230896,
+    "y": -5.8712077140808105,
+    "kind": "gen"
+  },
+  {
+    "index": 31,
+    "video_id": "Hunyuan_videos_Shotput_03_f382ad38.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": -9.4617338180542,
+    "y": -4.2181878089904785,
+    "kind": "gen"
+  },
+  {
+    "index": 32,
+    "video_id": "Hunyuan_videos_Shotput_04_8a03498f.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": -7.699739933013916,
+    "y": 1.7106797695159912,
+    "kind": "gen"
+  },
+  {
+    "index": 33,
+    "video_id": "Hunyuan_videos_Shotput_05_d33be2c6.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": -11.61225700378418,
+    "y": -7.578246593475342,
+    "kind": "gen"
+  },
+  {
+    "index": 34,
+    "video_id": "Hunyuan_videos_Shotput_06_688aa3f1.mp4",
+    "class": "Shotput",
+    "model": "Hunyuan",
+    "x": -14.055684089660645,
+    "y": -0.7834116816520691,
+    "kind": "gen"
+  },
+  {
+    "index": 35,
+    "video_id": "Hunyuan_videos_Soccerjuggling_01_d65dd9bc.mp4",
+    "class": "SoccerJuggling",
+    "model": "Hunyuan",
+    "x": -3.1814846992492676,
+    "y": -6.107460021972656,
+    "kind": "gen"
+  },
+  {
+    "index": 36,
+    "video_id": "Hunyuan_videos_Soccerjuggling_03_b9e4ccfb.mp4",
+    "class": "SoccerJuggling",
+    "model": "Hunyuan",
+    "x": -1.4491857290267944,
+    "y": -4.492563724517822,
+    "kind": "gen"
+  },
+  {
+    "index": 37,
+    "video_id": "Hunyuan_videos_Soccerjuggling_04_0a37734f.mp4",
+    "class": "SoccerJuggling",
+    "model": "Hunyuan",
+    "x": -2.5957348346710205,
+    "y": -6.016417503356934,
+    "kind": "gen"
+  },
+  {
+    "index": 38,
+    "video_id": "Hunyuan_videos_Soccerjuggling_05_7d3d922a.mp4",
+    "class": "SoccerJuggling",
+    "model": "Hunyuan",
+    "x": -1.8758808374404907,
+    "y": -4.74603271484375,
+    "kind": "gen"
+  },
+  {
+    "index": 39,
+    "video_id": "Hunyuan_videos_Soccerjuggling_06_0a886c54.mp4",
+    "class": "SoccerJuggling",
+    "model": "Hunyuan",
+    "x": -2.1991043090820312,
+    "y": -0.3367447555065155,
+    "kind": "gen"
+  },
+  {
+    "index": 40,
+    "video_id": "Hunyuan_videos_Tennisswing_01_a8b512c7.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -12.756327629089355,
+    "y": 0.8697106838226318,
+    "kind": "gen"
+  },
+  {
+    "index": 41,
+    "video_id": "Hunyuan_videos_Tennisswing_02_37b966f6.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -9.479825973510742,
+    "y": 4.4496307373046875,
+    "kind": "gen"
+  },
+  {
+    "index": 42,
+    "video_id": "Hunyuan_videos_Tennisswing_03_8a12d8b5.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -12.118975639343262,
+    "y": 0.427249550819397,
+    "kind": "gen"
+  },
+  {
+    "index": 43,
+    "video_id": "Hunyuan_videos_Tennisswing_04_91ded27c.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -9.571351051330566,
+    "y": 3.785433292388916,
+    "kind": "gen"
+  },
+  {
+    "index": 44,
+    "video_id": "Hunyuan_videos_Tennisswing_05_5efcfaee.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -12.75898551940918,
+    "y": 1.3397465944290161,
+    "kind": "gen"
+  },
+  {
+    "index": 45,
+    "video_id": "Hunyuan_videos_Tennisswing_06_bb80e7c4.mp4",
+    "class": "TennisSwing",
+    "model": "Hunyuan",
+    "x": -9.33322525024414,
+    "y": 1.9745283126831055,
+    "kind": "gen"
+  },
+  {
+    "index": 46,
+    "video_id": "Hunyuan_videos_ThrowDiscus_01_82a22401.mp4",
+    "class": "ThrowDiscus",
+    "model": "Hunyuan",
+    "x": -8.660120964050293,
+    "y": 3.330562114715576,
+    "kind": "gen"
+  },
+  {
+    "index": 47,
+    "video_id": "Hunyuan_videos_ThrowDiscus_02_fed4f169.mp4",
+    "class": "ThrowDiscus",
+    "model": "Hunyuan",
+    "x": -9.926072120666504,
+    "y": -2.62520170211792,
+    "kind": "gen"
+  },
+  {
+    "index": 48,
+    "video_id": "Hunyuan_videos_ThrowDiscus_03_49fd58cd.mp4",
+    "class": "ThrowDiscus",
+    "model": "Hunyuan",
+    "x": -10.063274383544922,
+    "y": -1.0771394968032837,
+    "kind": "gen"
+  },
+  {
+    "index": 49,
+    "video_id": "Hunyuan_videos_ThrowDiscus_05_20abe027.mp4",
+    "class": "ThrowDiscus",
+    "model": "Hunyuan",
+    "x": -14.006482124328613,
+    "y": -1.349586844444275,
+    "kind": "gen"
+  },
+  {
+    "index": 50,
+    "video_id": "Hunyuan_videos_ThrowDiscus_06_f9e2715d.mp4",
+    "class": "ThrowDiscus",
+    "model": "Hunyuan",
+    "x": -10.255668640136719,
+    "y": 0.6311838030815125,
+    "kind": "gen"
+  },
+  {
+    "index": 51,
+    "video_id": "Hunyuan_videos_WallPushups_01_6735a09e.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 14.299373626708984,
+    "y": -0.6487160325050354,
+    "kind": "gen"
+  },
+  {
+    "index": 52,
+    "video_id": "Hunyuan_videos_WallPushups_02_89bf331d.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 15.65709114074707,
+    "y": 1.8387972116470337,
+    "kind": "gen"
+  },
+  {
+    "index": 53,
+    "video_id": "Hunyuan_videos_WallPushups_03_ce7983dc.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 14.535781860351562,
+    "y": 1.306984782218933,
+    "kind": "gen"
+  },
+  {
+    "index": 54,
+    "video_id": "Hunyuan_videos_WallPushups_04_57ce405a.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 15.401719093322754,
+    "y": 2.6544368267059326,
+    "kind": "gen"
+  },
+  {
+    "index": 55,
+    "video_id": "Hunyuan_videos_WallPushups_05_73b46dc2.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 15.740044593811035,
+    "y": 1.9572649002075195,
+    "kind": "gen"
+  },
+  {
+    "index": 56,
+    "video_id": "Hunyuan_videos_WallPushups_06_7160fb8b.mp4",
+    "class": "WallPushups",
+    "model": "Hunyuan",
+    "x": 15.507261276245117,
+    "y": 2.3441460132598877,
+    "kind": "gen"
+  },
+  {
+    "index": 57,
+    "video_id": "Opensora_768_BodyWeightSquats_02_240aed12.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Opensora",
+    "x": 2.544157028198242,
+    "y": -3.5313069820404053,
+    "kind": "gen"
+  },
+  {
+    "index": 58,
+    "video_id": "Opensora_768_BodyWeightSquats_03_4851dc25.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Opensora",
+    "x": 6.078312873840332,
+    "y": -5.5467119216918945,
+    "kind": "gen"
+  },
+  {
+    "index": 59,
+    "video_id": "Opensora_768_BodyWeightSquats_04_fbfb6a1a.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Opensora",
+    "x": 1.0681865215301514,
+    "y": -3.9956717491149902,
+    "kind": "gen"
+  },
+  {
+    "index": 60,
+    "video_id": "Opensora_768_BodyWeightSquats_05_f31479e5.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Opensora",
+    "x": 5.760252475738525,
+    "y": -6.25433349609375,
+    "kind": "gen"
+  },
+  {
+    "index": 61,
+    "video_id": "Opensora_768_BodyWeightSquats_06_48e36083.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Opensora",
+    "x": 2.4289562702178955,
+    "y": 0.45472148060798645,
+    "kind": "gen"
+  },
+  {
+    "index": 62,
+    "video_id": "Opensora_768_HulaHoop_01_e57bc009.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -3.1425621509552,
+    "y": 4.185954570770264,
+    "kind": "gen"
+  },
+  {
+    "index": 63,
+    "video_id": "Opensora_768_HulaHoop_02_083e5e16.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -4.1219587326049805,
+    "y": 4.144888877868652,
+    "kind": "gen"
+  },
+  {
+    "index": 64,
+    "video_id": "Opensora_768_HulaHoop_03_8ab576a5.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -2.9584529399871826,
+    "y": 3.9607479572296143,
+    "kind": "gen"
+  },
+  {
+    "index": 65,
+    "video_id": "Opensora_768_HulaHoop_04_0bdf3a08.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -7.006760597229004,
+    "y": 3.1441965103149414,
+    "kind": "gen"
+  },
+  {
+    "index": 66,
+    "video_id": "Opensora_768_HulaHoop_05_531ccb86.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -6.775522232055664,
+    "y": 1.9103978872299194,
+    "kind": "gen"
+  },
+  {
+    "index": 67,
+    "video_id": "Opensora_768_HulaHoop_06_14a33e9e.mp4",
+    "class": "HulaHoop",
+    "model": "Opensora",
+    "x": -4.833018779754639,
+    "y": 2.041483163833618,
+    "kind": "gen"
+  },
+  {
+    "index": 68,
+    "video_id": "Opensora_768_JumpingJack_01_66318db4.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": -0.7748570442199707,
+    "y": 2.504833936691284,
+    "kind": "gen"
+  },
+  {
+    "index": 69,
+    "video_id": "Opensora_768_JumpingJack_02_2ae6723f.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": 0.9457581043243408,
+    "y": 3.027693748474121,
+    "kind": "gen"
+  },
+  {
+    "index": 70,
+    "video_id": "Opensora_768_JumpingJack_03_6c0e3503.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": 0.0730147585272789,
+    "y": 1.291134238243103,
+    "kind": "gen"
+  },
+  {
+    "index": 71,
+    "video_id": "Opensora_768_JumpingJack_04_751371c5.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": -3.070345163345337,
+    "y": -1.7450634241104126,
+    "kind": "gen"
+  },
+  {
+    "index": 72,
+    "video_id": "Opensora_768_JumpingJack_05_befb8f0c.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": -4.804464340209961,
+    "y": 4.076225280761719,
+    "kind": "gen"
+  },
+  {
+    "index": 73,
+    "video_id": "Opensora_768_JumpingJack_06_adf9f91c.mp4",
+    "class": "JumpingJack",
+    "model": "Opensora",
+    "x": -3.475430727005005,
+    "y": 3.003141164779663,
+    "kind": "gen"
+  },
+  {
+    "index": 74,
+    "video_id": "Opensora_768_PullUps_01_6c51761c.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 9.132465362548828,
+    "y": 8.996785163879395,
+    "kind": "gen"
+  },
+  {
+    "index": 75,
+    "video_id": "Opensora_768_PullUps_02_0930b95a.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 6.718859672546387,
+    "y": 8.847322463989258,
+    "kind": "gen"
+  },
+  {
+    "index": 76,
+    "video_id": "Opensora_768_PullUps_03_2daf3834.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 7.044827461242676,
+    "y": 9.830780982971191,
+    "kind": "gen"
+  },
+  {
+    "index": 77,
+    "video_id": "Opensora_768_PullUps_04_93fbc0f1.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 8.012154579162598,
+    "y": 9.885455131530762,
+    "kind": "gen"
+  },
+  {
+    "index": 78,
+    "video_id": "Opensora_768_PullUps_05_41a0f3bd.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 9.064273834228516,
+    "y": 9.513198852539062,
+    "kind": "gen"
+  },
+  {
+    "index": 79,
+    "video_id": "Opensora_768_PullUps_06_3e4cc58d.mp4",
+    "class": "PullUps",
+    "model": "Opensora",
+    "x": 5.943570137023926,
+    "y": 9.089167594909668,
+    "kind": "gen"
+  },
+  {
+    "index": 80,
+    "video_id": "Opensora_768_PushUps_03_124bba2d.mp4",
+    "class": "PushUps",
+    "model": "Opensora",
+    "x": 15.355487823486328,
+    "y": -4.52866792678833,
+    "kind": "gen"
+  },
+  {
+    "index": 81,
+    "video_id": "Opensora_768_PushUps_06_08a68f99.mp4",
+    "class": "PushUps",
+    "model": "Opensora",
+    "x": 15.182478904724121,
+    "y": -5.042494297027588,
+    "kind": "gen"
+  },
+  {
+    "index": 82,
+    "video_id": "Opensora_768_Shotput_01_11916263.mp4",
+    "class": "Shotput",
+    "model": "Opensora",
+    "x": -5.032216548919678,
+    "y": -4.138946056365967,
+    "kind": "gen"
+  },
+  {
+    "index": 83,
+    "video_id": "Opensora_768_Shotput_02_d712a6a5.mp4",
+    "class": "Shotput",
+    "model": "Opensora",
+    "x": -14.337776184082031,
+    "y": 1.347983479499817,
+    "kind": "gen"
+  },
+  {
+    "index": 84,
+    "video_id": "Opensora_768_Shotput_03_d2e17171.mp4",
+    "class": "Shotput",
+    "model": "Opensora",
+    "x": -5.769630432128906,
+    "y": -1.6658577919006348,
+    "kind": "gen"
+  },
+  {
+    "index": 85,
+    "video_id": "Opensora_768_Shotput_04_3e061e33.mp4",
+    "class": "Shotput",
+    "model": "Opensora",
+    "x": 6.588404178619385,
+    "y": -5.343362808227539,
+    "kind": "gen"
+  },
+  {
+    "index": 86,
+    "video_id": "Opensora_768_Shotput_05_5e12b84d.mp4",
+    "class": "Shotput",
+    "model": "Opensora",
+    "x": -9.346271514892578,
+    "y": -4.7211456298828125,
+    "kind": "gen"
+  },
+  {
+    "index": 87,
+    "video_id": "Opensora_768_Soccerjuggling_01_d04d7e41.mp4",
+    "class": "SoccerJuggling",
+    "model": "Opensora",
+    "x": -3.324761152267456,
+    "y": -3.1535184383392334,
+    "kind": "gen"
+  },
+  {
+    "index": 88,
+    "video_id": "Opensora_768_Soccerjuggling_03_01897670.mp4",
+    "class": "SoccerJuggling",
+    "model": "Opensora",
+    "x": -4.76225471496582,
+    "y": -3.7521581649780273,
+    "kind": "gen"
+  },
+  {
+    "index": 89,
+    "video_id": "Opensora_768_Soccerjuggling_04_18a5ef3e.mp4",
+    "class": "SoccerJuggling",
+    "model": "Opensora",
+    "x": -3.896717071533203,
+    "y": -4.3257856369018555,
+    "kind": "gen"
+  },
+  {
+    "index": 90,
+    "video_id": "Opensora_768_Soccerjuggling_06_b98c70ea.mp4",
+    "class": "SoccerJuggling",
+    "model": "Opensora",
+    "x": -1.8850927352905273,
+    "y": -0.7923652529716492,
+    "kind": "gen"
+  },
+  {
+    "index": 91,
+    "video_id": "Opensora_768_Tennisswing_01_4592ec5d.mp4",
+    "class": "TennisSwing",
+    "model": "Opensora",
+    "x": -6.025179862976074,
+    "y": 2.2235465049743652,
+    "kind": "gen"
+  },
+  {
+    "index": 92,
+    "video_id": "Opensora_768_Tennisswing_04_37efe5b6.mp4",
+    "class": "TennisSwing",
+    "model": "Opensora",
+    "x": -12.163131713867188,
+    "y": -0.021643321961164474,
+    "kind": "gen"
+  },
+  {
+    "index": 93,
+    "video_id": "Opensora_768_Tennisswing_05_1bf77fb7.mp4",
+    "class": "TennisSwing",
+    "model": "Opensora",
+    "x": -13.248113632202148,
+    "y": 0.6866750121116638,
+    "kind": "gen"
+  },
+  {
+    "index": 94,
+    "video_id": "Opensora_768_Tennisswing_06_30c9ec8f.mp4",
+    "class": "TennisSwing",
+    "model": "Opensora",
+    "x": -13.785079956054688,
+    "y": 0.5694540739059448,
+    "kind": "gen"
+  },
+  {
+    "index": 95,
+    "video_id": "Opensora_768_ThrowDiscus_01_2c0d7bfd.mp4",
+    "class": "ThrowDiscus",
+    "model": "Opensora",
+    "x": -11.764616012573242,
+    "y": -0.4380466938018799,
+    "kind": "gen"
+  },
+  {
+    "index": 96,
+    "video_id": "Opensora_768_ThrowDiscus_02_13954784.mp4",
+    "class": "ThrowDiscus",
+    "model": "Opensora",
+    "x": -10.390603065490723,
+    "y": -3.752209186553955,
+    "kind": "gen"
+  },
+  {
+    "index": 97,
+    "video_id": "Opensora_768_ThrowDiscus_03_a4328fd6.mp4",
+    "class": "ThrowDiscus",
+    "model": "Opensora",
+    "x": -10.97891616821289,
+    "y": -0.49299269914627075,
+    "kind": "gen"
+  },
+  {
+    "index": 98,
+    "video_id": "Opensora_768_ThrowDiscus_04_7d4c3099.mp4",
+    "class": "ThrowDiscus",
+    "model": "Opensora",
+    "x": -10.480498313903809,
+    "y": -5.937041759490967,
+    "kind": "gen"
+  },
+  {
+    "index": 99,
+    "video_id": "Opensora_768_ThrowDiscus_06_fe64e6e4.mp4",
+    "class": "ThrowDiscus",
+    "model": "Opensora",
+    "x": -12.242948532104492,
+    "y": -3.1041653156280518,
+    "kind": "gen"
+  },
+  {
+    "index": 100,
+    "video_id": "Opensora_768_WallPushups_01_ca2d3151.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 13.19668197631836,
+    "y": -0.11008033901453018,
+    "kind": "gen"
+  },
+  {
+    "index": 101,
+    "video_id": "Opensora_768_WallPushups_02_df41b139.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 14.938749313354492,
+    "y": 2.2132019996643066,
+    "kind": "gen"
+  },
+  {
+    "index": 102,
+    "video_id": "Opensora_768_WallPushups_03_135eddba.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 13.5005521774292,
+    "y": 0.26712462306022644,
+    "kind": "gen"
+  },
+  {
+    "index": 103,
+    "video_id": "Opensora_768_WallPushups_04_0945e41a.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 14.45537281036377,
+    "y": 0.058431532233953476,
+    "kind": "gen"
+  },
+  {
+    "index": 104,
+    "video_id": "Opensora_768_WallPushups_05_b0a4c545.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 16.15283203125,
+    "y": 2.9634969234466553,
+    "kind": "gen"
+  },
+  {
+    "index": 105,
+    "video_id": "Opensora_768_WallPushups_06_4802675c.mp4",
+    "class": "WallPushups",
+    "model": "Opensora",
+    "x": 13.86240005493164,
+    "y": 3.1625468730926514,
+    "kind": "gen"
+  },
+  {
+    "index": 106,
+    "video_id": "RunwayGen4_BodyWeightSquats_01_c1476478.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 7.1122918128967285,
+    "y": -6.738719463348389,
+    "kind": "gen"
+  },
+  {
+    "index": 107,
+    "video_id": "RunwayGen4_BodyWeightSquats_02_8aa27613.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 7.437440395355225,
+    "y": -6.151941776275635,
+    "kind": "gen"
+  },
+  {
+    "index": 108,
+    "video_id": "RunwayGen4_BodyWeightSquats_03_e330d8c2.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 7.2032318115234375,
+    "y": -5.432692527770996,
+    "kind": "gen"
+  },
+  {
+    "index": 109,
+    "video_id": "RunwayGen4_BodyWeightSquats_04_f4c10c1b.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 7.193244934082031,
+    "y": -5.931369781494141,
+    "kind": "gen"
+  },
+  {
+    "index": 110,
+    "video_id": "RunwayGen4_BodyWeightSquats_05_586c2759.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 6.5229597091674805,
+    "y": -6.119285583496094,
+    "kind": "gen"
+  },
+  {
+    "index": 111,
+    "video_id": "RunwayGen4_BodyWeightSquats_06_987dae31.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Runway Gen-4",
+    "x": 6.793477535247803,
+    "y": -5.644580364227295,
+    "kind": "gen"
+  },
+  {
+    "index": 112,
+    "video_id": "RunwayGen4_HulaHoop_01_386e724e.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -3.677628517150879,
+    "y": 6.941112041473389,
+    "kind": "gen"
+  },
+  {
+    "index": 113,
+    "video_id": "RunwayGen4_HulaHoop_02_3dc2da40.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -3.269770860671997,
+    "y": 7.232544898986816,
+    "kind": "gen"
+  },
+  {
+    "index": 114,
+    "video_id": "RunwayGen4_HulaHoop_03_6081e23f.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -4.370903491973877,
+    "y": 7.212530612945557,
+    "kind": "gen"
+  },
+  {
+    "index": 115,
+    "video_id": "RunwayGen4_HulaHoop_04_92589630.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -2.400028705596924,
+    "y": 2.922804594039917,
+    "kind": "gen"
+  },
+  {
+    "index": 116,
+    "video_id": "RunwayGen4_HulaHoop_05_e288ca8f.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -3.305450201034546,
+    "y": 2.3208789825439453,
+    "kind": "gen"
+  },
+  {
+    "index": 117,
+    "video_id": "RunwayGen4_HulaHoop_06_deb18b9d.mp4",
+    "class": "HulaHoop",
+    "model": "Runway Gen-4",
+    "x": -1.595914363861084,
+    "y": 3.1260955333709717,
+    "kind": "gen"
+  },
+  {
+    "index": 118,
+    "video_id": "RunwayGen4_JumpingJack_01_06eec439.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": -1.3403851985931396,
+    "y": 4.593378067016602,
+    "kind": "gen"
+  },
+  {
+    "index": 119,
+    "video_id": "RunwayGen4_JumpingJack_02_1ce3fa83.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": -2.017245054244995,
+    "y": 3.0124146938323975,
+    "kind": "gen"
+  },
+  {
+    "index": 120,
+    "video_id": "RunwayGen4_JumpingJack_03_4581452a.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": 2.8238673210144043,
+    "y": 8.167558670043945,
+    "kind": "gen"
+  },
+  {
+    "index": 121,
+    "video_id": "RunwayGen4_JumpingJack_04_318adee0.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": -3.9102208614349365,
+    "y": 4.0016961097717285,
+    "kind": "gen"
+  },
+  {
+    "index": 122,
+    "video_id": "RunwayGen4_JumpingJack_05_d23839a8.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": -1.5163429975509644,
+    "y": 3.9248287677764893,
+    "kind": "gen"
+  },
+  {
+    "index": 123,
+    "video_id": "RunwayGen4_JumpingJack_06_303e0ca0.mp4",
+    "class": "JumpingJack",
+    "model": "Runway Gen-4",
+    "x": -0.15509910881519318,
+    "y": 3.7114968299865723,
+    "kind": "gen"
+  },
+  {
+    "index": 124,
+    "video_id": "RunwayGen4_PullUps_01_a33de3b1.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 8.454626083374023,
+    "y": 9.016865730285645,
+    "kind": "gen"
+  },
+  {
+    "index": 125,
+    "video_id": "RunwayGen4_PullUps_02_36dd721e.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 7.424220085144043,
+    "y": 9.167545318603516,
+    "kind": "gen"
+  },
+  {
+    "index": 126,
+    "video_id": "RunwayGen4_PullUps_03_56724bec.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 7.317261219024658,
+    "y": 8.791677474975586,
+    "kind": "gen"
+  },
+  {
+    "index": 127,
+    "video_id": "RunwayGen4_PullUps_04_96757669.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 8.07943058013916,
+    "y": 9.612753868103027,
+    "kind": "gen"
+  },
+  {
+    "index": 128,
+    "video_id": "RunwayGen4_PullUps_05_ee3f4c96.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 8.715446472167969,
+    "y": 9.942261695861816,
+    "kind": "gen"
+  },
+  {
+    "index": 129,
+    "video_id": "RunwayGen4_PullUps_06_8ca9f347.mp4",
+    "class": "PullUps",
+    "model": "Runway Gen-4",
+    "x": 7.776052951812744,
+    "y": 9.828225135803223,
+    "kind": "gen"
+  },
+  {
+    "index": 130,
+    "video_id": "RunwayGen4_PushUps_01_b985f8b4.mp4",
+    "class": "PushUps",
+    "model": "Runway Gen-4",
+    "x": 14.487334251403809,
+    "y": -5.473110198974609,
+    "kind": "gen"
+  },
+  {
+    "index": 131,
+    "video_id": "RunwayGen4_PushUps_02_582e8a8f.mp4",
+    "class": "PushUps",
+    "model": "Runway Gen-4",
+    "x": 15.540597915649414,
+    "y": -5.057324409484863,
+    "kind": "gen"
+  },
+  {
+    "index": 132,
+    "video_id": "RunwayGen4_PushUps_03_8c53eed6.mp4",
+    "class": "PushUps",
+    "model": "Runway Gen-4",
+    "x": 15.10823917388916,
+    "y": -5.595921993255615,
+    "kind": "gen"
+  },
+  {
+    "index": 133,
+    "video_id": "RunwayGen4_PushUps_04_86eceef3.mp4",
+    "class": "PushUps",
+    "model": "Runway Gen-4",
+    "x": 15.510063171386719,
+    "y": -4.8554792404174805,
+    "kind": "gen"
+  },
+  {
+    "index": 134,
+    "video_id": "RunwayGen4_Shotput_02_455cfce3.mp4",
+    "class": "Shotput",
+    "model": "Runway Gen-4",
+    "x": 0.4184708893299103,
+    "y": -2.452892780303955,
+    "kind": "gen"
+  },
+  {
+    "index": 135,
+    "video_id": "RunwayGen4_Shotput_03_a04022d8.mp4",
+    "class": "Shotput",
+    "model": "Runway Gen-4",
+    "x": -11.374298095703125,
+    "y": -7.195099353790283,
+    "kind": "gen"
+  },
+  {
+    "index": 136,
+    "video_id": "RunwayGen4_Shotput_04_cce5438f.mp4",
+    "class": "Shotput",
+    "model": "Runway Gen-4",
+    "x": -10.659314155578613,
+    "y": -4.576777935028076,
+    "kind": "gen"
+  },
+  {
+    "index": 137,
+    "video_id": "RunwayGen4_Shotput_05_26ec7ac5.mp4",
+    "class": "Shotput",
+    "model": "Runway Gen-4",
+    "x": 1.3420557975769043,
+    "y": -0.9102753400802612,
+    "kind": "gen"
+  },
+  {
+    "index": 138,
+    "video_id": "RunwayGen4_Shotput_06_61377774.mp4",
+    "class": "Shotput",
+    "model": "Runway Gen-4",
+    "x": -10.289328575134277,
+    "y": -6.287017345428467,
+    "kind": "gen"
+  },
+  {
+    "index": 139,
+    "video_id": "RunwayGen4_SoccerJuggling_01_0461b27e.mp4",
+    "class": "SoccerJuggling",
+    "model": "Runway Gen-4",
+    "x": -1.3168995380401611,
+    "y": -3.6799678802490234,
+    "kind": "gen"
+  },
+  {
+    "index": 140,
+    "video_id": "RunwayGen4_SoccerJuggling_03_e6166d75.mp4",
+    "class": "SoccerJuggling",
+    "model": "Runway Gen-4",
+    "x": -0.5053962469100952,
+    "y": -3.8262038230895996,
+    "kind": "gen"
+  },
+  {
+    "index": 141,
+    "video_id": "RunwayGen4_SoccerJuggling_05_2215e29d.mp4",
+    "class": "SoccerJuggling",
+    "model": "Runway Gen-4",
+    "x": -1.489747166633606,
+    "y": -2.8175814151763916,
+    "kind": "gen"
+  },
+  {
+    "index": 142,
+    "video_id": "RunwayGen4_SoccerJuggling_06_15022cab.mp4",
+    "class": "SoccerJuggling",
+    "model": "Runway Gen-4",
+    "x": -1.8484718799591064,
+    "y": -3.105426788330078,
+    "kind": "gen"
+  },
+  {
+    "index": 143,
+    "video_id": "RunwayGen4_TennisSwing_01_8c670248.mp4",
+    "class": "TennisSwing",
+    "model": "Runway Gen-4",
+    "x": -10.961554527282715,
+    "y": 0.6860249042510986,
+    "kind": "gen"
+  },
+  {
+    "index": 144,
+    "video_id": "RunwayGen4_TennisSwing_02_64a15481.mp4",
+    "class": "TennisSwing",
+    "model": "Runway Gen-4",
+    "x": -8.22530746459961,
+    "y": 1.1549540758132935,
+    "kind": "gen"
+  },
+  {
+    "index": 145,
+    "video_id": "RunwayGen4_TennisSwing_04_178eaa46.mp4",
+    "class": "TennisSwing",
+    "model": "Runway Gen-4",
+    "x": -11.979204177856445,
+    "y": 2.345263719558716,
+    "kind": "gen"
+  },
+  {
+    "index": 146,
+    "video_id": "RunwayGen4_TennisSwing_05_11e62665.mp4",
+    "class": "TennisSwing",
+    "model": "Runway Gen-4",
+    "x": -10.273681640625,
+    "y": 1.1438186168670654,
+    "kind": "gen"
+  },
+  {
+    "index": 147,
+    "video_id": "RunwayGen4_TennisSwing_06_0b0c0499.mp4",
+    "class": "TennisSwing",
+    "model": "Runway Gen-4",
+    "x": -13.180063247680664,
+    "y": -0.35026025772094727,
+    "kind": "gen"
+  },
+  {
+    "index": 148,
+    "video_id": "RunwayGen4_ThrowDiscus_01_79c4ce29.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -0.23710937798023224,
+    "y": -2.4288575649261475,
+    "kind": "gen"
+  },
+  {
+    "index": 149,
+    "video_id": "RunwayGen4_ThrowDiscus_02_c2a20010.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -10.982209205627441,
+    "y": -3.1854381561279297,
+    "kind": "gen"
+  },
+  {
+    "index": 150,
+    "video_id": "RunwayGen4_ThrowDiscus_03_eb4d0c41.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -9.313844680786133,
+    "y": -2.418846607208252,
+    "kind": "gen"
+  },
+  {
+    "index": 151,
+    "video_id": "RunwayGen4_ThrowDiscus_04_a9559b18.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -8.83928394317627,
+    "y": -0.5088374614715576,
+    "kind": "gen"
+  },
+  {
+    "index": 152,
+    "video_id": "RunwayGen4_ThrowDiscus_05_574342ae.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -11.326493263244629,
+    "y": -4.376548767089844,
+    "kind": "gen"
+  },
+  {
+    "index": 153,
+    "video_id": "RunwayGen4_ThrowDiscus_06_96ee399f.mp4",
+    "class": "ThrowDiscus",
+    "model": "Runway Gen-4",
+    "x": -9.607439041137695,
+    "y": -2.8740832805633545,
+    "kind": "gen"
+  },
+  {
+    "index": 154,
+    "video_id": "RunwayGen4_WallPushups_01_a09ec727.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 14.820706367492676,
+    "y": 1.9142838716506958,
+    "kind": "gen"
+  },
+  {
+    "index": 155,
+    "video_id": "RunwayGen4_WallPushups_02_bd228306.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 8.716230392456055,
+    "y": -6.976006507873535,
+    "kind": "gen"
+  },
+  {
+    "index": 156,
+    "video_id": "RunwayGen4_WallPushups_03_1fb482ac.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 8.030900001525879,
+    "y": -5.841245174407959,
+    "kind": "gen"
+  },
+  {
+    "index": 157,
+    "video_id": "RunwayGen4_WallPushups_04_44dc1c12.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 14.139378547668457,
+    "y": 1.8087362051010132,
+    "kind": "gen"
+  },
+  {
+    "index": 158,
+    "video_id": "RunwayGen4_WallPushups_05_a5b2ac15.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 14.758752822875977,
+    "y": 2.8459882736206055,
+    "kind": "gen"
+  },
+  {
+    "index": 159,
+    "video_id": "RunwayGen4_WallPushups_06_ab4d90d7.mp4",
+    "class": "WallPushups",
+    "model": "Runway Gen-4",
+    "x": 13.048688888549805,
+    "y": 0.4467847943305969,
+    "kind": "gen"
+  },
+  {
+    "index": 160,
+    "video_id": "Wan2.2_BodyWeightSquats_01_g01_c01.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.2",
+    "x": 7.397636890411377,
+    "y": -6.380845069885254,
+    "kind": "gen"
+  },
+  {
+    "index": 161,
+    "video_id": "Wan2.2_BodyWeightSquats_02_g05_c01.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.2",
+    "x": 6.693666934967041,
+    "y": -7.0091776847839355,
+    "kind": "gen"
+  },
+  {
+    "index": 162,
+    "video_id": "Wan2.2_BodyWeightSquats_03_g09_c02.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.2",
+    "x": 6.968893527984619,
+    "y": -6.814281463623047,
+    "kind": "gen"
+  },
+  {
+    "index": 163,
+    "video_id": "Wan2.2_BodyWeightSquats_05_g19_c02.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.2",
+    "x": -11.277996063232422,
+    "y": 3.3647983074188232,
+    "kind": "gen"
+  },
+  {
+    "index": 164,
+    "video_id": "Wan2.2_BodyWeightSquats_06_g19_c03.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.2",
+    "x": 0.7601767778396606,
+    "y": -3.8490986824035645,
+    "kind": "gen"
+  },
+  {
+    "index": 165,
+    "video_id": "Wan2.2_HulaHoop_01_g02_c01.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": -0.9096773266792297,
+    "y": 3.609316110610962,
+    "kind": "gen"
+  },
+  {
+    "index": 166,
+    "video_id": "Wan2.2_HulaHoop_02_g02_c03.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": -4.031606197357178,
+    "y": 7.173316955566406,
+    "kind": "gen"
+  },
+  {
+    "index": 167,
+    "video_id": "Wan2.2_HulaHoop_03_g07_c01.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": -0.1287940889596939,
+    "y": 4.176701545715332,
+    "kind": "gen"
+  },
+  {
+    "index": 168,
+    "video_id": "Wan2.2_HulaHoop_04_g07_c02.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": -1.552452564239502,
+    "y": 4.018284797668457,
+    "kind": "gen"
+  },
+  {
+    "index": 169,
+    "video_id": "Wan2.2_HulaHoop_05_g07_c05.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": -3.2301766872406006,
+    "y": 3.0544779300689697,
+    "kind": "gen"
+  },
+  {
+    "index": 170,
+    "video_id": "Wan2.2_HulaHoop_06_g09_c01.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.2",
+    "x": 0.8247499465942383,
+    "y": 5.062053680419922,
+    "kind": "gen"
+  },
+  {
+    "index": 171,
+    "video_id": "Wan2.2_JumpingJack_01_g05_c03.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": -5.254210472106934,
+    "y": -0.6556779742240906,
+    "kind": "gen"
+  },
+  {
+    "index": 172,
+    "video_id": "Wan2.2_JumpingJack_02_g07_c01.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": 3.321523904800415,
+    "y": 8.6221342086792,
+    "kind": "gen"
+  },
+  {
+    "index": 173,
+    "video_id": "Wan2.2_JumpingJack_03_g09_c02.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": 3.077285051345825,
+    "y": 8.467083930969238,
+    "kind": "gen"
+  },
+  {
+    "index": 174,
+    "video_id": "Wan2.2_JumpingJack_04_g13_c02.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": 4.050160884857178,
+    "y": 8.806654930114746,
+    "kind": "gen"
+  },
+  {
+    "index": 175,
+    "video_id": "Wan2.2_JumpingJack_05_g14_c01.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": 3.3367538452148438,
+    "y": 8.819092750549316,
+    "kind": "gen"
+  },
+  {
+    "index": 176,
+    "video_id": "Wan2.2_JumpingJack_06_g16_c01.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.2",
+    "x": 3.1741943359375,
+    "y": 8.669807434082031,
+    "kind": "gen"
+  },
+  {
+    "index": 177,
+    "video_id": "Wan2.2_PullUps_01_g02_c01.mp4",
+    "class": "PullUps",
+    "model": "Wan2.2",
+    "x": 7.776241779327393,
+    "y": 8.412995338439941,
+    "kind": "gen"
+  },
+  {
+    "index": 178,
+    "video_id": "Wan2.2_PullUps_02_g05_c02.mp4",
+    "class": "PullUps",
+    "model": "Wan2.2",
+    "x": 8.095736503601074,
+    "y": 8.73420238494873,
+    "kind": "gen"
+  },
+  {
+    "index": 179,
+    "video_id": "Wan2.2_PullUps_03_g10_c01.mp4",
+    "class": "PullUps",
+    "model": "Wan2.2",
+    "x": 7.482781887054443,
+    "y": 9.236310958862305,
+    "kind": "gen"
+  },
+  {
+    "index": 180,
+    "video_id": "Wan2.2_PullUps_05_g17_c03.mp4",
+    "class": "PullUps",
+    "model": "Wan2.2",
+    "x": 7.932818412780762,
+    "y": 9.08426570892334,
+    "kind": "gen"
+  },
+  {
+    "index": 181,
+    "video_id": "Wan2.2_PullUps_06_g19_c01.mp4",
+    "class": "PullUps",
+    "model": "Wan2.2",
+    "x": 8.829951286315918,
+    "y": 8.94305419921875,
+    "kind": "gen"
+  },
+  {
+    "index": 182,
+    "video_id": "Wan2.2_PushUps_01_g01_c01.mp4",
+    "class": "PushUps",
+    "model": "Wan2.2",
+    "x": 14.827945709228516,
+    "y": -5.547954559326172,
+    "kind": "gen"
+  },
+  {
+    "index": 183,
+    "video_id": "Wan2.2_PushUps_03_g04_c01.mp4",
+    "class": "PushUps",
+    "model": "Wan2.2",
+    "x": 15.447402954101562,
+    "y": -5.495918273925781,
+    "kind": "gen"
+  },
+  {
+    "index": 184,
+    "video_id": "Wan2.2_PushUps_06_g17_c01.mp4",
+    "class": "PushUps",
+    "model": "Wan2.2",
+    "x": 14.592187881469727,
+    "y": -4.898684024810791,
+    "kind": "gen"
+  },
+  {
+    "index": 185,
+    "video_id": "Wan2.2_Shotput_02_g07_c03.mp4",
+    "class": "Shotput",
+    "model": "Wan2.2",
+    "x": -13.353657722473145,
+    "y": -1.184949278831482,
+    "kind": "gen"
+  },
+  {
+    "index": 186,
+    "video_id": "Wan2.2_Shotput_03_g08_c01.mp4",
+    "class": "Shotput",
+    "model": "Wan2.2",
+    "x": -13.633368492126465,
+    "y": -0.44458523392677307,
+    "kind": "gen"
+  },
+  {
+    "index": 187,
+    "video_id": "Wan2.2_Shotput_04_g08_c05.mp4",
+    "class": "Shotput",
+    "model": "Wan2.2",
+    "x": -10.828444480895996,
+    "y": 1.4963771104812622,
+    "kind": "gen"
+  },
+  {
+    "index": 188,
+    "video_id": "Wan2.2_Shotput_05_g12_c03.mp4",
+    "class": "Shotput",
+    "model": "Wan2.2",
+    "x": -9.66135025024414,
+    "y": -1.0148794651031494,
+    "kind": "gen"
+  },
+  {
+    "index": 189,
+    "video_id": "Wan2.2_SoccerJuggling_01_g02_c02.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.2",
+    "x": -3.651048183441162,
+    "y": -5.884139060974121,
+    "kind": "gen"
+  },
+  {
+    "index": 190,
+    "video_id": "Wan2.2_SoccerJuggling_03_g09_c04.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.2",
+    "x": -2.748136520385742,
+    "y": -5.681087017059326,
+    "kind": "gen"
+  },
+  {
+    "index": 191,
+    "video_id": "Wan2.2_SoccerJuggling_04_g10_c03.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.2",
+    "x": -2.3983263969421387,
+    "y": -4.9649553298950195,
+    "kind": "gen"
+  },
+  {
+    "index": 192,
+    "video_id": "Wan2.2_SoccerJuggling_05_g20_c01.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.2",
+    "x": -3.766685724258423,
+    "y": -5.393152713775635,
+    "kind": "gen"
+  },
+  {
+    "index": 193,
+    "video_id": "Wan2.2_SoccerJuggling_06_g23_c02.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.2",
+    "x": -2.8810200691223145,
+    "y": -4.203358173370361,
+    "kind": "gen"
+  },
+  {
+    "index": 194,
+    "video_id": "Wan2.2_TennisSwing_01_g02_c01.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -8.86927604675293,
+    "y": 1.0014123916625977,
+    "kind": "gen"
+  },
+  {
+    "index": 195,
+    "video_id": "Wan2.2_TennisSwing_02_g03_c01.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -12.508407592773438,
+    "y": -0.5588698983192444,
+    "kind": "gen"
+  },
+  {
+    "index": 196,
+    "video_id": "Wan2.2_TennisSwing_03_g04_c03.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -11.622161865234375,
+    "y": 1.7264372110366821,
+    "kind": "gen"
+  },
+  {
+    "index": 197,
+    "video_id": "Wan2.2_TennisSwing_04_g11_c01.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -13.64808177947998,
+    "y": 0.24329763650894165,
+    "kind": "gen"
+  },
+  {
+    "index": 198,
+    "video_id": "Wan2.2_TennisSwing_05_g12_c06.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -12.248035430908203,
+    "y": 0.7024879455566406,
+    "kind": "gen"
+  },
+  {
+    "index": 199,
+    "video_id": "Wan2.2_TennisSwing_06_g18_c02.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.2",
+    "x": -12.679946899414062,
+    "y": 0.1356806755065918,
+    "kind": "gen"
+  },
+  {
+    "index": 200,
+    "video_id": "Wan2.2_ThrowDiscus_01_g01_c01.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.2",
+    "x": -11.451592445373535,
+    "y": -5.022548198699951,
+    "kind": "gen"
+  },
+  {
+    "index": 201,
+    "video_id": "Wan2.2_ThrowDiscus_02_g03_c02.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.2",
+    "x": -6.1500349044799805,
+    "y": 0.5653797388076782,
+    "kind": "gen"
+  },
+  {
+    "index": 202,
+    "video_id": "Wan2.2_ThrowDiscus_03_g05_c01.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.2",
+    "x": -8.750162124633789,
+    "y": 0.7491428852081299,
+    "kind": "gen"
+  },
+  {
+    "index": 203,
+    "video_id": "Wan2.2_ThrowDiscus_04_g07_c02.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.2",
+    "x": -12.143157958984375,
+    "y": -3.720741033554077,
+    "kind": "gen"
+  },
+  {
+    "index": 204,
+    "video_id": "Wan2.2_ThrowDiscus_06_g20_c02.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.2",
+    "x": -11.548906326293945,
+    "y": -3.473519802093506,
+    "kind": "gen"
+  },
+  {
+    "index": 205,
+    "video_id": "Wan2.2_WallPushups_01_g02_c01.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 15.006897926330566,
+    "y": 1.7812108993530273,
+    "kind": "gen"
+  },
+  {
+    "index": 206,
+    "video_id": "Wan2.2_WallPushups_02_g04_c01.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 14.639840126037598,
+    "y": 2.4875988960266113,
+    "kind": "gen"
+  },
+  {
+    "index": 207,
+    "video_id": "Wan2.2_WallPushups_03_g05_c01.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 13.340811729431152,
+    "y": 3.8653721809387207,
+    "kind": "gen"
+  },
+  {
+    "index": 208,
+    "video_id": "Wan2.2_WallPushups_04_g06_c02.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 16.145832061767578,
+    "y": 3.073073625564575,
+    "kind": "gen"
+  },
+  {
+    "index": 209,
+    "video_id": "Wan2.2_WallPushups_05_g09_c01.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 14.812005043029785,
+    "y": 1.15762460231781,
+    "kind": "gen"
+  },
+  {
+    "index": 210,
+    "video_id": "Wan2.2_WallPushups_06_g13_c01.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.2",
+    "x": 7.831935882568359,
+    "y": -7.091211318969727,
+    "kind": "gen"
+  },
+  {
+    "index": 211,
+    "video_id": "wan21_videos_BodyWeightSquats_02_854b5a52.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.1",
+    "x": 6.344088077545166,
+    "y": -7.0132904052734375,
+    "kind": "gen"
+  },
+  {
+    "index": 212,
+    "video_id": "wan21_videos_BodyWeightSquats_03_99b2f12a.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.1",
+    "x": -10.1669282913208,
+    "y": -6.657675266265869,
+    "kind": "gen"
+  },
+  {
+    "index": 213,
+    "video_id": "wan21_videos_BodyWeightSquats_04_e7f0f85b.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.1",
+    "x": 6.5966796875,
+    "y": -6.452341079711914,
+    "kind": "gen"
+  },
+  {
+    "index": 214,
+    "video_id": "wan21_videos_BodyWeightSquats_05_a0c8bfa8.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.1",
+    "x": -9.942323684692383,
+    "y": 3.610830307006836,
+    "kind": "gen"
+  },
+  {
+    "index": 215,
+    "video_id": "wan21_videos_BodyWeightSquats_06_10c02b51.mp4",
+    "class": "BodyWeightSquats",
+    "model": "Wan2.1",
+    "x": 8.091772079467773,
+    "y": -6.473171234130859,
+    "kind": "gen"
+  },
+  {
+    "index": 216,
+    "video_id": "wan21_videos_HulaHoop_01_2d802da3.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -1.7995965480804443,
+    "y": 1.4564913511276245,
+    "kind": "gen"
+  },
+  {
+    "index": 217,
+    "video_id": "wan21_videos_HulaHoop_02_832c4e43.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -4.163296699523926,
+    "y": -2.755556583404541,
+    "kind": "gen"
+  },
+  {
+    "index": 218,
+    "video_id": "wan21_videos_HulaHoop_03_5f272f54.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -2.1057348251342773,
+    "y": 2.48755145072937,
+    "kind": "gen"
+  },
+  {
+    "index": 219,
+    "video_id": "wan21_videos_HulaHoop_04_8520c287.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -5.384243011474609,
+    "y": 1.0076156854629517,
+    "kind": "gen"
+  },
+  {
+    "index": 220,
+    "video_id": "wan21_videos_HulaHoop_05_3020a232.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -5.00850772857666,
+    "y": 1.105039119720459,
+    "kind": "gen"
+  },
+  {
+    "index": 221,
+    "video_id": "wan21_videos_HulaHoop_06_0010c541.mp4",
+    "class": "HulaHoop",
+    "model": "Wan2.1",
+    "x": -5.029930591583252,
+    "y": -0.3023110628128052,
+    "kind": "gen"
+  },
+  {
+    "index": 222,
+    "video_id": "wan21_videos_JumpingJack_01_05a3068d.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.1",
+    "x": -5.15047550201416,
+    "y": 3.649873733520508,
+    "kind": "gen"
+  },
+  {
+    "index": 223,
+    "video_id": "wan21_videos_JumpingJack_02_2887dc9e.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.1",
+    "x": 4.412776470184326,
+    "y": 8.929280281066895,
+    "kind": "gen"
+  },
+  {
+    "index": 224,
+    "video_id": "wan21_videos_JumpingJack_04_cc515823.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.1",
+    "x": -1.0322293043136597,
+    "y": 0.8817981481552124,
+    "kind": "gen"
+  },
+  {
+    "index": 225,
+    "video_id": "wan21_videos_JumpingJack_05_b12b8572.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.1",
+    "x": -4.632266521453857,
+    "y": 4.472508907318115,
+    "kind": "gen"
+  },
+  {
+    "index": 226,
+    "video_id": "wan21_videos_JumpingJack_06_e15aa0f4.mp4",
+    "class": "JumpingJack",
+    "model": "Wan2.1",
+    "x": -0.41928204894065857,
+    "y": -4.024413585662842,
+    "kind": "gen"
+  },
+  {
+    "index": 227,
+    "video_id": "wan21_videos_PullUps_01_e5ac30e6.mp4",
+    "class": "PullUps",
+    "model": "Wan2.1",
+    "x": 8.789451599121094,
+    "y": 8.53158187866211,
+    "kind": "gen"
+  },
+  {
+    "index": 228,
+    "video_id": "wan21_videos_PullUps_02_0270e570.mp4",
+    "class": "PullUps",
+    "model": "Wan2.1",
+    "x": 6.641188144683838,
+    "y": 9.535778999328613,
+    "kind": "gen"
+  },
+  {
+    "index": 229,
+    "video_id": "wan21_videos_PullUps_03_7b07b169.mp4",
+    "class": "PullUps",
+    "model": "Wan2.1",
+    "x": 7.035471439361572,
+    "y": 8.472735404968262,
+    "kind": "gen"
+  },
+  {
+    "index": 230,
+    "video_id": "wan21_videos_PullUps_05_91865afa.mp4",
+    "class": "PullUps",
+    "model": "Wan2.1",
+    "x": 5.7098469734191895,
+    "y": 6.64007043838501,
+    "kind": "gen"
+  },
+  {
+    "index": 231,
+    "video_id": "wan21_videos_PullUps_06_ca03aa4a.mp4",
+    "class": "PullUps",
+    "model": "Wan2.1",
+    "x": 1.9576008319854736,
+    "y": 5.61665678024292,
+    "kind": "gen"
+  },
+  {
+    "index": 232,
+    "video_id": "wan21_videos_PushUps_02_839540a7.mp4",
+    "class": "PushUps",
+    "model": "Wan2.1",
+    "x": 14.858077049255371,
+    "y": -4.678999900817871,
+    "kind": "gen"
+  },
+  {
+    "index": 233,
+    "video_id": "wan21_videos_PushUps_04_6061e7dd.mp4",
+    "class": "PushUps",
+    "model": "Wan2.1",
+    "x": 12.184455871582031,
+    "y": -5.4979352951049805,
+    "kind": "gen"
+  },
+  {
+    "index": 234,
+    "video_id": "wan21_videos_PushUps_06_4bb54a60.mp4",
+    "class": "PushUps",
+    "model": "Wan2.1",
+    "x": 13.877750396728516,
+    "y": -4.912343978881836,
+    "kind": "gen"
+  },
+  {
+    "index": 235,
+    "video_id": "wan21_videos_Shotput_01_f55f845b.mp4",
+    "class": "Shotput",
+    "model": "Wan2.1",
+    "x": -9.359820365905762,
+    "y": -3.5673463344573975,
+    "kind": "gen"
+  },
+  {
+    "index": 236,
+    "video_id": "wan21_videos_Shotput_03_d31b1955.mp4",
+    "class": "Shotput",
+    "model": "Wan2.1",
+    "x": -10.40848159790039,
+    "y": -4.9593706130981445,
+    "kind": "gen"
+  },
+  {
+    "index": 237,
+    "video_id": "wan21_videos_Shotput_04_8b697353.mp4",
+    "class": "Shotput",
+    "model": "Wan2.1",
+    "x": 10.8239107131958,
+    "y": 1.6163419485092163,
+    "kind": "gen"
+  },
+  {
+    "index": 238,
+    "video_id": "wan21_videos_Soccerjuggling_01_039c991e.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.1",
+    "x": -2.1664819717407227,
+    "y": -5.448040008544922,
+    "kind": "gen"
+  },
+  {
+    "index": 239,
+    "video_id": "wan21_videos_Soccerjuggling_02_8f65ba58.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.1",
+    "x": -2.9274935722351074,
+    "y": -5.405706882476807,
+    "kind": "gen"
+  },
+  {
+    "index": 240,
+    "video_id": "wan21_videos_Soccerjuggling_03_a2b2002a.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.1",
+    "x": -3.645548105239868,
+    "y": -3.540302038192749,
+    "kind": "gen"
+  },
+  {
+    "index": 241,
+    "video_id": "wan21_videos_Soccerjuggling_04_ef655b57.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.1",
+    "x": -3.2947168350219727,
+    "y": -4.641861915588379,
+    "kind": "gen"
+  },
+  {
+    "index": 242,
+    "video_id": "wan21_videos_Soccerjuggling_06_ca3f4082.mp4",
+    "class": "SoccerJuggling",
+    "model": "Wan2.1",
+    "x": -4.176294326782227,
+    "y": -5.374664306640625,
+    "kind": "gen"
+  },
+  {
+    "index": 243,
+    "video_id": "wan21_videos_Tennisswing_03_7fa39ef8.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.1",
+    "x": -7.184745788574219,
+    "y": 0.5239099860191345,
+    "kind": "gen"
+  },
+  {
+    "index": 244,
+    "video_id": "wan21_videos_Tennisswing_04_76ef1277.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.1",
+    "x": -6.439269542694092,
+    "y": 0.7957240343093872,
+    "kind": "gen"
+  },
+  {
+    "index": 245,
+    "video_id": "wan21_videos_Tennisswing_05_c1130eb4.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.1",
+    "x": -11.63427734375,
+    "y": -0.5393409729003906,
+    "kind": "gen"
+  },
+  {
+    "index": 246,
+    "video_id": "wan21_videos_Tennisswing_06_9cccde00.mp4",
+    "class": "TennisSwing",
+    "model": "Wan2.1",
+    "x": -7.421697616577148,
+    "y": 4.8241190910339355,
+    "kind": "gen"
+  },
+  {
+    "index": 247,
+    "video_id": "wan21_videos_ThrowDiscus_02_17850a86.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.1",
+    "x": -10.313522338867188,
+    "y": -2.615102529525757,
+    "kind": "gen"
+  },
+  {
+    "index": 248,
+    "video_id": "wan21_videos_ThrowDiscus_04_f7083375.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.1",
+    "x": -12.222085952758789,
+    "y": -5.376929759979248,
+    "kind": "gen"
+  },
+  {
+    "index": 249,
+    "video_id": "wan21_videos_ThrowDiscus_05_e2097551.mp4",
+    "class": "ThrowDiscus",
+    "model": "Wan2.1",
+    "x": -10.965155601501465,
+    "y": 0.17383058369159698,
+    "kind": "gen"
+  },
+  {
+    "index": 250,
+    "video_id": "wan21_videos_WallPushups_01_1a3ca8e1.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.1",
+    "x": 13.096059799194336,
+    "y": 1.574679970741272,
+    "kind": "gen"
+  },
+  {
+    "index": 251,
+    "video_id": "wan21_videos_WallPushups_03_704511ec.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.1",
+    "x": 13.143856048583984,
+    "y": -2.294981002807617,
+    "kind": "gen"
+  },
+  {
+    "index": 252,
+    "video_id": "wan21_videos_WallPushups_04_67083fd4.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.1",
+    "x": 14.093584060668945,
+    "y": 2.4565792083740234,
+    "kind": "gen"
+  },
+  {
+    "index": 253,
+    "video_id": "wan21_videos_WallPushups_05_9a245f8f.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.1",
+    "x": -11.70234489440918,
+    "y": -7.094357490539551,
+    "kind": "gen"
+  },
+  {
+    "index": 254,
+    "video_id": "wan21_videos_WallPushups_06_95938615.mp4",
+    "class": "WallPushups",
+    "model": "Wan2.1",
+    "x": 13.699234008789062,
+    "y": 1.8009837865829468,
+    "kind": "gen"
+  },
+  {
+    "index": -1,
+    "video_id": null,
+    "class": "BodyWeightSquats",
+    "model": "Class centroid",
+    "x": 6.89105224609375,
+    "y": -6.118224620819092,
+    "kind": "centroid"
+  },
+  {
+    "index": -2,
+    "video_id": null,
+    "class": "HulaHoop",
+    "model": "Class centroid",
+    "x": -2.673129081726074,
+    "y": 3.521726608276367,
+    "kind": "centroid"
+  },
+  {
+    "index": -3,
+    "video_id": null,
+    "class": "JumpingJack",
+    "model": "Class centroid",
+    "x": 3.5173499584198,
+    "y": 8.720724105834961,
+    "kind": "centroid"
+  },
+  {
+    "index": -4,
+    "video_id": null,
+    "class": "PullUps",
+    "model": "Class centroid",
+    "x": 8.530721664428711,
+    "y": 9.605611801147461,
+    "kind": "centroid"
+  },
+  {
+    "index": -5,
+    "video_id": null,
+    "class": "PushUps",
+    "model": "Class centroid",
+    "x": 14.538290977478027,
+    "y": -5.418276309967041,
+    "kind": "centroid"
+  },
+  {
+    "index": -6,
+    "video_id": null,
+    "class": "Shotput",
+    "model": "Class centroid",
+    "x": -12.304560661315918,
+    "y": -7.153727054595947,
+    "kind": "centroid"
+  },
+  {
+    "index": -7,
+    "video_id": null,
+    "class": "SoccerJuggling",
+    "model": "Class centroid",
+    "x": -3.1501636505126953,
+    "y": -5.364737510681152,
+    "kind": "centroid"
+  },
+  {
+    "index": -8,
+    "video_id": null,
+    "class": "TennisSwing",
+    "model": "Class centroid",
+    "x": -13.186437606811523,
+    "y": -0.017756931483745575,
+    "kind": "centroid"
+  },
+  {
+    "index": -9,
+    "video_id": null,
+    "class": "ThrowDiscus",
+    "model": "Class centroid",
+    "x": -12.276183128356934,
+    "y": -4.977436542510986,
+    "kind": "centroid"
+  },
+  {
+    "index": -10,
+    "video_id": null,
+    "class": "WallPushups",
+    "model": "Class centroid",
+    "x": 14.484060287475586,
+    "y": 2.616650104522705,
+    "kind": "centroid"
+  }
+]
