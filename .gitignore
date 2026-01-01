@@ -20,7 +20,6 @@ UCF101_MESHES_LOGGING/*
 *.pt
 *.pth
 *.pkl
-*.json
 *.csv
 *.txt
 *.log

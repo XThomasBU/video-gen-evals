@@ -1211,7 +1211,6 @@ def get_human_corr(
         return {
             "spearman": float(spearman_corr) if not np.isnan(spearman_corr) else None,
             "pearson": float(pearson_corr) if not np.isnan(pearson_corr) else None,
-            "n": len(model_values)
         }
 
     out_action = compute_correlations(action_scores, "ac")
