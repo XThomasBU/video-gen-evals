@@ -21,6 +21,10 @@ GLOBAL_CONFIG = {
         "human_scores": "human_scores.json",
         "real_kp_dir": "SAVE_REAL_ONLY_10_minus1",
         "gen_kp_dir": "generated_kps",
+        "real_clip_dir": None,
+        "real_dino_dir": None,
+        "gen_clip_dir": None,
+        "gen_dino_dir": None,
     },
     "modality_dims": {
         "raw": {
