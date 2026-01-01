@@ -18,7 +18,7 @@ GLOBAL_CONFIG = {
     "paths": {
         "mesh_human_data_generated": "generated_meshes",
         "mesh_human_data_real": "meshes_10classes",
-        "human_scores": "human_scores.json",
+        "human_scores": "TAG_final_human_scores.json",
         "real_kp_dir": "SAVE_REAL_ONLY_10_minus1",
         "gen_kp_dir": "generated_kps",
         "real_clip_dir": None,
