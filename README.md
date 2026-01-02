@@ -80,3 +80,14 @@ Edit `GLOBAL_CONFIG` in `train.py`:
 ```bash
 python train.py
 ```
+
+## Citation
+If you find this code useful, please cite our paper:
+
+```
+@article{thomas2025generative,
+  title={Generative Action Tell-Tales: Assessing Human Motion in Synthesized Videos},
+  author={Thomas, Xavier and Lim, Youngsun and Srinivasan, Ananya and Zheng, Audrey and Ghadiyaram, Deepti},
+  journal={arXiv preprint arXiv:2512.01803},
+  year={2025}
+}
