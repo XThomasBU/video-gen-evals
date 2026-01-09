@@ -811,7 +811,7 @@ function createTSNEPlot() {
       classLegend.appendChild(allClassButtonHtml);
       allClassButton = allClassButtonHtml;
       
-      // Add class items
+      // Add class items (use colored rectangle outline around text instead of circle markers)
       classes.forEach((cls, i) => {
         const item = document.createElement('div');
         item.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px;';
@@ -833,12 +833,11 @@ function createTSNEPlot() {
             item.style.backgroundColor = 'rgba(0,0,0,0.1)';
           }
         });
-        const marker = document.createElement('span');
-        marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: ${colorMap[cls]}; border: 0.5px solid black; border-radius: 50%; opacity: 0.6;`;
-        item.appendChild(marker);
-        const label = document.createElement('span');
-        label.textContent = cls;
-        item.appendChild(label);
+        const badge = document.createElement('span');
+        badge.textContent = cls;
+        // Use same color as points with same opacity (0.6) and black border like points
+        badge.style.cssText = `display: inline-block; padding: 2px 6px; margin-right: 4px; border-radius: 3px; border: 0.6px solid black; color: white; font-size: 11px; background-color: ${colorMap[cls]}; opacity: 0.6;`;
+        item.appendChild(badge);
         classLegend.appendChild(item);
       });
       plotContainer.appendChild(classLegend);
@@ -1725,7 +1724,7 @@ function createScoresPlot() {
           classLegend.appendChild(allClassButtonHtml);
           allClassButton = allClassButtonHtml;
           
-          // Add class items
+          // Add class items (use colored rectangle outline around text instead of circle markers)
           sortedClasses.forEach((cls, i) => {
             const item = document.createElement('div');
             item.style.cssText = 'display: flex; align-items: center; margin: 3px 0; cursor: pointer; padding: 2px;';
@@ -1748,13 +1747,11 @@ function createScoresPlot() {
               }
             });
             
-            const marker = document.createElement('span');
-            marker.style.cssText = `display: inline-block; width: 12px; height: 12px; margin-right: 6px; background: ${colorMap[cls]}; border: 0.5px solid black; border-radius: 50%; opacity: 0.6;`;
-            item.appendChild(marker);
-            
-            const label = document.createElement('span');
-            label.textContent = cls;
-            item.appendChild(label);
+            const badge = document.createElement('span');
+            badge.textContent = cls;
+            // Use same color as points with same opacity (0.6) and black border like points
+            badge.style.cssText = `display: inline-block; padding: 2px 6px; margin-right: 4px; border-radius: 3px; border: 0.6px solid black; color: white; font-size: 11px; background-color: ${colorMap[cls]}; opacity: 0.6;`;
+            item.appendChild(badge);
             
             classLegend.appendChild(item);
           });

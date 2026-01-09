@@ -454,8 +454,50 @@
           </p>
           <p style="color: #6D5BBD; text-align: center; margin-top: 1rem; font-size: 0.95rem;">Push-ups is relatively easy for all models<br>(generated video embeddings lie close to the centroid of real video embeddings)</p>
           <p style="color: #AA7942; text-align: center; margin-top: 0.5rem; font-size: 0.95rem;">Shot put is hard<br>(generated video embeddings lie far away from the centroid of real video embeddings)</p>
-          
-          <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 4rem; color: #333; text-align: center;">Are all input features required?</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Results section -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
+
+<!-- Model Comparison Table section -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered">
+      <div class="column is-four-fifths">
+        <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 1rem; color: #333; text-align: center;">Model comparison scores</h3>
+        <p style="text-align: center; font-size: 0.85rem; color: #666; font-weight: 300; margin-bottom: 1.5rem; letter-spacing: 0.01em;">
+          <span style="display: inline-block; padding: 0.3rem 0.6rem; background: rgba(0,0,0,0.03); border-radius: 4px; margin: 0 0.3rem;">Interactive table</span>
+          Scores are normalized to 0-100 scale. Higher scores indicate better performance. Click on actions to filter the table by specific action, or click "All Actions" to view aggregated scores across all actions.
+        </p>
+        
+        <!-- Action filter buttons -->
+        <div id="action-filter-container" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-bottom: 2rem;">
+          <!-- Action buttons will be populated by JavaScript -->
+        </div>
+        
+        <div id="comparison-table-container" style="overflow-x: auto; margin-top: 1rem;">
+          <!-- Table will be populated by JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- End Model Comparison Table section -->
+
+<!-- Section divider -->
+<div class="section-divider"></div>
+
+<!-- Results section (continued) -->
+<section class="section" style="padding-top: 3rem; padding-bottom: 3rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+          <h3 style="font-weight: 600; font-size: 1.2rem; letter-spacing: -0.01em; margin-bottom: 2rem; margin-top: 0; color: #333; text-align: center;">Are all input features required?</h3>
           <div style="display: flex; justify-content: center; margin-top: 2rem; margin-bottom: 2rem;">
             <div id="ablation-interactive" style="max-width: 600px; width: 100%;">
               <!-- Feature selection -->
@@ -750,7 +792,316 @@ function updateScores(scores) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', function() {
   updateScores(videoCarouselData[0].scores);
+  loadComparisonTable();
 });
+
+// Action name formatting
+const actionNameMap = {
+  'BodyWeightSquats': 'Squats',
+  'HulaHoop': 'Hula Hoop',
+  'JumpingJack': 'Jumping Jack',
+  'PullUps': 'Pull Ups',
+  'PushUps': 'Push Ups',
+  'Shotput': 'Shot Put',
+  'SoccerJuggling': 'Soccer Juggling',
+  'TennisSwing': 'Tennis Swing',
+  'ThrowDiscus': 'Discus Throw',
+  'WallPushups': 'Wall Push Up'
+};
+
+// Model name formatting
+const modelNameMap = {
+  'Hunyuan': 'HunyuanVideo',
+  'Opensora': 'Opensora',
+  'RunwayGen4': 'Runway Gen-4 Turbo',
+  'Wan2p1': 'Wan2.1',
+  'Wan2p2': 'Wan2.2'
+};
+
+function formatActionName(action) {
+  return actionNameMap[action] || action;
+}
+
+function formatModelName(model) {
+  return modelNameMap[model] || model;
+}
+
+function getScoreColor(score) {
+  if (score === null || score === undefined) return '#ccc';
+  if (score >= 80) return '#10b981'; // green
+  if (score >= 60) return '#3b82f6'; // blue
+  if (score >= 40) return '#f59e0b'; // orange
+  return '#ef4444'; // red
+}
+
+let comparisonData = null;
+let currentFilterAction = 'all';
+let currentSortColumn = null;
+let currentSortDirection = 'desc'; // 'asc' or 'desc'
+
+function createComparisonTable(filterAction = 'all', sortColumn = null, sortDirection = 'desc') {
+  const container = document.getElementById('comparison-table-container');
+  if (!container || !comparisonData) return;
+  
+  const { models, actions, table_data, aggregated_scores } = comparisonData;
+  
+  // Clear container
+  container.innerHTML = '';
+  
+  // Create simple table with minimal styling
+  const table = document.createElement('table');
+  table.style.cssText = 'width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden;';
+  
+  // Create header
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headerRow.style.cssText = 'background: rgba(0,0,0,0.02); border-bottom: 2px solid rgba(0,0,0,0.1);';
+  
+  const headerLabels = ['Model', 'Temporal Coherence', 'Action Consistency', 'Average'];
+  const headerMetrics = [null, 'tc', 'ac', 'avg']; // Corresponding metric keys
+  
+  headerLabels.forEach((label, idx) => {
+    const th = document.createElement('th');
+    const metric = headerMetrics[idx];
+    
+    // Set base styles
+    const baseStyles = idx === 0 
+      ? 'padding: 0.75rem 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #333; letter-spacing: 0.01em;'
+      : 'padding: 0.75rem 1rem; text-align: center; font-weight: 600; font-size: 0.85rem; color: #333; letter-spacing: 0.01em;';
+    
+    // Add sorting indicator and click handler for sortable columns
+    if (metric !== null) {
+      th.style.cssText = baseStyles + 'cursor: pointer; user-select: none; position: relative; transition: background-color 0.2s ease;';
+      
+      // Create sort indicator
+      const sortIndicator = document.createElement('span');
+      sortIndicator.style.cssText = 'margin-left: 0.5rem; font-size: 0.75rem; opacity: 0.5;';
+      
+      if (sortColumn === metric) {
+        sortIndicator.textContent = sortDirection === 'asc' ? '↑' : '↓';
+        sortIndicator.style.opacity = '1';
+        th.style.backgroundColor = 'rgba(0,0,0,0.05)';
+      } else {
+        sortIndicator.textContent = '⇅';
+      }
+      
+      th.appendChild(document.createTextNode(label));
+      th.appendChild(sortIndicator);
+      
+      th.onclick = function() {
+        let newDirection = 'desc';
+        if (sortColumn === metric && sortDirection === 'desc') {
+          newDirection = 'asc';
+        }
+        currentSortColumn = metric;
+        currentSortDirection = newDirection;
+        createComparisonTable(filterAction, metric, newDirection);
+      };
+      
+      th.onmouseover = function() {
+        if (sortColumn !== metric) {
+          this.style.backgroundColor = 'rgba(0,0,0,0.03)';
+        }
+      };
+      
+      th.onmouseout = function() {
+        if (sortColumn !== metric) {
+          this.style.backgroundColor = sortColumn === metric ? 'rgba(0,0,0,0.05)' : '';
+        }
+      };
+    } else {
+      th.style.cssText = baseStyles;
+      th.textContent = label;
+    }
+    
+    headerRow.appendChild(th);
+  });
+  
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  
+  // Sort models based on selected column
+  let sortedModels = [...models];
+  if (sortColumn) {
+    sortedModels.sort((a, b) => {
+      let scoreA, scoreB;
+      if (filterAction === 'all') {
+        scoreA = aggregated_scores[a] ? aggregated_scores[a][sortColumn] : null;
+        scoreB = aggregated_scores[b] ? aggregated_scores[b][sortColumn] : null;
+      } else {
+        scoreA = table_data[filterAction] && table_data[filterAction][a] ? table_data[filterAction][a][sortColumn] : null;
+        scoreB = table_data[filterAction] && table_data[filterAction][b] ? table_data[filterAction][b][sortColumn] : null;
+      }
+      
+      // Handle null values (put them at the end)
+      if (scoreA === null && scoreB === null) return 0;
+      if (scoreA === null) return 1;
+      if (scoreB === null) return -1;
+      
+      const diff = scoreA - scoreB;
+      return sortDirection === 'asc' ? diff : -diff;
+    });
+  }
+  
+  // Create body
+  const tbody = document.createElement('tbody');
+  
+  sortedModels.forEach((model, idx) => {
+    const row = document.createElement('tr');
+    row.style.cssText = idx % 2 === 0 
+      ? 'background: rgba(255,255,255,1);' 
+      : 'background: rgba(0,0,0,0.01);';
+    
+    row.onmouseover = function() {
+      this.style.background = 'rgba(0,0,0,0.03)';
+    };
+    row.onmouseout = function() {
+      this.style.background = idx % 2 === 0 ? 'rgba(255,255,255,1)' : 'rgba(0,0,0,0.01)';
+    };
+    
+    // Model name cell
+    const modelCell = document.createElement('td');
+    modelCell.textContent = formatModelName(model);
+    modelCell.style.cssText = 'padding: 0.75rem 1rem; font-weight: 500; font-size: 0.9rem; color: #333; border-bottom: 1px solid rgba(0,0,0,0.08);';
+    row.appendChild(modelCell);
+    
+    // Get scores based on filter
+    let scores = null;
+    if (filterAction === 'all') {
+      scores = aggregated_scores[model];
+    } else {
+      scores = table_data[filterAction] && table_data[filterAction][model];
+    }
+    
+    // TC, AC, Average cells
+    const metrics = ['tc', 'ac', 'avg'];
+    metrics.forEach(metric => {
+      const cell = document.createElement('td');
+      const score = scores ? scores[metric] : null;
+      
+      if (score !== null && score !== undefined) {
+        cell.textContent = score.toFixed(2);
+        const color = getScoreColor(score);
+        cell.style.cssText = `padding: 0.75rem 1rem; text-align: center; font-weight: 500; font-size: 0.9rem; color: ${color}; border-bottom: 1px solid rgba(0,0,0,0.08);`;
+      } else {
+        cell.textContent = 'N/A';
+        cell.style.cssText = 'padding: 0.75rem 1rem; text-align: center; font-weight: 400; font-size: 0.9rem; color: #999; border-bottom: 1px solid rgba(0,0,0,0.08);';
+      }
+      
+      row.appendChild(cell);
+    });
+    
+    tbody.appendChild(row);
+  });
+  
+  table.appendChild(tbody);
+  container.appendChild(table);
+}
+
+function setupActionFilters() {
+  const filterContainer = document.getElementById('action-filter-container');
+  if (!comparisonData || !filterContainer) return;
+  
+  const { actions } = comparisonData;
+  
+  // Clear container
+  filterContainer.innerHTML = '';
+  
+  // Create "All Actions" button
+  const allBtn = document.createElement('button');
+  allBtn.className = 'action-filter-btn';
+  allBtn.id = 'filter-all';
+  allBtn.setAttribute('data-action', 'all');
+  allBtn.textContent = 'All Actions';
+  allBtn.style.cssText = 'padding: 0.45rem 1rem; background: transparent; border: 1px solid rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.85rem; color: #333; transition: all 0.2s ease;';
+  allBtn.onmouseover = function() {
+    if (currentFilterAction !== 'all') {
+      this.style.borderColor = 'rgba(0,0,0,0.3)';
+      this.style.background = 'rgba(0,0,0,0.02)';
+    }
+  };
+  allBtn.onmouseout = function() {
+    if (currentFilterAction !== 'all') {
+      this.style.borderColor = 'rgba(0,0,0,0.2)';
+      this.style.background = 'transparent';
+    }
+  };
+  allBtn.onclick = function() {
+    currentFilterAction = 'all';
+    updateFilterButtons();
+    createComparisonTable('all', currentSortColumn, currentSortDirection);
+  };
+  filterContainer.appendChild(allBtn);
+  
+  // Create action filter buttons
+  actions.forEach(action => {
+    const btn = document.createElement('button');
+    btn.className = 'action-filter-btn';
+    btn.setAttribute('data-action', action);
+    btn.textContent = formatActionName(action);
+    btn.style.cssText = 'padding: 0.45rem 1rem; background: transparent; border: 1px solid rgba(0,0,0,0.15); border-radius: 4px; cursor: pointer; font-weight: 400; font-size: 0.85rem; color: #555; transition: all 0.2s ease;';
+    btn.onmouseover = function() {
+      if (currentFilterAction !== action) {
+        this.style.borderColor = 'rgba(0,0,0,0.25)';
+        this.style.background = 'rgba(0,0,0,0.02)';
+        this.style.color = '#333';
+      }
+    };
+    btn.onmouseout = function() {
+      if (currentFilterAction !== action) {
+        this.style.borderColor = 'rgba(0,0,0,0.15)';
+        this.style.background = 'transparent';
+        this.style.color = '#555';
+      }
+    };
+    btn.onclick = function() {
+      currentFilterAction = action;
+      updateFilterButtons();
+      createComparisonTable(action, currentSortColumn, currentSortDirection);
+    };
+    filterContainer.appendChild(btn);
+  });
+  
+  updateFilterButtons();
+}
+
+function updateFilterButtons() {
+  const buttons = document.querySelectorAll('.action-filter-btn');
+  buttons.forEach(btn => {
+    const action = btn.getAttribute('data-action');
+    if (action === currentFilterAction) {
+      btn.style.background = 'rgba(0,0,0,0.05)';
+      btn.style.borderColor = 'rgba(0,0,0,0.3)';
+      btn.style.fontWeight = '500';
+      btn.style.color = '#333';
+    } else {
+      btn.style.background = 'transparent';
+      btn.style.borderColor = 'rgba(0,0,0,0.15)';
+      btn.style.fontWeight = '400';
+      btn.style.color = '#555';
+    }
+  });
+}
+
+function loadComparisonTable() {
+  fetch('static/images/comparison_table.json')
+    .then(response => response.json())
+    .then(data => {
+      comparisonData = data;
+      setupActionFilters();
+      // Default sort by Average descending
+      currentSortColumn = 'avg';
+      currentSortDirection = 'desc';
+      createComparisonTable('all', 'avg', 'desc');
+    })
+    .catch(error => {
+      console.error('Error loading comparison table:', error);
+      const container = document.getElementById('comparison-table-container');
+      if (container) {
+        container.innerHTML = '<p style="text-align: center; color: #999;">Error loading comparison table.</p>';
+      }
+    });
+}
 </script>
 
   </body>
