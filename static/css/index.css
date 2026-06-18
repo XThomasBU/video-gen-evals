@@ -63,26 +63,32 @@ body {
 }
 
 .publication-venue {
-    color: #555;
-    width: fit-content;
-    font-weight: bold;
-}
-
-.venue-pill {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.35rem 1rem;
-  border-radius: 999px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.08));
-  color: #444;
-  font-size: 1.05rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
+  gap: 1.5rem;
+  margin: -0.25rem auto 1.75rem;
+  font-family: 'Google Sans', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 300;
+  color: #888;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: 1.25rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  opacity: 0;
+  animation: fadeInUp 0.5s ease-out 0.15s forwards;
+}
+
+.publication-venue::before,
+.publication-venue::after {
+  content: '';
+  width: 64px;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(0, 0, 0, 0.12),
+    transparent
+  );
 }
 
 .publication-awards {
