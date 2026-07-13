@@ -147,6 +147,24 @@ Edit `GLOBAL_CONFIG` in `train.py`:
 python train.py
 ```
 
+## Evaluation
+
+Update paths in `eval.py`:
+```python
+generated_meshes_dir = "/path/to/generated_meshes"
+real_meshes_dir = "/path/to/real_meshes"          # used to build AC centroids
+model_path = "/path/to/model.pt"
+keypoint_dir = "/path/to/generated_keypoints"
+real_kp_dir = "/path/to/real_keypoints"
+human_scores_path = "/path/to/human_scores.json"  # optional, for Spearman correlation
+```
+
+```bash
+python eval.py
+```
+
+This loads a trained checkpoint, builds real-action centroids, scores generated videos for both AC and TC, writes results to `video_scores.json` (`{"video_id": {"ac": ..., "tc": ...}}`), and — if human scores are provided — reports Spearman correlation for AC and TC.
+
 ## Citation
 
 If you find this code useful, please cite our paper:
