@@ -26,3 +26,7 @@ UCF101_MESHES_LOGGING/*
 *.log.gz
 *.log.bz2
 *.log.xz
+
+# Allow README assets
+!assets/
+!assets/**
