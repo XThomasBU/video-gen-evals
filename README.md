@@ -44,7 +44,7 @@
 
 ## Overview
 
-Despite rapid advances in video generative models, robust metrics for evaluating visual and temporal correctness of complex human actions remain elusive. Existing vision encoders and MLLMs are strongly appearance-biased and struggle to discern intricate motion dynamics and anatomical implausibilities.
+Despite rapid advances in video generative models, robust metrics for evaluating visual and temporal correctness of complex human actions remain elusive. Existing video metrics and MLLMs are strongly appearance-biased and struggle to discern intricate motion dynamics and anatomical implausibilities.
 
 We learn a human-centric embedding space of real-world actions by fusing appearance-agnostic skeletal geometry with appearance-based features, then score a generated video by how close its representations lie to this real-action distribution.
 
